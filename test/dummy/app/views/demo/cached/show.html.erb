@@ -6,7 +6,7 @@
 <div class="mt-6 space-y-4">
   <% if @recording %>
     <% vary_preview = ab_cache_vary(:cached_hero) %>
-    <p class="text-sm">Vary key: <code id="ab-vary-key"><%= vary_preview.inspect %></code></p>
+    <p class="text-sm">Vary key: <code id="ab-vary-key"><%= vary_preview.to_json %></code></p>
     <div id="cached-fragment">
       <%= render_ab :cached_hero,
             cache: { recording: @recording, entry: :cached_hero, policy: :default } %>

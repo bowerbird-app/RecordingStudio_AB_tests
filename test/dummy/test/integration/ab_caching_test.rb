@@ -24,12 +24,13 @@ class AbCachingTest < ActionDispatch::IntegrationTest
 
     get demo_cached_path, headers: BROWSER_UA
     assert_response :success
-    control_vary = CGI.unescapeHTML(response.body[%r{id="ab-vary-key">([^<]+)</code>}, 1].to_s)
-    assert_includes control_vary, '"ab.cached_hero"=>"control"'
-    refute_includes control_vary, "visitor"
-    refute_includes control_vary, "user_id"
+    control_vary_raw = CGI.unescapeHTML(response.body[%r{id="ab-vary-key">([^<]+)</code>}, 1].to_s)
+    control_vary = JSON.parse(control_vary_raw)
+    assert_equal({ "ab.cached_hero" => "control" }, control_vary)
+    refute_includes control_vary_raw, "visitor"
+    refute_includes control_vary_raw, "user_id"
     vid = RecordingStudioAbTests.current_visitor_id
-    refute_includes(control_vary, vid) if vid.present?
+    refute_includes(control_vary_raw, vid) if vid.present?
 
     clear_ab_tables!
     RecordingStudioAbTests::ActiveSet.clear_local!
@@ -37,8 +38,9 @@ class AbCachingTest < ActionDispatch::IntegrationTest
     reset!
     get demo_cached_path, headers: BROWSER_UA
     assert_response :success
-    b_vary = CGI.unescapeHTML(response.body[%r{id="ab-vary-key">([^<]+)</code>}, 1].to_s)
-    assert_includes b_vary, '"ab.cached_hero"=>"b"'
+    b_vary_raw = CGI.unescapeHTML(response.body[%r{id="ab-vary-key">([^<]+)</code>}, 1].to_s)
+    b_vary = JSON.parse(b_vary_raw)
+    assert_equal({ "ab.cached_hero" => "b" }, b_vary)
     refute_equal control_vary, b_vary
   end
 
