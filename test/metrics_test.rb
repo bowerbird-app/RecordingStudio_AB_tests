@@ -61,4 +61,34 @@ class MetricsTest < Minitest::Test
     assert_equal "—", RecordingStudioAbTests::Metrics.format_value_per_exposed(10, 0)
     assert_equal "not statistically tested", RecordingStudioAbTests::Metrics::LIFT_LABEL
   end
+
+  # Reporting -100% with a non-zero overall rate is accurate when treatment has
+  # zero converters and control does not (old seed used even convert_ratio on
+  # even→control indices). Metrics must still report -100.0%, not "—".
+  def test_zero_treatment_conversions_is_negative_one_hundred_percent_lift
+    control = VariantStub.new(id: "c", key: "control", name: "Control", is_control: true, position: 0)
+    treatment = VariantStub.new(id: "b", key: "b", name: "B", is_control: false, position: 1)
+
+    rows = RecordingStudioAbTests::Metrics.build_rows(
+      [control, treatment],
+      {
+        assignments: { "c" => 8, "b" => 8 },
+        unique_exposed: { "c" => 8, "b" => 8 },
+        raw_conversions: { "c" => 2, "b" => 0 },
+        unique_converters: { "c" => 2, "b" => 0 },
+        total_values: { "c" => 2.0, "b" => 0 }
+      }
+    )
+
+    treatment_row = rows.find { |r| r.variant_key == "b" }
+    assert_equal "0.0%", treatment_row.conversion_rate
+    assert_equal "-100.0%", treatment_row.relative_lift
+    assert_equal "25.0%", rows.find { |r| r.variant_key == "control" }.conversion_rate
+  end
+
+  def test_format_lift_matches_relative_change_formula
+    assert_equal "-100.0%", RecordingStudioAbTests::Metrics.format_lift(0.0, 0.25, control: false)
+    assert_equal "100.0%", RecordingStudioAbTests::Metrics.format_lift(0.4, 0.2, control: false)
+    assert_equal "—", RecordingStudioAbTests::Metrics.format_lift(0.4, 0.2, control: true)
+  end
 end
