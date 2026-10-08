@@ -60,7 +60,11 @@ namespace :recording_studio_ab_tests do
       def clear!
         # Drain any pending exposure jobs before deleting parents.
         if defined?(SolidQueue)
-          SolidQueue::Job.delete_all rescue nil
+          begin
+            SolidQueue::Job.delete_all
+          rescue StandardError
+            nil
+          end
         end
         ActiveJob::Base.queue_adapter.enqueued_jobs.clear if ActiveJob::Base.queue_adapter.respond_to?(:enqueued_jobs)
         ActiveJob::Base.queue_adapter.performed_jobs.clear if ActiveJob::Base.queue_adapter.respond_to?(:performed_jobs)
