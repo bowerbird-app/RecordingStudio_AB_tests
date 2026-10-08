@@ -10,7 +10,9 @@ and Root Switchable (dummy GitHub tag `v0.5.1`).
 - Sticky assignment (visitor / user / root recording) with deterministic SHA256 allocation
 - Target registry for view, partial, and component adapters (service in a later PR)
 - Exposures, event subscriptions, conversions, and identity linking
-- Dummy demos at `/demo/pricing`, `/demo/hero`, Users sign-up override, and `/demo/presskit`
+- Dummy demos at `/demo/pricing`, `/demo/hero`, `/demo/signup` (signup AB partials), and `/demo/presskit`
+- Note: Users `v0.15.0` prepends its engine views on `registrations#new`, so the §14 host
+  override file cannot win without a Users change; demos use `/demo/signup` instead
 - **Recording Studio** 4.x gem pinned and configured
 - **Devise** authentication with a pre-seeded admin user
 - **Workspace**, **Folder**, and **Page** recordables seeded into the dummy host app
