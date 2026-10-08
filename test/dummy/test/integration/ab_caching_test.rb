@@ -9,9 +9,14 @@ class AbCachingTest < ActionDispatch::IntegrationTest
   setup do
     clear_ab_tables!
     RecordingStudioAbTests::ActiveSet.clear_local!
-    Rails.cache.clear
+    @previous_cache = Rails.cache
+    Rails.cache = ActiveSupport::Cache::MemoryStore.new
     @workspace = Workspace.find_or_create_by!(name: "Studio Workspace")
     @recording = RecordingStudio.root_recording_for(@workspace)
+  end
+
+  teardown do
+    Rails.cache = @previous_cache if @previous_cache
   end
 
   test "ab_cache_vary keys differ per variant and omit visitor and user ids" do
@@ -19,7 +24,7 @@ class AbCachingTest < ActionDispatch::IntegrationTest
 
     get demo_cached_path, headers: BROWSER_UA
     assert_response :success
-    control_vary = response.body[%r{id="ab-vary-key">([^<]+)</code>}, 1]
+    control_vary = CGI.unescapeHTML(response.body[%r{id="ab-vary-key">([^<]+)</code>}, 1].to_s)
     assert_includes control_vary, '"ab.cached_hero"=>"control"'
     refute_includes control_vary, "visitor"
     refute_includes control_vary, "user_id"
@@ -29,9 +34,10 @@ class AbCachingTest < ActionDispatch::IntegrationTest
     clear_ab_tables!
     RecordingStudioAbTests::ActiveSet.clear_local!
     create_running_experiment!(key: "cache_b", target_key: "cached_hero", weights: [0, 100])
+    reset!
     get demo_cached_path, headers: BROWSER_UA
     assert_response :success
-    b_vary = response.body[%r{id="ab-vary-key">([^<]+)</code>}, 1]
+    b_vary = CGI.unescapeHTML(response.body[%r{id="ab-vary-key">([^<]+)</code>}, 1].to_s)
     assert_includes b_vary, '"ab.cached_hero"=>"b"'
     refute_equal control_vary, b_vary
   end
@@ -39,19 +45,18 @@ class AbCachingTest < ActionDispatch::IntegrationTest
   test "cache hit still records exposure" do
     create_running_experiment!(key: "cache_exp", target_key: "cached_hero", weights: [0, 100])
 
-    with_ab_config(track_repeat_exposures: true, exposure_mode: :inline) do
-      assert_difference -> { RecordingStudioAbTests::Exposure.count }, 1 do
-        get demo_cached_path, headers: BROWSER_UA
-        assert_response :success
-        assert_select "#cached-hero-variant[data-variant=b]"
-      end
-
-      # Second request: fragment may cache-hit, but ab_cache_vary resolves+exposes first.
+    with_ab_config(exposure_mode: :inline) do
       get demo_cached_path, headers: BROWSER_UA
       assert_response :success
       assert_select "#cached-hero-variant[data-variant=b]"
-      exposure = RecordingStudioAbTests::Exposure.last
-      assert_operator exposure.exposure_count, :>=, 2
+      assert_equal 1, RecordingStudioAbTests::Exposure.count
+
+      # New visitor, same variant → fragment cache hit; ab_cache_vary still exposes first.
+      reset!
+      get demo_cached_path, headers: BROWSER_UA
+      assert_response :success
+      assert_select "#cached-hero-variant[data-variant=b]"
+      assert_equal 2, RecordingStudioAbTests::Exposure.count
       assert_equal true, response.cache_control[:private]
       assert_equal true, response.cache_control[:no_store]
     end
@@ -61,13 +66,8 @@ class AbCachingTest < ActionDispatch::IntegrationTest
     create_running_experiment!(key: "cache_leak", target_key: "cached_hero", weights: [0, 100])
 
     # Simulate a host bug: cache key omits ab_cache_vary.
-    leaked = nil
-    Rails.cache.fetch("leaky_hero_without_vary") do
-      # First visitor would have been assigned B; we stash B HTML under a shared key.
-      leaked = %(<div id="leaked" data-variant="b">B</div>)
-    end
+    Rails.cache.write("leaky_hero_without_vary", %(<div id="leaked" data-variant="b">B</div>))
 
-    # Second visitor forced to control still receives B from the leaky cache.
     clear_ab_tables!
     RecordingStudioAbTests::ActiveSet.clear_local!
     create_running_experiment!(key: "cache_leak2", target_key: "cached_hero", weights: [100, 0])
@@ -75,6 +75,7 @@ class AbCachingTest < ActionDispatch::IntegrationTest
     assert_includes leaked_hit, 'data-variant="b"'
 
     # Fix: include ab_cache_vary in the key (or use render_ab cache:).
+    reset!
     get demo_cached_path, headers: BROWSER_UA
     assert_response :success
     assert_select "#cached-hero-variant[data-variant=control]"
