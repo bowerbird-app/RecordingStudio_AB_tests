@@ -22,33 +22,43 @@ class AbAdminTest < ActionDispatch::IntegrationTest
     sign_in @user
     switch_to_admin_root!
 
-    @experiment = RecordingStudioAbTests::Experiment.find_or_initialize_by(key: "admin_integration_demo")
-    if @experiment.new_record?
-      @experiment.assign_attributes(
-        name: "Admin integration demo",
-        target_key: "pricing_page",
-        assignment_scope: "visitor",
-        traffic_percentage: 100,
-        status: "draft",
-        allocation_version: "sha256-v1",
-        allocation_seed: SecureRandom.hex(8),
-        created_by: @user
-      )
-      @experiment.save!
-    end
-    if @experiment.variants.none?
-      @experiment.variants.create!(key: "control", name: "Control", implementation_key: "control",
-                                   is_control: true, weight: 50, position: 0)
-      @experiment.variants.create!(key: "b", name: "Variant B", implementation_key: "b",
-                                   is_control: false, weight: 50, position: 1)
-    end
-    if @experiment.goals.none?
-      @experiment.goals.create!(key: "primary", name: "Primary", event_key: "demo_signup",
-                                is_primary: true, attribution_window_hours: 168,
-                                counting_policy: "once_per_participant")
-    end
-    if @experiment.draft?
-      @experiment.update!(status: "running", started_at: Time.current)
+    # Prefer the seeded live pricing experiment when present (db:prepare). Creating a
+    # second running|paused row on pricing_page would violate idx_rsab_experiments_live_target.
+    @experiment = RecordingStudioAbTests::Experiment.find_by(key: "pricing_running_demo")
+    @experiment ||= begin
+      experiment = RecordingStudioAbTests::Experiment.find_or_initialize_by(key: "admin_integration_demo")
+      if experiment.new_record?
+        experiment.assign_attributes(
+          name: "Admin integration demo",
+          target_key: "pricing_page",
+          assignment_scope: "visitor",
+          traffic_percentage: 100,
+          status: "draft",
+          allocation_version: "sha256-v1",
+          allocation_seed: SecureRandom.hex(8),
+          created_by: @user
+        )
+        experiment.save!
+      end
+      if experiment.variants.none?
+        experiment.variants.create!(key: "control", name: "Control", implementation_key: "control",
+                                    is_control: true, weight: 50, position: 0)
+        experiment.variants.create!(key: "b", name: "Variant B", implementation_key: "b",
+                                    is_control: false, weight: 50, position: 1)
+      end
+      if experiment.goals.none?
+        experiment.goals.create!(key: "primary", name: "Primary", event_key: "demo_signup",
+                                 is_primary: true, attribution_window_hours: 168,
+                                 counting_policy: "once_per_participant")
+      end
+      if experiment.draft?
+        live = RecordingStudioAbTests::Experiment
+          .where(target_key: "pricing_page", status: %w[running paused])
+          .where.not(id: experiment.id)
+          .exists?
+        experiment.update!(status: "running", started_at: Time.current) unless live
+      end
+      experiment
     end
   end
 

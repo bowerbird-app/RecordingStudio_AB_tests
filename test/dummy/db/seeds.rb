@@ -274,12 +274,19 @@ seed_traffic = lambda do |experiment, visitors:, convert_ratio:|
   end
 end
 
-seed_traffic.call(pricing_running, visitors: 40, convert_ratio: 5)
-seed_traffic.call(hero_running, visitors: 30, convert_ratio: 4)
-seed_traffic.call(signup_running, visitors: 50, convert_ratio: 5)
-seed_traffic.call(presskit_running, visitors: 24, convert_ratio: 3)
-seed_traffic.call(paused, visitors: 16, convert_ratio: 4)
-seed_traffic.call(completed, visitors: 20, convert_ratio: 4)
+# Skip generated traffic against test DBs. CI runs `rails db:prepare` without
+# RAILS_ENV=test while DATABASE_URL still points at *_test, so check the DB
+# name too. Dev/demo still get rows for Admin list/detail/report screens.
+test_db = Rails.env.test? ||
+  ActiveRecord::Base.connection_db_config.database.to_s.end_with?("_test")
+unless test_db
+  seed_traffic.call(pricing_running, visitors: 40, convert_ratio: 5)
+  seed_traffic.call(hero_running, visitors: 30, convert_ratio: 4)
+  seed_traffic.call(signup_running, visitors: 50, convert_ratio: 5)
+  seed_traffic.call(presskit_running, visitors: 24, convert_ratio: 3)
+  seed_traffic.call(paused, visitors: 16, convert_ratio: 4)
+  seed_traffic.call(completed, visitors: 20, convert_ratio: 4)
+end
 
 # Only one live experiment per target — archive the draft's conflict by keeping
 # pricing_running as the live experiment. The draft uses a different key and

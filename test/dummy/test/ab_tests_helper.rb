@@ -3,6 +3,17 @@
 module AbTestsHelper
   BROWSER_UA = { "User-Agent" => "Mozilla/5.0 (compatible; ABTest/1.0)" }.freeze
 
+  # FK order: conversions → exposures → assignments → goals → variants → experiments.
+  # Seeded traffic from db:prepare survives into CI unless cleared this way.
+  def clear_ab_tables!
+    RecordingStudioAbTests::Conversion.delete_all
+    RecordingStudioAbTests::Exposure.delete_all
+    RecordingStudioAbTests::Assignment.delete_all
+    RecordingStudioAbTests::Goal.delete_all
+    RecordingStudioAbTests::Variant.delete_all
+    RecordingStudioAbTests::Experiment.delete_all
+  end
+
   def create_running_experiment!(key:, target_key:, scope: "visitor", traffic: 100, weights: [50, 50], seed: "abcd1234efgh5678")
     experiment = RecordingStudioAbTests::Experiment.create!(
       key: key,
