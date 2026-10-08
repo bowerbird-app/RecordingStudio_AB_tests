@@ -1,9 +1,14 @@
-# GemTemplate
+# RecordingStudioAbTests
 
-Internal template for building Rails engine addons on top of Recording Studio 4.x.
+Server-side A/B testing for Recording Studio hosts. Built on RecordingStudio
+(dummy GitHub tag `v4.2.2`), FlatPack (dummy GitHub tag `v0.1.196`),
+Accessible (dummy GitHub tag `v0.10.1`), and Root Switchable (dummy GitHub tag `v0.5.1`).
 
 ## What's Included
 
+- Sticky assignment (visitor / user / root recording) with deterministic SHA256 allocation
+- Target registry for view, partial, and component adapters (service in a later PR)
+- Dummy demos at `/demo/pricing` and `/demo/hero`
 - **Recording Studio** 4.x gem pinned and configured
 - **Devise** authentication with a pre-seeded admin user
 - **Workspace**, **Folder**, and **Page** recordables seeded into the dummy host app
@@ -53,6 +58,9 @@ The login form is prefilled with these credentials for fast access.
 
 - `/` — dummy app home page
 - `/users/sign_in` — Devise sign-in page
+- `/demo/pricing` — host view A/B demo (`:pricing_page`)
+- `/demo/hero` — ViewComponent A/B demo (`:hero_component`)
+- `/ab_tests` — RecordingStudioAbTests engine mount
 - `/recording_studio` — redirect to `/` while the mounted Recording Studio engine remains data/API-focused
 - `/docs/install`, `/docs/config`, `/docs/recordable_types`, `/docs/recordings_tree`, `/docs/gem_views`, `/docs/methods` — dummy-only starter pages
 
@@ -169,4 +177,4 @@ The dummy Gemfile keeps `github:` sources so Bundler can fetch those gems. The g
 
 ## Documentation
 
-The original gem template documentation is preserved in `docs/gem_template/` as architectural reference material. Use it as background on the engine conventions; this README and the dummy app are the source of truth for the Recording Studio addon workflow.
+The original gem template documentation is preserved in `docs/recording_studio_ab_tests/` as architectural reference material. Use it as background on the engine conventions; this README and the dummy app are the source of truth for the Recording Studio addon workflow.

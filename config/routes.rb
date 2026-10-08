@@ -1,5 +1,5 @@
 # frozen_string_literal: true
 
-GemTemplate::Engine.routes.draw do
-  root "home#index"
+RecordingStudioAbTests::Engine.routes.draw do
+  # Admin CRUD routes land in PR3.
 end

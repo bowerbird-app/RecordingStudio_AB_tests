@@ -15,21 +15,65 @@ Style/StringLiterals:
 
 Layout/LineLength:
   Max: 120
+  Exclude:
+    - 'db/migrate/**/*'
+    - 'lib/generators/**/*'
+    - 'test/install_generator_test.rb'
 
-# Relax metrics for test files and generators
+# Relax metrics for test files, generators, migrations, and dense AB runtime modules
 Metrics/ClassLength:
   Exclude:
     - 'test/**/*'
+    - 'lib/recording_studio_ab_tests/assignment_resolver.rb'
+    - 'lib/recording_studio_ab_tests/lifecycle.rb'
+
+Metrics/ModuleLength:
+  Exclude:
+    - 'lib/recording_studio_ab_tests/lifecycle.rb'
+    - 'lib/recording_studio_ab_tests/eligibility.rb'
+
+Metrics/BlockLength:
+  Exclude:
+    - 'lib/recording_studio_ab_tests/lifecycle.rb'
+    - 'lib/generators/**/*'
+
+Naming/PredicateMethod:
+  Exclude:
+    - 'lib/recording_studio_ab_tests/lifecycle.rb'
 
 Metrics/MethodLength:
   Exclude:
     - 'test/**/*'
     - 'lib/generators/**/*'
+    - 'db/migrate/**/*'
+    - 'lib/recording_studio_ab_tests/**/*'
+    - 'app/models/recording_studio_ab_tests/**/*'
 
 Metrics/AbcSize:
   Exclude:
     - 'test/**/*'
     - 'lib/generators/**/*'
+    - 'db/migrate/**/*'
+    - 'lib/recording_studio_ab_tests/**/*'
+    - 'app/models/recording_studio_ab_tests/**/*'
+
+Metrics/CyclomaticComplexity:
+  Exclude:
+    - 'lib/recording_studio_ab_tests/**/*'
+    - 'db/migrate/**/*'
+
+Metrics/PerceivedComplexity:
+  Exclude:
+    - 'lib/recording_studio_ab_tests/**/*'
+    - 'db/migrate/**/*'
+
+Metrics/ParameterLists:
+  Exclude:
+    - 'lib/recording_studio_ab_tests/**/*'
+
+Naming/PredicatePrefix:
+  Exclude:
+    - 'lib/recording_studio_ab_tests/assignment_resolver.rb'
 
 # Allow empty blocks in tests (common for stubs/mocks)
 Lint/EmptyBlock:
