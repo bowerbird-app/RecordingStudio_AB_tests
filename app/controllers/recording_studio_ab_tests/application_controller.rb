@@ -1,8 +1,7 @@
 # frozen_string_literal: true
 
 module RecordingStudioAbTests
-  class ApplicationController < ActionController::Base
+  class ApplicationController < (defined?(::ApplicationController) ? ::ApplicationController : ActionController::Base)
     protect_from_forgery with: :exception
-    layout "application"
   end
 end

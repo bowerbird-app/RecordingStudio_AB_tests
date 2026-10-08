@@ -12,10 +12,7 @@ class AbForceParamTest < ActionDispatch::IntegrationTest
       u.password = "Password"
       u.password_confirmation = "Password"
     end
-    RecordingStudioAbTests::Assignment.delete_all
-    RecordingStudioAbTests::Goal.delete_all
-    RecordingStudioAbTests::Variant.delete_all
-    RecordingStudioAbTests::Experiment.delete_all
+    clear_ab_tables!
     RecordingStudioAbTests::ActiveSet.clear_local!
     Rails.cache.clear
     create_running_experiment!(key: "force_pricing_#{SecureRandom.hex(4)}", target_key: "pricing_page")

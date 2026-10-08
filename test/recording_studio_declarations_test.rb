@@ -9,8 +9,8 @@ require "rails/test_help"
 class RecordingStudioDeclarationsTest < ActiveSupport::TestCase
   test "dummy recordable declarations validate and expose parent/root introspection" do
     assert RecordingStudio.validate_recordable_declarations!
-    # Workspace (host) plus Users shared People root (PR2).
-    assert_equal ["Workspace", "RecordingStudioUser::People"].sort,
+    # Workspace (host), AdminRoot (PR3), plus Users shared People root (PR2).
+    assert_equal ["AdminRoot", "Workspace", "RecordingStudioUser::People"].sort,
                  RecordingStudio.root_recordable_types.sort
     assert_equal %w[Workspace Folder], RecordingStudio.allowed_parent_types_for("Folder")
     assert_equal %w[Workspace Folder], RecordingStudio.allowed_parent_types_for(Page)

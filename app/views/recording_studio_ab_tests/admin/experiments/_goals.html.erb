@@ -1,0 +1,53 @@
+<div class="space-y-4" data-testid="ab-goals-panel">
+  <% goal_rows = experiment.goals.order(:key).map { |g|
+       {
+         key: g.key,
+         name: g.name,
+         event_key: g.event_key,
+         primary: g.is_primary? ? "yes" : "—",
+         window: g.attribution_window_hours,
+         counting: g.counting_policy,
+         id: g.id
+       }
+     } %>
+
+  <% if goal_rows.any? %>
+    <%= render FlatPack::Table::Component.new(data: goal_rows, class: "text-sm") do |table| %>
+      <% table.column(title: "Key") { |row| row[:key] } %>
+      <% table.column(title: "Name") { |row| row[:name] } %>
+      <% table.column(title: "Event") { |row| row[:event_key] } %>
+      <% table.column(title: "Primary") { |row| row[:primary] } %>
+      <% table.column(title: "Window (h)") { |row| row[:window] } %>
+      <% table.column(title: "Counting") { |row| row[:counting] } %>
+      <% table.column(title: "") do |row| %>
+        <%= form_with url: admin_experiment_goal_path(experiment, row[:id]), method: :delete, class: "inline" do %>
+          <%= render FlatPack::Button::Component.new(text: "Remove", style: :danger, type: "submit", size: :sm) %>
+        <% end %>
+      <% end %>
+    <% end %>
+  <% else %>
+    <%= render FlatPack::EmptyState::Component.new(title: "No goals", description: "Add at least one primary goal before starting.") %>
+  <% end %>
+
+  <%= form_with url: admin_experiment_goals_path(experiment), method: :post, class: "space-y-3 border-t border-[var(--surface-border-color)] pt-4" do %>
+    <p class="text-sm font-medium">Add goal</p>
+    <%= render FlatPack::TextInput::Component.new(name: "goal[key]", label: "Key", required: true) %>
+    <%= render FlatPack::TextInput::Component.new(name: "goal[name]", label: "Name", required: true) %>
+    <%= render FlatPack::Select::Component.new(
+      name: "goal[event_key]",
+      label: "Event",
+      options: RecordingStudioAbTests.registry.events.values.map { |e| [e.label.to_s, e.key.to_s] },
+      required: true,
+      searchable: true
+    ) %>
+    <%= render FlatPack::NumberInput::Component.new(name: "goal[attribution_window_hours]", label: "Window (hours)", value: 168, min: 1, max: 2160) %>
+    <%= render FlatPack::Select::Component.new(
+      name: "goal[counting_policy]",
+      label: "Counting policy",
+      options: RecordingStudioAbTests::Goal::COUNTING_POLICIES.map { |p| [p.humanize, p] },
+      value: "once_per_participant"
+    ) %>
+    <%= render FlatPack::Checkbox::Component.new(name: "goal[is_primary]", value: "1", label: "Primary goal") %>
+    <%= render FlatPack::Button::Component.new(text: "Add goal", style: :secondary, type: "submit", size: :sm) %>
+  <% end %>
+</div>

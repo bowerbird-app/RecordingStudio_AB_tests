@@ -12,10 +12,7 @@ class AbEligibilityTest < ActionDispatch::IntegrationTest
       u.password = "Password"
       u.password_confirmation = "Password"
     end
-    RecordingStudioAbTests::Assignment.delete_all
-    RecordingStudioAbTests::Goal.delete_all
-    RecordingStudioAbTests::Variant.delete_all
-    RecordingStudioAbTests::Experiment.delete_all
+    clear_ab_tables!
     RecordingStudioAbTests::ActiveSet.clear_local!
     Rails.cache.clear
     create_running_experiment!(key: "pricing_run", target_key: "pricing_page")
@@ -45,6 +42,8 @@ class AbEligibilityTest < ActionDispatch::IntegrationTest
       { "Purpose" => "prefetch" },
       { "X-Sec-Purpose" => "prefetch" }
     ].each do |headers|
+      RecordingStudioAbTests::Conversion.delete_all
+      RecordingStudioAbTests::Exposure.delete_all
       RecordingStudioAbTests::Assignment.delete_all
       get demo_pricing_path, headers: headers.merge("User-Agent" => "Mozilla/5.0")
       assert_response :success

@@ -1,0 +1,39 @@
+<div class="space-y-4" data-testid="ab-results-panel">
+  <p class="text-xs text-[var(--surface-muted-content-color)]">
+    Sample sizes are shown next to rates. Relative lift is <%= RecordingStudioAbTests::Metrics::LIFT_LABEL %>.
+  </p>
+
+  <% if metric_rows.blank? %>
+    <%= render FlatPack::EmptyState::Component.new(
+      title: "No metrics yet",
+      description: "Add a primary goal and collect exposures/conversions to see results."
+    ) %>
+  <% else %>
+    <% rows = metric_rows.map { |r|
+         {
+           variant: "#{r.variant_key}#{' (control)' if r.is_control}",
+           assignments: r.assignments,
+           unique_exposed: r.unique_exposed,
+           raw_conversions: r.raw_conversions,
+           unique_converters: r.unique_converters,
+           conversion_rate: r.conversion_rate,
+           sample_size: r.sample_size,
+           relative_lift: "#{r.relative_lift} (#{r.lift_label})",
+           total_value: r.total_value,
+           value_per_exposed: r.value_per_exposed
+         }
+       } %>
+    <%= render FlatPack::Table::Component.new(data: rows, class: "text-sm") do |table| %>
+      <% table.column(title: "Variant") { |row| row[:variant] } %>
+      <% table.column(title: "Assignments") { |row| row[:assignments] } %>
+      <% table.column(title: "Unique exposed") { |row| row[:unique_exposed] } %>
+      <% table.column(title: "Raw conversions") { |row| row[:raw_conversions] } %>
+      <% table.column(title: "Unique converters") { |row| row[:unique_converters] } %>
+      <% table.column(title: "Conversion rate") { |row| row[:conversion_rate] } %>
+      <% table.column(title: "Sample size") { |row| row[:sample_size] } %>
+      <% table.column(title: "Relative lift") { |row| row[:relative_lift] } %>
+      <% table.column(title: "Total value") { |row| row[:total_value] } %>
+      <% table.column(title: "Value / exposed") { |row| row[:value_per_exposed] } %>
+    <% end %>
+  <% end %>
+</div>

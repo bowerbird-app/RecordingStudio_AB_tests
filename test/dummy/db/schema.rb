@@ -43,6 +43,43 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_08_120011) do
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
   end
 
+  create_table "admin_audit_logs", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "event_id", null: false
+    t.string "resource_key", null: false
+    t.string "action_key", null: false
+    t.string "outcome", null: false
+    t.string "actor_type"
+    t.string "actor_id"
+    t.string "record_type"
+    t.string "record_id"
+    t.uuid "access_recording_id"
+    t.string "surface_key"
+    t.string "http_method"
+    t.boolean "destructive"
+    t.string "required_role"
+    t.string "blast_radius"
+    t.string "request_id"
+    t.string "ip_address"
+    t.string "user_agent"
+    t.jsonb "metadata", default: {}, null: false
+    t.string "error_class"
+    t.text "error_message"
+    t.string "recording_studio_event_id"
+    t.datetime "occurred_at", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["event_id"], name: "index_admin_audit_logs_on_event_id", unique: true
+    t.index ["occurred_at"], name: "index_admin_audit_logs_on_occurred_at"
+    t.index ["outcome"], name: "index_admin_audit_logs_on_outcome"
+    t.index ["resource_key", "action_key"], name: "index_admin_audit_logs_on_resource_key_and_action_key"
+  end
+
+  create_table "admin_roots", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "name", default: "Admin", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "folders", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "name"

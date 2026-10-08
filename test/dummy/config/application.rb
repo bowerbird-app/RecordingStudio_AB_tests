@@ -43,5 +43,9 @@ module Dummy
 
     # Don't generate system test files.
     config.generators.system_tests = nil
+
+    # Admin screen definitions under app/admin are loaded via to_prepare + load,
+    # not Zeitwerk (see recording_studio_admin install template).
+    Rails.autoloaders.main.ignore(root.join("app/admin"))
   end
 end

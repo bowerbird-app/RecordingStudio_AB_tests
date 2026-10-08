@@ -72,8 +72,8 @@ module RecordingStudioAbTests
     initializer "recording_studio_ab_tests.register_admin" do
       config.to_prepare do
         next unless defined?(RecordingStudioAdmin)
-        next unless defined?(RecordingStudioAbTests::Admin)
 
+        require "recording_studio_ab_tests/admin"
         RecordingStudioAbTests::Admin.register!
       end
     end

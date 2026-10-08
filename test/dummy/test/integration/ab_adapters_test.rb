@@ -12,10 +12,7 @@ class AbAdaptersTest < ActionDispatch::IntegrationTest
       u.password = "Password"
       u.password_confirmation = "Password"
     end
-    RecordingStudioAbTests::Assignment.delete_all
-    RecordingStudioAbTests::Goal.delete_all
-    RecordingStudioAbTests::Variant.delete_all
-    RecordingStudioAbTests::Experiment.delete_all
+    clear_ab_tables!
     RecordingStudioAbTests::ActiveSet.clear_local!
     Rails.cache.clear
     sign_in User.find_by!(email: "admin@admin.com")
