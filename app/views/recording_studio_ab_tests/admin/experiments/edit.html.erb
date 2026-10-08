@@ -1,0 +1,32 @@
+<% content_for :title, "Edit #{@experiment.name}" %>
+<% frozen = !@experiment.draft? %>
+
+<%= render FlatPack::PageHeader::Component.new(
+  title: "Edit experiment",
+  subtitle: "#{@experiment.key} · #{@experiment.status}"
+) %>
+
+<% if flash[:alert].present? %>
+  <%= render FlatPack::Alert::Component.new(title: "Could not update", description: flash[:alert], style: :danger) %>
+<% end %>
+
+<% if frozen %>
+  <%= render FlatPack::Alert::Component.new(
+    title: "Some fields are frozen",
+    description: "Key, target, and assignment scope cannot change after start.",
+    style: :warning
+  ) %>
+<% end %>
+
+<%= form_with model: @experiment, url: admin_experiment_path(@experiment), method: :patch, class: "space-y-6" do %>
+  <%= render "form", experiment: @experiment, targets: @targets, events: @events, frozen: frozen %>
+
+  <div class="flex flex-wrap gap-3">
+    <%= render FlatPack::Button::Component.new(text: "Save changes", style: :primary, type: "submit") %>
+    <%= render FlatPack::Button::Component.new(
+      text: "Cancel",
+      style: :secondary,
+      href: admin_experiment_path(@experiment)
+    ) %>
+  </div>
+<% end %>

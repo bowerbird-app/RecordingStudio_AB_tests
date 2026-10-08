@@ -1,0 +1,44 @@
+<%= turbo_frame_tag "admin-root-search-results" do %>
+  <% if @admin_search_results.any? %>
+    <div data-admin--root-search-target="results" <%= "hidden" unless @admin_search_query.present? %>>
+      <%= render FlatPack::List::Component.new(divider: true, class: "w-full") do %>
+        <% @admin_search_results.each do |item| %>
+          <% item_matches_search = @admin_search_query.present? && item.search_text.include?(@normalized_admin_search_query) %>
+          <% item_options = {
+               href: preserve_anchor_url(item.url),
+               hover: true,
+               hidden: !item_matches_search,
+               data: {
+                 admin__root_search_target: "item",
+                 search_text: item.search_text
+               }
+             } %>
+          <% if item.icon.present? %>
+            <% item_options[:leading] = render(FlatPack::Shared::IconComponent.new(name: item.icon, size: :md, class: "text-[var(--surface-muted-content-color)]")) %>
+          <% end %>
+          <%= render FlatPack::List::Item.new(**item_options) do %>
+            <div class="flex items-start justify-between gap-3">
+              <div class="flex min-w-0 flex-1 flex-col gap-1">
+                <span><%= item.title %></span>
+                <% if item.subtitle.present? %>
+                  <span class="text-sm text-(--surface-muted-content-color)"><%= item.subtitle %></span>
+                <% end %>
+              </div>
+              <%= render FlatPack::Badge::Component.new(
+                text: item.type == :screen ? "Screen" : "Section",
+                style: item.type == :screen ? :info : :default,
+                size: :sm
+              ) %>
+            </div>
+          <% end %>
+        <% end %>
+      <% end %>
+    </div>
+  <% end %>
+
+  <p
+    data-admin--root-search-target="emptyState"
+    class="text-sm text-(--surface-muted-content-color)"
+    <%= "hidden" unless @admin_search_query.present? && @matching_admin_search_results.zero? %>
+  >No admin screens or sections match that search.</p>
+<% end %>

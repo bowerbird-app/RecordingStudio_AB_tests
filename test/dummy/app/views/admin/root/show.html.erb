@@ -1,0 +1,49 @@
+<%= render FlatPack::PageNav::Component.new(anchor_url: page_nav_anchor_url, class: "mb-4") do |page_nav| %>
+  <% page_nav.right do %>
+    <% if @admin_access_recording.present? && respond_to?(:recording_studio_accessible_avatars) %>
+      <%= recording_studio_accessible_avatars(@admin_access_recording, button_style: :ghost, button_size: :md) %>
+    <% end %>
+  <% end %>
+<% end %>
+
+<%= render FlatPack::PageTitle::Component.new(title: "Admin", subtitle: "Manage and monitor onboarding") %>
+
+<div class="space-y-4" data-controller="admin--root-search" data-action="input->admin--root-search#filter search->admin--root-search#filter">
+  <form action="<%= request.path %>" method="get" class="space-y-4" data-admin--root-search-target="form" data-turbo-frame="admin-root-search-results">
+    <% if params[:anchor_url].present? %>
+      <%= hidden_field_tag :anchor_url, params[:anchor_url] %>
+    <% end %>
+
+    <%= render FlatPack::SearchInput::Component.new(
+      name: :q,
+      value: @admin_search_query,
+      placeholder: "Search",
+      data: {
+        admin__root_search_target: "input"
+      }
+    ) %>
+  </form>
+
+  <%= render "search_results" %>
+</div>
+
+<% if @admin_sections.any? %>
+  <%= render FlatPack::List::Component.new(divider: true, class: "w-full mt-6") do %>
+    <% @admin_sections.each do |section| %>
+      <% item_options = { href: preserve_anchor_url(section.url), hover: true } %>
+      <% if section.icon.present? %>
+        <% item_options[:leading] = render(FlatPack::Shared::IconComponent.new(name: section.icon, size: :md, class: "text-[var(--surface-muted-content-color)]")) %>
+      <% end %>
+      <%= render FlatPack::List::Item.new(**item_options) do %>
+        <div class="flex flex-col gap-1">
+          <span><%= section.title %></span>
+          <% if section.subtitle.present? %>
+            <span class="text-sm text-(--surface-muted-content-color)"><%= section.subtitle %></span>
+          <% end %>
+        </div>
+      <% end %>
+    <% end %>
+  <% end %>
+<% else %>
+  <p class="text-sm text-(--surface-muted-content-color)">No admin sections are available.</p>
+<% end %>

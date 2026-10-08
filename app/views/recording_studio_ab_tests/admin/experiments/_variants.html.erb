@@ -1,0 +1,44 @@
+<div class="space-y-4" data-testid="ab-variants-panel">
+  <% variant_rows = experiment.variants.order(:position, :key).map { |v|
+       {
+         key: v.key,
+         name: v.name,
+         implementation_key: v.implementation_key,
+         control: v.is_control? ? "yes" : "—",
+         weight: v.weight,
+         id: v.id,
+         removable: experiment.draft? && !v.is_control?
+       }
+     } %>
+
+  <% if variant_rows.any? %>
+    <%= render FlatPack::Table::Component.new(data: variant_rows, class: "text-sm") do |table| %>
+      <% table.column(title: "Key") { |row| row[:key] } %>
+      <% table.column(title: "Name") { |row| row[:name] } %>
+      <% table.column(title: "Implementation") { |row| row[:implementation_key] } %>
+      <% table.column(title: "Control") { |row| row[:control] } %>
+      <% table.column(title: "Weight") { |row| row[:weight] } %>
+      <% table.column(title: "") do |row| %>
+        <% if row[:removable] %>
+          <%= form_with url: admin_experiment_variant_path(experiment, row[:id]), method: :delete, class: "inline" do %>
+            <%= render FlatPack::Button::Component.new(text: "Remove", style: :danger, type: "submit", size: :sm) %>
+          <% end %>
+        <% end %>
+      <% end %>
+    <% end %>
+  <% else %>
+    <%= render FlatPack::EmptyState::Component.new(title: "No variants", description: "Add variants while the experiment is draft.") %>
+  <% end %>
+
+  <% if experiment.draft? %>
+    <%= form_with url: admin_experiment_variants_path(experiment), method: :post, class: "space-y-3 border-t border-[var(--surface-border-color)] pt-4" do %>
+      <p class="text-sm font-medium">Add variant</p>
+      <%= render FlatPack::TextInput::Component.new(name: "variant[key]", label: "Key", required: true) %>
+      <%= render FlatPack::TextInput::Component.new(name: "variant[name]", label: "Name", required: true) %>
+      <%= render FlatPack::TextInput::Component.new(name: "variant[implementation_key]", label: "Implementation key", required: true) %>
+      <%= render FlatPack::NumberInput::Component.new(name: "variant[weight]", label: "Weight", value: 50, min: 0) %>
+      <%= render FlatPack::NumberInput::Component.new(name: "variant[position]", label: "Position", value: experiment.variants.size, min: 0) %>
+      <%= render FlatPack::Button::Component.new(text: "Add variant", style: :secondary, type: "submit", size: :sm) %>
+    <% end %>
+  <% end %>
+</div>

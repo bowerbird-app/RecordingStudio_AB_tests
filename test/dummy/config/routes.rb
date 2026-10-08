@@ -16,6 +16,11 @@ Rails.application.routes.draw do
   mount RecordingStudioUser::Engine => RecordingStudioUser.config.mount_path, as: :recording_studio_users
   mount RecordingStudioAttachable::Engine, at: "/recording_studio_attachable"
   mount RecordingStudioAbTests::Engine, at: "/ab_tests"
+  mount RecordingStudioAccessible::Engine, at: "/admin/access"
+  namespace :admin do
+    get "root", to: "root#show", as: :root
+  end
+  recording_studio_admin_for :admin, at: "/admin", root_section: :root
 
   namespace :demo do
     get "pricing", to: "pricing#show", as: :pricing

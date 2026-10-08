@@ -1,0 +1,99 @@
+<% content_for :title, @experiment.name %>
+
+<%= render FlatPack::PageHeader::Component.new(
+  title: @experiment.name,
+  subtitle: "#{@experiment.key} · #{@experiment.status} · #{@experiment.target_key}"
+) %>
+
+<% if flash[:notice].present? %>
+  <%= render FlatPack::Alert::Component.new(title: flash[:notice], style: :success) %>
+<% end %>
+<% if flash[:alert].present? %>
+  <%= render FlatPack::Alert::Component.new(title: "Action failed", description: flash[:alert], style: :danger) %>
+<% end %>
+
+<div class="mb-6 flex flex-wrap gap-2" data-testid="ab-lifecycle-actions">
+  <%= render FlatPack::Badge::Component.new(text: @experiment.status, style: status_badge_style(@experiment.status)) %>
+
+  <% if RecordingStudioAbTests::Admin.transition_allowed?(@experiment, :start) %>
+    <%= form_with url: start_admin_experiment_path(@experiment), method: :post, class: "inline" do %>
+      <%= render FlatPack::Button::Component.new(text: "Start", style: :primary, type: "submit", size: :sm, data: { turbo_confirm: "Start this experiment? Allocation fields will freeze." }) %>
+    <% end %>
+  <% end %>
+  <% if RecordingStudioAbTests::Admin.transition_allowed?(@experiment, :pause) %>
+    <%= form_with url: pause_admin_experiment_path(@experiment), method: :post, class: "inline" do %>
+      <%= render FlatPack::Button::Component.new(text: "Pause", style: :secondary, type: "submit", size: :sm, data: { turbo_confirm: "Pause this experiment?" }) %>
+    <% end %>
+  <% end %>
+  <% if RecordingStudioAbTests::Admin.transition_allowed?(@experiment, :resume) %>
+    <%= form_with url: resume_admin_experiment_path(@experiment), method: :post, class: "inline" do %>
+      <%= render FlatPack::Button::Component.new(text: "Resume", style: :secondary, type: "submit", size: :sm) %>
+    <% end %>
+  <% end %>
+  <% if RecordingStudioAbTests::Admin.transition_allowed?(@experiment, :complete) %>
+    <%= form_with url: complete_admin_experiment_path(@experiment), method: :post, class: "inline" do %>
+      <%= render FlatPack::Button::Component.new(text: "Complete", style: :secondary, type: "submit", size: :sm, data: { turbo_confirm: "Complete this experiment?" }) %>
+    <% end %>
+  <% end %>
+  <% if RecordingStudioAbTests::Admin.transition_allowed?(@experiment, :archive) %>
+    <%= form_with url: archive_admin_experiment_path(@experiment), method: :post, class: "inline" do %>
+      <%= render FlatPack::Button::Component.new(text: "Archive", style: :secondary, type: "submit", size: :sm) %>
+    <% end %>
+  <% end %>
+  <%= form_with url: duplicate_admin_experiment_path(@experiment), method: :post, class: "inline" do %>
+    <%= render FlatPack::Button::Component.new(text: "Duplicate", style: :secondary, type: "submit", size: :sm) %>
+  <% end %>
+  <%= render FlatPack::Button::Component.new(text: "Edit", style: :secondary, href: edit_admin_experiment_path(@experiment), size: :sm) %>
+</div>
+
+<% if RecordingStudioAbTests::Admin.transition_allowed?(@experiment, :select_winner) %>
+  <%= form_with url: select_winner_admin_experiment_path(@experiment), method: :post, class: "mb-6 flex flex-wrap items-end gap-3" do %>
+    <%= render FlatPack::Select::Component.new(
+      name: "variant_id",
+      label: "Select winner",
+      options: @experiment.variants.order(:position).map { |v| [v.name, v.id] },
+      value: @experiment.winner_variant_id
+    ) %>
+    <%= render FlatPack::Button::Component.new(text: "Set winner", style: :primary, type: "submit", size: :sm) %>
+  <% end %>
+<% end %>
+
+<%= render FlatPack::Tabs::Component.new(default_tab: tab_index_for(@tab)) do |tabs| %>
+  <% tabs.tab(id: "configuration", label: "Configuration") %>
+  <% tabs.tab(id: "variants", label: "Variants") %>
+  <% tabs.tab(id: "goals", label: "Goals") %>
+  <% tabs.tab(id: "results", label: "Results") %>
+
+  <% tabs.panel(id: "configuration") do %>
+    <div class="mt-4 space-y-2 text-sm" data-testid="ab-configuration-panel">
+      <p><strong>Name:</strong> <%= @experiment.name %></p>
+      <p><strong>Key:</strong> <%= @experiment.key %></p>
+      <p><strong>Status:</strong> <%= @experiment.status %></p>
+      <p><strong>Target:</strong> <%= @experiment.target_key %></p>
+      <p><strong>Scope:</strong> <%= @experiment.assignment_scope %></p>
+      <p><strong>Traffic:</strong> <%= @experiment.traffic_percentage %>%</p>
+      <p><strong>Description:</strong> <%= @experiment.description.presence || "—" %></p>
+      <p><strong>Started:</strong> <%= @experiment.started_at || "—" %></p>
+      <p><strong>Completed:</strong> <%= @experiment.completed_at || "—" %></p>
+      <p><strong>Winner:</strong> <%= @experiment.winner_variant&.key || "—" %></p>
+    </div>
+  <% end %>
+
+  <% tabs.panel(id: "variants") do %>
+    <div class="mt-4">
+      <%= render "variants", experiment: @experiment %>
+    </div>
+  <% end %>
+
+  <% tabs.panel(id: "goals") do %>
+    <div class="mt-4">
+      <%= render "goals", experiment: @experiment %>
+    </div>
+  <% end %>
+
+  <% tabs.panel(id: "results") do %>
+    <div class="mt-4">
+      <%= render "results", metric_rows: @metric_rows %>
+    </div>
+  <% end %>
+<% end %>
