@@ -224,20 +224,11 @@ module RecordingStudioAbTests
 
       def maybe_expose(entry, target, resolution, expose)
         return unless expose
-        return if resolution.variant_key.to_s == "control" && resolution.reason == :inactive
+        return if %i[inactive forced].include?(resolution.reason)
+        return if %i[bot prefetch head consent disabled traffic_gate no_subject error
+                     force_unknown invalid_target].include?(resolution.reason)
 
-        key = "#{entry[:id]}:#{target.key}"
-        return if Current.exposed.include?(key)
-
-        Current.exposed << key
-        # Full exposure persistence lands in PR2; PR1 records in-request only.
-        ActiveSupport::Notifications.instrument(
-          "exposure.recording_studio_ab_tests",
-          experiment_id: entry[:id],
-          target_key: target.key,
-          variant_key: resolution.variant_key,
-          assignment_id: resolution.assignment&.id
-        )
+        Exposer.record!(entry: entry, target_key: target.key, resolution: resolution)
       end
 
       def build_resolution(entry, variant, assignment:, reason:, created:)

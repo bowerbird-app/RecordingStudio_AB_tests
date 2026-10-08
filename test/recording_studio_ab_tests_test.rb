@@ -45,14 +45,19 @@ class RecordingStudioAbTestsTest < Minitest::Test
     gemfile = File.read(File.expand_path("dummy/Gemfile", __dir__))
 
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio", tag: "v4.2.2"'
-    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_accessible", tag: "v0.10.1"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_accessible", tag: "v0.11.2"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_root_switchable", tag: "v0.5.1"'
-    assert_includes gemfile, 'github: "bowerbird-app/flatpack", tag: "v0.1.196"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_users", tag: "v0.15.0"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_admin", tag: "v2.0.5"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_attachable", tag: "v0.7.4"'
+    assert_includes gemfile, 'github: "bowerbird-app/flatpack", tag: "v0.1.198"'
     refute_includes gemfile, "recording_studio/v3.0.0"
     refute_includes gemfile, 'tag: "v4.2.1"'
     refute_includes gemfile, 'tag: "v4.2.0"'
+    refute_includes gemfile, 'tag: "v0.10.1"'
     refute_includes gemfile, 'tag: "v0.9.1"'
     refute_includes gemfile, 'tag: "v0.5.0"'
+    refute_includes gemfile, 'tag: "v0.1.196"'
     refute_includes gemfile, 'tag: "v0.1.177"'
     refute_includes gemfile, 'tag: "v0.1.133"'
     refute_includes gemfile, 'tag: "v0.6.0"'
@@ -144,7 +149,12 @@ class RecordingStudioAbTestsTest < Minitest::Test
     initializer_source = File.read(initializer_path)
 
     assert_includes initializer_source, "config.require_recordable_declarations = true"
-    assert_includes initializer_source, "config.recordable_types = [ \"Workspace\", \"Folder\", \"Page\" ]"
+    assert_includes initializer_source, '"Workspace"'
+    assert_includes initializer_source, '"Folder"'
+    assert_includes initializer_source, '"Page"'
+    assert_includes initializer_source, '"RecordingStudioUser::People"'
+    assert_includes initializer_source, '"RecordingStudioUser::Profile"'
+    assert_includes initializer_source, '"RecordingStudioAttachable::Attachment"'
     refute_includes initializer_source, "config.include_children"
     refute_includes initializer_source, "config.features."
     refute_includes initializer_source, "v3"
@@ -165,11 +175,14 @@ class RecordingStudioAbTestsTest < Minitest::Test
 
     assert_includes readme, "RecordingStudio"
     assert_includes readme, "dummy GitHub tag `v4.2.2`"
-    assert_includes readme, "dummy GitHub tag `v0.1.196`"
-    assert_includes readme, "dummy GitHub tag `v0.10.1`"
+    assert_includes readme, "dummy GitHub tag `v0.1.198`"
+    assert_includes readme, "dummy GitHub tag `v0.11.2`"
+    assert_includes readme, "dummy GitHub tag `v0.15.0`"
     assert_includes readme, "dummy GitHub tag `v0.5.1`"
     refute_includes readme, "dummy GitHub tag `v4.2.1`"
     refute_includes readme, "dummy GitHub tag `v4.2.0`"
+    refute_includes readme, "dummy GitHub tag `v0.10.1`"
+    refute_includes readme, "dummy GitHub tag `v0.1.196`"
     refute_includes readme, "v0.1.177"
     refute_includes readme, "v0.9.1"
     refute_includes readme, "v0.5.0"

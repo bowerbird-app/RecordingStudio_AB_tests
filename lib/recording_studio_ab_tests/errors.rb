@@ -5,5 +5,6 @@ module RecordingStudioAbTests
   class UnknownTarget < Error; end
   class InvalidTarget < Error; end
   class InvalidEvent < Error; end
+  class UnknownEvent < Error; end
   class LifecycleError < Error; end
 end

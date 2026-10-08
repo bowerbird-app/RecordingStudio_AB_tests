@@ -16,6 +16,10 @@ require "recording_studio_ab_tests/cookie_codec"
 require "recording_studio_ab_tests/active_set"
 require "recording_studio_ab_tests/assignment_resolver"
 require "recording_studio_ab_tests/lifecycle"
+require "recording_studio_ab_tests/exposer"
+require "recording_studio_ab_tests/conversion_recorder"
+require "recording_studio_ab_tests/identity_linker"
+require "recording_studio_ab_tests/event_subscriptions"
 require "recording_studio_ab_tests/view_helper"
 require "recording_studio_ab_tests/controller_helper"
 require "recording_studio_ab_tests/adapters/view"
@@ -47,6 +51,11 @@ module RecordingStudioAbTests
       registry.register_event(key, **)
     end
 
+    # Registers the built-in user_registered event when subscribe_to_user_registration.
+    def register_builtin_events!
+      EventSubscriptions.install!
+    end
+
     # subject: is reserved for authenticated/out-of-request subjects (PR4).
     def execute(target_key, subject: nil, **)
       _ = subject
@@ -56,18 +65,34 @@ module RecordingStudioAbTests
       raise ArgumentError, "execute only supports service targets (got #{target.type})"
     end
 
-    # subject: is reserved for out-of-request exposure (PR2/PR4).
+    # Records exposure for hosts that render the implementation themselves.
+    # subject: reserved for out-of-request exposure (PR4).
     def expose(target_key, subject: nil)
       _ = subject
       AssignmentResolver.resolve(target_key, expose: true)
     end
 
-    def track_event(*)
-      raise NotImplementedError, "track_event lands in PR2"
+    def track_event(event_key, subject:, event_id: nil, value: nil, occurred_at: Time.current, metadata: {})
+      kind, identifier = resolve_event_subject(subject)
+      raise ArgumentError, "track_event requires a subject" if kind.nil? || identifier.blank?
+
+      attrs = {
+        event_key: event_key,
+        subject_kind: kind,
+        subject_identifier: identifier,
+        event_id: event_id,
+        value: value,
+        occurred_at: occurred_at || Time.current,
+        metadata: metadata || {}
+      }
+
+      ActiveRecord.after_all_transactions_commit do
+        ConversionRecorder.record!(**attrs)
+      end
     end
 
-    def link_identity(*)
-      raise NotImplementedError, "link_identity lands in PR2"
+    def link_identity(visitor_id:, user:, source:)
+      IdentityLinker.link!(visitor_id: visitor_id, user: user, source: source)
     end
 
     def current_visitor_id
@@ -75,7 +100,23 @@ module RecordingStudioAbTests
     end
 
     def visitor(id)
-      Struct.new(:id).new(id)
+      Struct.new(:id, :ab_subject_kind).new(id, :visitor)
+    end
+
+    private
+
+    def resolve_event_subject(subject)
+      return [nil, nil] if subject.nil?
+
+      return [:visitor, subject.id.to_s] if subject.respond_to?(:ab_subject_kind) && subject.ab_subject_kind == :visitor
+
+      if defined?(RecordingStudio::Recording) && subject.is_a?(RecordingStudio::Recording)
+        return [:root_recording, subject.id.to_s]
+      end
+
+      return [:user, configuration.user_identifier.call(subject).to_s] if subject.respond_to?(:id)
+
+      [:user, subject.to_s]
     end
   end
 end

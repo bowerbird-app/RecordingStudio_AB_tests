@@ -14,3 +14,8 @@
 
 /* Include the engine's views in the Tailwind build */
 @source "../../../../../app/views/**/*.erb";
+
+/* Users + Attachable (git gems under bundler/gems) */
+@source "../../../../../../usr/local/lib/ruby/gems/3.3.0/bundler/gems/RecordingStudio_users-*/app/views/**/*.erb";
+@source "../../../../../../usr/local/lib/ruby/gems/3.3.0/bundler/gems/RecordingStudio_attachable-*/app/views/**/*.erb";
+@source "../../../../../../usr/local/lib/ruby/gems/3.3.0/bundler/gems/flatpack-*/app/components/**/*.{rb,erb}";

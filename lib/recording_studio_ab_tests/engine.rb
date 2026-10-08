@@ -4,6 +4,10 @@ module RecordingStudioAbTests
   class Engine < ::Rails::Engine
     isolate_namespace RecordingStudioAbTests
 
+    rake_tasks do
+      load File.expand_path("../tasks/recording_studio_ab_tests.rake", __dir__)
+    end
+
     class << self
       def apply_model_extensions(target)
         apply_extensions(target, extensions_for(:model, extension_keys_for(target)))
@@ -64,6 +68,16 @@ module RecordingStudioAbTests
       end
     end
 
+    # Soft-detect Admin (PR3 owns definitions). Never hard-depend on recording_studio_admin.
+    initializer "recording_studio_ab_tests.register_admin" do
+      config.to_prepare do
+        next unless defined?(RecordingStudioAdmin)
+        next unless defined?(RecordingStudioAbTests::Admin)
+
+        RecordingStudioAbTests::Admin.register!
+      end
+    end
+
     initializer "recording_studio_ab_tests.before_initialize", before: "recording_studio_ab_tests.load_config" do |_app|
       RecordingStudioAbTests.configuration.hooks.run(:before_initialize, self)
     end
@@ -102,6 +116,13 @@ module RecordingStudioAbTests
 
     initializer "recording_studio_ab_tests.after_initialize", after: "recording_studio_ab_tests.load_config" do |_app|
       RecordingStudioAbTests.configuration.hooks.run(:after_initialize, self)
+    end
+
+    # Built-in user_registered + notification subscriptions (reload-safe).
+    initializer "recording_studio_ab_tests.event_subscriptions" do
+      config.to_prepare do
+        RecordingStudioAbTests::EventSubscriptions.install!
+      end
     end
 
     # Host-opt-in model extensions via RecordingStudio::Hooks (never used to patch other gems).

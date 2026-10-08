@@ -19,6 +19,10 @@ class AbEligibilityTest < ActionDispatch::IntegrationTest
     RecordingStudioAbTests::ActiveSet.clear_local!
     Rails.cache.clear
     create_running_experiment!(key: "pricing_run", target_key: "pricing_page")
+    # Integration cookies persist across examples; clear AB cookies so eligibility
+    # assertions are not polluted by a prior assignment request.
+    cookies.delete(:_rsab_vid)
+    cookies.delete(:_rsab_a)
     sign_in User.find_by!(email: "admin@admin.com")
   end
 

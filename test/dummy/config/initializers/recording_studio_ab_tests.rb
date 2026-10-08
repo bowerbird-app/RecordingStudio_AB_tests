@@ -5,6 +5,7 @@ RecordingStudioAbTests.configure do |config|
   config.exposure_mode = Rails.env.test? ? :inline : :async
   config.raise_errors = Rails.env.local? || Rails.env.test?
   config.allow_force_param = Rails.env.local?
+  config.subscribe_to_user_registration = true
 end
 
 Rails.application.config.to_prepare do
@@ -20,8 +21,36 @@ Rails.application.config.to_prepare do
     control: "Demo::HeroControlComponent",
     variants: { b: "Demo::HeroVariantBComponent" }
 
+  # Demo C: gem-owned sign-up page override (plan §14). Digest of
+  # recording_studio_user v0.15.0 registrations/new.html.erb.
+  signup_path = "recording_studio_user/auth/registrations/new.html.erb"
+  signup_digest = "f844930af9cae292428cd333547320c802a3fee5eba0ce78d18056223ca3a52b"
+  RecordingStudioAbTests.register_target :signup_page,
+    type: :partial,
+    label: "Sign-up page body",
+    partial: "ab/signup/body",
+    variants: { b: { rails_variant: :ab_signup_b } },
+    source_template: {
+      engine: "RecordingStudioUser::Engine",
+      path: signup_path,
+      digest: signup_digest
+    }
+
+  RecordingStudioAbTests.register_target :presskit_cta,
+    type: :partial,
+    label: "Press kit CTA",
+    partial: "demo/presskit/cta",
+    variants: { b: { rails_variant: :ab_presskit_b } }
+
   RecordingStudioAbTests.register_event :demo_signup,
     label: "Demo signup",
     subject: :user,
+    source: :host
+
+  RecordingStudioAbTests.register_event :presskit_created,
+    label: "Press kit created",
+    description: "Demo D host track_event conversion path",
+    subject: :user,
+    value: false,
     source: :host
 end

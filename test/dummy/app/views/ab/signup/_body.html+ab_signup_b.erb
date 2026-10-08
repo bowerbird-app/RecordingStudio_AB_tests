@@ -1,0 +1,44 @@
+<%# Host-owned Variant B for :signup_page (Demo C) %>
+<%= render layout: "recording_studio_user/auth/shell", locals: { title: "Create your studio account" } do %>
+  <% if flash[:alert].present? %>
+    <%= render FlatPack::Alert::Component.new(title: flash[:alert], style: :danger) %>
+  <% end %>
+
+  <div id="signup-variant" data-variant="b">
+    <p class="mb-4 text-center text-sm text-[var(--surface-muted-content-color)]">
+      Variant B — a clearer first step for new creators.
+    </p>
+
+    <%= form_with scope: :user, url: auth_sign_up_path, method: :post do %>
+      <div class="space-y-4">
+        <%= render FlatPack::EmailInput::Component.new(
+          name: "user[email]",
+          id: "user_email",
+          value: @resource&.email,
+          placeholder: "you@studio.example",
+          required: true,
+          autocomplete: "email",
+          aria: { label: t("recording_studio_user.auth.email") },
+          error: @resource&.errors&.[](:email)&.first
+        ) %>
+
+        <%= render FlatPack::Button::Component.new(
+          text: "Continue",
+          style: :primary,
+          size: :md,
+          type: "submit",
+          class: "w-full"
+        ) %>
+      </div>
+    <% end %>
+  </div>
+
+  <p class="text-center text-sm text-[var(--surface-muted-content-color)]">
+    <%= t("recording_studio_user.auth.already_have_one") %>
+    <%= render FlatPack::Link::Component.new(href: auth_sign_in_path) do %>
+      <%= t("recording_studio_user.auth.log_in") %>
+    <% end %>
+  </p>
+
+  <%= render "recording_studio_user/omniauth/continue_with_providers" %>
+<% end %>

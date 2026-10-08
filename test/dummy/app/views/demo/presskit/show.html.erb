@@ -1,0 +1,28 @@
+<div class="mx-auto max-w-lg space-y-6 p-8">
+  <h1 class="text-2xl font-semibold">Demo D — Press kit conversion</h1>
+  <p class="text-sm text-[var(--surface-muted-content-color)]">
+    Renders <code>render_ab :presskit_cta</code> (exposure), then posts
+    <code>track_event(:presskit_created, …)</code> for the signed-in user.
+  </p>
+
+  <%= render_ab :presskit_cta %>
+
+  <% if notice.present? %>
+    <%= render FlatPack::Alert::Component.new(title: notice, style: :success) %>
+  <% end %>
+
+  <% if @last_event_id.present? %>
+    <p id="presskit-event" data-event-id="<%= @last_event_id %>">
+      Last event id: <code><%= @last_event_id %></code>
+    </p>
+  <% end %>
+
+  <%= form_with url: demo_presskit_path, method: :post do %>
+    <%= render FlatPack::Button::Component.new(
+      text: "Create press kit (track event)",
+      style: :primary,
+      size: :md,
+      type: "submit"
+    ) %>
+  <% end %>
+</div>
