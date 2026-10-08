@@ -181,6 +181,30 @@ if presskit_running.draft?
   presskit_running.update!(status: "running", started_at: Time.current)
 end
 
+# Demo F: quote service
+quote_running = seed_experiment.call(
+  key: "quote_running_demo",
+  name: "Quote strategy (running)",
+  target_key: "quote_strategy",
+  status: "running"
+)
+
+# Demo G: onboarding workflow (sticky across steps)
+flow_running = seed_experiment.call(
+  key: "flow_running_demo",
+  name: "Onboarding flow (running)",
+  target_key: "onboarding_flow",
+  status: "running"
+)
+
+# Demo H: cached fragment
+cached_running = seed_experiment.call(
+  key: "cached_running_demo",
+  name: "Cached hero (running)",
+  target_key: "cached_hero",
+  status: "running"
+)
+
 # Lifecycle demo experiments (paused / completed / archived) so Admin screens
 # can filter every status. Paused uses a dedicated target_key because
 # idx_rsab_experiments_live_target allows only one running|paused per target.
@@ -292,6 +316,9 @@ unless test_db
   seed_traffic.call(hero_running, visitors: 30, convert_ratio: 4, treatment_convert_ratio: 3)
   seed_traffic.call(signup_running, visitors: 50, convert_ratio: 5, treatment_convert_ratio: 4)
   seed_traffic.call(presskit_running, visitors: 24, convert_ratio: 3, treatment_convert_ratio: 2)
+  seed_traffic.call(quote_running, visitors: 20, convert_ratio: 5, treatment_convert_ratio: 4)
+  seed_traffic.call(flow_running, visitors: 18, convert_ratio: 4, treatment_convert_ratio: 3)
+  seed_traffic.call(cached_running, visitors: 16, convert_ratio: 4, treatment_convert_ratio: 3)
   seed_traffic.call(paused, visitors: 16, convert_ratio: 4, treatment_convert_ratio: 3)
   seed_traffic.call(completed, visitors: 20, convert_ratio: 4, treatment_convert_ratio: 3)
 end
@@ -303,6 +330,7 @@ RecordingStudioAbTests::ActiveSet.bump!
 
 puts "Seeded AB: #{pricing_draft.key} (draft), #{pricing_running.key} (running), #{hero_running.key} (running)"
 puts "Seeded AB: #{signup_running.key} (running), #{presskit_running.key} (running)"
+puts "Seeded AB: #{quote_running.key} (running), #{flow_running.key} (running), #{cached_running.key} (running)"
 puts "Seeded AB: #{paused.key} (paused), #{completed.key} (completed), #{archived.key} (archived)"
 puts "Seeded AB traffic: assignments=#{RecordingStudioAbTests::Assignment.count} " \
      "exposures=#{RecordingStudioAbTests::Exposure.count} " \

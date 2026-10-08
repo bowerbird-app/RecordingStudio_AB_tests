@@ -1,0 +1,11 @@
+<%= render FlatPack::PageHeader::Component.new(
+  title: "Quote service",
+  subtitle: "Demo F — RecordingStudioAbTests.execute(:quote_strategy)"
+) %>
+
+<div id="quote-variant" data-variant="<%= @quote[:variant] %>" class="mt-6 space-y-3">
+  <p class="text-lg font-medium"><%= @quote[:label] %></p>
+  <p>Amount: <%= number_to_currency(@quote[:amount], unit: @quote[:currency] == "USD" ? "$" : @quote[:currency]) %></p>
+  <p>Total: <strong><%= number_to_currency(@quote[:total], unit: @quote[:currency] == "USD" ? "$" : @quote[:currency]) %></strong></p>
+  <p class="text-sm text-(--surface-content-color)">Variant: <code><%= @quote[:variant] %></code></p>
+</div>

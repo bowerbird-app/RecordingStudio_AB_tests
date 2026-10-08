@@ -42,6 +42,27 @@ Rails.application.config.to_prepare do
     partial: "demo/presskit/cta",
     variants: { b: { rails_variant: :ab_presskit_b } }
 
+  # Demo F: service adapter via RecordingStudioAbTests.execute
+  RecordingStudioAbTests.register_target :quote_strategy,
+    type: :service,
+    label: "Quote strategy",
+    control: "Quote::Standard",
+    variants: { b: "Quote::Alternative" }
+
+  # Demo G: workflow — one sticky assignment across steps (not a separate type)
+  RecordingStudioAbTests.register_target :onboarding_flow,
+    type: :partial,
+    label: "Onboarding flow",
+    partial: "onboarding/steps/details",
+    variants: { b: { rails_variant: :ab_flow_b } }
+
+  # Demo H: cached fragment with ab_cache_vary
+  RecordingStudioAbTests.register_target :cached_hero,
+    type: :partial,
+    label: "Cached hero",
+    partial: "demo/cached/hero",
+    variants: { b: { rails_variant: :ab_cached_b } }
+
   RecordingStudioAbTests.register_event :demo_signup,
     label: "Demo signup",
     subject: :user,

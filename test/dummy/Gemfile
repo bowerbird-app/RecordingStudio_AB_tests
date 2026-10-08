@@ -16,6 +16,9 @@ gem "recording_studio_user", github: "bowerbird-app/RecordingStudio_users", tag:
 gem "recording_studio_admin", github: "bowerbird-app/RecordingStudio_admin", tag: "v2.0.5"
 gem "recording_studio_attachable", github: "bowerbird-app/RecordingStudio_attachable", tag: "v0.7.4"
 
+# Cache gem (PR4): variant-aware fragment caching via vary:. Public repo — no GitHub token.
+gem "recording_studio_cache", github: "bowerbird-app/RecordingStudio_cache", tag: "v0.4.0"
+
 # Devise authentication
 gem "devise"
 
