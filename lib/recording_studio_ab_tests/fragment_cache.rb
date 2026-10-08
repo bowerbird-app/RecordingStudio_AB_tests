@@ -22,12 +22,11 @@ module RecordingStudioAbTests
         fetch_options[:expires_in] = expires_in if expires_in
         fetch_options[:race_ttl] = race_ttl if race_ttl
         value = RecordingStudioCache.fetch(recording, entry, **fetch_options, &block)
-        mark_html_safe(value)
       else
         key = [entry || :ab_fragment, vary]
         value = Rails.cache.fetch(key, expires_in: expires_in, &block)
-        mark_html_safe(value)
       end
+      mark_html_safe(value)
     end
 
     def recording_studio_cache_available?
@@ -38,7 +37,8 @@ module RecordingStudioAbTests
     def mark_html_safe(value)
       return value if value.nil?
       return value if value.respond_to?(:html_safe?) && value.html_safe?
-      return value.html_safe if value.respond_to?(:html_safe)
+      # Cache backends may strip SafeBuffer; variant HTML is host-authored.
+      return value.html_safe if value.respond_to?(:html_safe) # rubocop:disable Rails/OutputSafety
 
       value
     end

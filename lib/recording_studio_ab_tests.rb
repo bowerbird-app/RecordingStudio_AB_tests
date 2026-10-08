@@ -65,9 +65,7 @@ module RecordingStudioAbTests
     # Pass subject: for authenticated / out-of-request subjects (plan §12, Part K).
     def execute(target_key, subject: nil, **kwargs)
       target = registry.fetch_target!(target_key)
-      unless target.type == :service
-        raise ArgumentError, "execute only supports service targets (got #{target.type})"
-      end
+      raise ArgumentError, "execute only supports service targets (got #{target.type})" unless target.type == :service
 
       SubjectContext.with(subject) do
         Adapters::Service.execute(target, **kwargs)

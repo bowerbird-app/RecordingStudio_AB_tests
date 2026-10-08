@@ -160,7 +160,8 @@ module RecordingStudioAbTests
           attrs[:link_source] = "authenticated_request"
         end
 
-        RecordingStudioAbTests::Assignment.insert_all(
+        # Concurrent-safe insert-if-absent; uniqueness enforced by idx_rsab_assignments_subject.
+        RecordingStudioAbTests::Assignment.insert_all( # rubocop:disable Rails/SkipsModelValidations
           [attrs],
           unique_by: :idx_rsab_assignments_subject
         )
@@ -220,7 +221,7 @@ module RecordingStudioAbTests
           target_key: entry[:target_key],
           visitor_id: subject[:subject_identifier]
         )
-        active_ids = ActiveSet.current[:by_target].values.map { |e| e[:id] }
+        active_ids = ActiveSet.current[:by_target].values.pluck(:id)
         payload = CookieCodec.evict!(payload, active_experiment_ids: active_ids)
         CookieCodec.write!(Current.request, payload)
       end

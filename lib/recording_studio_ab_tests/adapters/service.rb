@@ -8,13 +8,16 @@ module RecordingStudioAbTests
     module Service
       module_function
 
-      def execute(target, **kwargs)
+      def execute(target, **)
         resolution = AssignmentResolver.resolve(target.key, expose: true)
         class_name = class_name_for(target, resolution)
-        raise ArgumentError, "service target #{target.key} has no class for #{resolution.variant_key}" if class_name.blank?
+        if class_name.blank?
+          raise ArgumentError,
+                "service target #{target.key} has no class for #{resolution.variant_key}"
+        end
 
         klass = class_name.constantize
-        klass.call(**kwargs)
+        klass.call(**)
       end
 
       def class_name_for(target, resolution)

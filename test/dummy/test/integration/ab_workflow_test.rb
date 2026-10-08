@@ -13,7 +13,7 @@ class AbWorkflowTest < ActionDispatch::IntegrationTest
   end
 
   test "workflow keeps one sticky variant across steps" do
-    create_running_experiment!(key: "flow_run", target_key: "onboarding_flow", weights: [0, 100])
+    create_running_experiment!(key: "flow_run", target_key: "onboarding_flow", weights: [ 0, 100 ])
 
     get demo_flow_path(step: 1), headers: BROWSER_UA
     assert_response :success

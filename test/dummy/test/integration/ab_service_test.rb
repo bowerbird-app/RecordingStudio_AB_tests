@@ -18,7 +18,7 @@ class AbServiceTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "#quote-variant[data-variant=control]"
 
-    create_running_experiment!(key: "quote_run", target_key: "quote_strategy", weights: [0, 100])
+    create_running_experiment!(key: "quote_run", target_key: "quote_strategy", weights: [ 0, 100 ])
     get demo_quote_path(amount: 100), headers: BROWSER_UA
     assert_response :success
     assert_select "#quote-variant[data-variant=b]"
@@ -63,7 +63,7 @@ class AbServiceTest < ActionDispatch::IntegrationTest
   end
 
   test "running experiment response is private no-store" do
-    create_running_experiment!(key: "quote_priv", target_key: "quote_strategy", weights: [100, 0])
+    create_running_experiment!(key: "quote_priv", target_key: "quote_strategy", weights: [ 100, 0 ])
     get demo_quote_path, headers: BROWSER_UA
     assert_response :success
     assert_equal true, response.cache_control[:private]

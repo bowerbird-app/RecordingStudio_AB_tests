@@ -45,7 +45,7 @@ begin
   find_or_record_child.call(page, root_recording, folder_recording)
 
   # Grant the seeded admin owner access so Admin + workspace-scoped flows work.
-  [root_recording, accessible_root_recording, admin_root_recording].each do |recording|
+  [ root_recording, accessible_root_recording, admin_root_recording ].each do |recording|
     result = RecordingStudioAccessible.bootstrap_owner_access!(
       recording: recording,
       actor: user

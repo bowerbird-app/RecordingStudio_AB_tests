@@ -27,7 +27,7 @@ module RecordingStudioAbTests
         controller = request.env["action_controller.instance"]
         Current.controller = controller if controller
       end
-      return controller.response if controller&.respond_to?(:response) && controller.response
+      return controller.response if controller.respond_to?(:response) && controller.response
 
       request.env&.fetch("action_dispatch.response", nil)
     end

@@ -20,7 +20,7 @@ class AbCachingTest < ActionDispatch::IntegrationTest
   end
 
   test "ab_cache_vary keys differ per variant and omit visitor and user ids" do
-    create_running_experiment!(key: "cache_a", target_key: "cached_hero", weights: [100, 0])
+    create_running_experiment!(key: "cache_a", target_key: "cached_hero", weights: [ 100, 0 ])
 
     get demo_cached_path, headers: BROWSER_UA
     assert_response :success
@@ -33,7 +33,7 @@ class AbCachingTest < ActionDispatch::IntegrationTest
 
     clear_ab_tables!
     RecordingStudioAbTests::ActiveSet.clear_local!
-    create_running_experiment!(key: "cache_b", target_key: "cached_hero", weights: [0, 100])
+    create_running_experiment!(key: "cache_b", target_key: "cached_hero", weights: [ 0, 100 ])
     reset!
     get demo_cached_path, headers: BROWSER_UA
     assert_response :success
@@ -43,7 +43,7 @@ class AbCachingTest < ActionDispatch::IntegrationTest
   end
 
   test "cache hit still records exposure" do
-    create_running_experiment!(key: "cache_exp", target_key: "cached_hero", weights: [0, 100])
+    create_running_experiment!(key: "cache_exp", target_key: "cached_hero", weights: [ 0, 100 ])
 
     with_ab_config(exposure_mode: :inline) do
       get demo_cached_path, headers: BROWSER_UA
@@ -63,14 +63,14 @@ class AbCachingTest < ActionDispatch::IntegrationTest
   end
 
   test "leak demonstration: caching without ab_cache_vary serves wrong variant" do
-    create_running_experiment!(key: "cache_leak", target_key: "cached_hero", weights: [0, 100])
+    create_running_experiment!(key: "cache_leak", target_key: "cached_hero", weights: [ 0, 100 ])
 
     # Simulate a host bug: cache key omits ab_cache_vary.
     Rails.cache.write("leaky_hero_without_vary", %(<div id="leaked" data-variant="b">B</div>))
 
     clear_ab_tables!
     RecordingStudioAbTests::ActiveSet.clear_local!
-    create_running_experiment!(key: "cache_leak2", target_key: "cached_hero", weights: [100, 0])
+    create_running_experiment!(key: "cache_leak2", target_key: "cached_hero", weights: [ 100, 0 ])
     leaked_hit = Rails.cache.fetch("leaky_hero_without_vary") { "should-not-run" }
     assert_includes leaked_hit, 'data-variant="b"'
 
@@ -85,7 +85,7 @@ class AbCachingTest < ActionDispatch::IntegrationTest
   test "RecordingStudioCache.fetch receives vary hash when available" do
     skip "RecordingStudioCache not loaded" unless defined?(RecordingStudioCache)
 
-    create_running_experiment!(key: "cache_rsc", target_key: "cached_hero", weights: [50, 50])
+    create_running_experiment!(key: "cache_rsc", target_key: "cached_hero", weights: [ 50, 50 ])
     vary = { "ab.cached_hero" => "control" }
     calls = []
     original = RecordingStudioCache.method(:fetch)

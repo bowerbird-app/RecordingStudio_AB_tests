@@ -58,7 +58,23 @@ namespace :recording_studio_ab_tests do
 
     helper = Object.new.extend(Module.new do
       def clear!
+        # Drain any pending exposure jobs before deleting parents.
+        if defined?(SolidQueue)
+          SolidQueue::Job.delete_all rescue nil
+        end
+        ActiveJob::Base.queue_adapter.enqueued_jobs.clear if ActiveJob::Base.queue_adapter.respond_to?(:enqueued_jobs)
+        ActiveJob::Base.queue_adapter.performed_jobs.clear if ActiveJob::Base.queue_adapter.respond_to?(:performed_jobs)
+
         RecordingStudioAbTests::Conversion.delete_all
+        RecordingStudioAbTests::Exposure.delete_all
+        RecordingStudioAbTests::Assignment.delete_all
+        RecordingStudioAbTests::Goal.delete_all
+        RecordingStudioAbTests::Variant.delete_all
+        RecordingStudioAbTests::Experiment.delete_all
+        RecordingStudioAbTests::ActiveSet.clear_local!
+        Rails.cache.clear
+      rescue ActiveRecord::InvalidForeignKey
+        # Async exposure may have raced; retry once after draining exposures again.
         RecordingStudioAbTests::Exposure.delete_all
         RecordingStudioAbTests::Assignment.delete_all
         RecordingStudioAbTests::Goal.delete_all
@@ -97,11 +113,11 @@ namespace :recording_studio_ab_tests do
         RecordingStudioAbTests::Current.reset
       end
 
-      def percentile(samples, p)
+      def percentile(samples, pct)
         return 0.0 if samples.empty?
 
         sorted = samples.sort
-        idx = ((p / 100.0) * (sorted.length - 1)).round
+        idx = ((pct / 100.0) * (sorted.length - 1)).round
         sorted[idx]
       end
 
@@ -152,9 +168,19 @@ namespace :recording_studio_ab_tests do
     results = []
     original_enabled = RecordingStudioAbTests.configuration.enabled
     original_mode = RecordingStudioAbTests.configuration.exposure_mode
+    # Mock requests lack a full cookie jar; stub signed-cookie IO during benchmarks.
+    cookie_read = RecordingStudioAbTests::CookieCodec.method(:read)
+    cookie_write = RecordingStudioAbTests::CookieCodec.method(:write!)
+    visitor_write = RecordingStudioAbTests::Identity.method(:write_visitor_cookie!)
+    RecordingStudioAbTests::CookieCodec.define_singleton_method(:read) do |_request|
+      RecordingStudioAbTests::CookieCodec.empty_payload
+    end
+    RecordingStudioAbTests::CookieCodec.define_singleton_method(:write!) { |*| nil }
+    RecordingStudioAbTests::Identity.define_singleton_method(:write_visitor_cookie!) { |*| nil }
 
     begin
       helper.clear!
+      at_exit_cleanup = true
 
       # 1. AB disabled
       RecordingStudioAbTests.configuration.enabled = false
@@ -193,9 +219,8 @@ namespace :recording_studio_ab_tests do
         RecordingStudioAbTests::AssignmentResolver.resolve(:pricing_page, expose: true)
       end
       results << helper.measure("Returning visitor (existing assignment)", iterations: iterations) do
-        helper.with_request do |request|
+        helper.with_request do
           RecordingStudioAbTests::Current.visitor_id = vid
-          request.cookie_jar.signed[RecordingStudioAbTests::Identity::VISITOR_COOKIE] = vid
           RecordingStudioAbTests::AssignmentResolver.resolve(:pricing_page, expose: true)
         end
       end
@@ -258,7 +283,7 @@ namespace :recording_studio_ab_tests do
       threads = 20
       barrier = Queue.new
       started_at = Process.clock_gettime(Process::CLOCK_MONOTONIC)
-      workers = threads.times.map do
+      workers = Array.new(threads) do
         Thread.new do
           barrier.pop
           RecordingStudioAbTests::Current.reset
@@ -299,6 +324,11 @@ namespace :recording_studio_ab_tests do
     ensure
       RecordingStudioAbTests.configuration.enabled = original_enabled
       RecordingStudioAbTests.configuration.exposure_mode = original_mode
+      RecordingStudioAbTests::CookieCodec.define_singleton_method(:read, cookie_read)
+      RecordingStudioAbTests::CookieCodec.define_singleton_method(:write!, cookie_write)
+      RecordingStudioAbTests::Identity.define_singleton_method(:write_visitor_cookie!, visitor_write)
+      # Remove bench_* experiments so seeds / demos can reclaim live target_keys.
+      helper.clear! if at_exit_cleanup
     end
 
     lines = []
