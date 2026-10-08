@@ -8,7 +8,6 @@ module RecordingStudioAbTests
       load File.expand_path("../tasks/recording_studio_ab_tests.rake", __dir__)
     end
 
-
     class << self
       def apply_model_extensions(target)
         apply_extensions(target, extensions_for(:model, extension_keys_for(target)))

@@ -26,17 +26,17 @@ module RecordingStudioAbTests
         return if @builtin_registered
 
         RecordingStudioAbTests.register_event :user_registered,
-          label: "User registered",
-          subject: :user,
-          source: :notification,
-          notification: USER_REGISTERED_EVENT,
-          map: lambda { |payload|
-            {
-              subject_identifier: payload[:user_id].to_s,
-              event_id: "user:#{payload[:user_id]}",
-              metadata: { method: payload[:method].to_s }
-            }
-          }
+                                              label: "User registered",
+                                              subject: :user,
+                                              source: :notification,
+                                              notification: USER_REGISTERED_EVENT,
+                                              map: lambda { |payload|
+                                                {
+                                                  subject_identifier: payload[:user_id].to_s,
+                                                  event_id: "user:#{payload[:user_id]}",
+                                                  metadata: { method: payload[:method].to_s }
+                                                }
+                                              }
 
         @builtin_registered = true
       end

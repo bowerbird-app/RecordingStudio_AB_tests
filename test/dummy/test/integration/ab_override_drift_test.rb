@@ -23,6 +23,7 @@ class AbOverrideDriftTest < ActiveSupport::TestCase
 
   test "assert_ab_override_current passes for pinned digest" do
     assert_ab_override_current(:signup_page)
+    assert true
   end
 
   test "assert_ab_override_current fails when digest changes" do
@@ -45,6 +46,9 @@ class AbOverrideDriftTest < ActiveSupport::TestCase
   end
 
   test "verify_overrides rake task fails on digest mismatch" do
+    require "rake"
+    Rails.application.load_tasks
+
     stale = {
       engine: "RecordingStudioUser::Engine",
       path: "recording_studio_user/auth/registrations/new.html.erb",
@@ -57,15 +61,13 @@ class AbOverrideDriftTest < ActiveSupport::TestCase
       variants: { b: { rails_variant: :ab_signup_b } },
       source_template: stale
 
+    task = Rake::Task["recording_studio_ab_tests:verify_overrides"]
+    task.reenable
     output = capture_io do
-      assert_raises(SystemExit) do
-        Rake::Task.clear
-        load RecordingStudioAbTests::Engine.root.join("lib/tasks/recording_studio_ab_tests.rake")
-        Rake::Task["recording_studio_ab_tests:verify_overrides"].reenable
-        Rake::Task["recording_studio_ab_tests:verify_overrides"].invoke
-      end
+      assert_raises(SystemExit) { task.invoke }
     end
     combined = output.join
     assert_match(/FAILED|digest mismatch/i, combined)
   end
 end
+

@@ -46,25 +46,23 @@ class AbExposureTest < ActionDispatch::IntegrationTest
 
   test "repeat exposures increment only when enabled" do
     create_running_experiment!(key: "pricing_run", target_key: "pricing_page")
+    get demo_pricing_path, headers: BROWSER_UA
+    assert_response :success
+    assignment = RecordingStudioAbTests::Assignment.first
 
     with_ab_config(track_repeat_exposures: true, exposure_mode: :inline) do
-      get demo_pricing_path, headers: BROWSER_UA
-      assert_response :success
-      assert_equal 1, RecordingStudioAbTests::Exposure.count
-
-      # Clear in-request memo and cookie target list so a second request re-enqueues.
-      RecordingStudioAbTests::Current.reset
-      jar = ActionDispatch::Request.new(Rails.application.env_config).cookie_jar
-      _ = jar
-      cookies.delete("_rsab_a")
-
-      # Returning with cookie still has targets; force by clearing cookie assignment map.
-      get demo_pricing_path, headers: BROWSER_UA
-      assert_response :success
+      RecordingStudioAbTests::RecordExposureJob.perform_now(
+        assignment_id: assignment.id,
+        target_key: "pricing_page"
+      )
+      RecordingStudioAbTests::RecordExposureJob.perform_now(
+        assignment_id: assignment.id,
+        target_key: "pricing_page"
+      )
     end
 
-    exposure = RecordingStudioAbTests::Exposure.first
-    assert_operator exposure.exposure_count, :>=, 1
+    exposure = RecordingStudioAbTests::Exposure.find_by!(assignment_id: assignment.id)
+    assert_operator exposure.exposure_count, :>=, 2
   end
 
   test "expose public API records an exposure" do

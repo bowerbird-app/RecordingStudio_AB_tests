@@ -1,14 +1,16 @@
 # RecordingStudioAbTests
 
 Server-side A/B testing for Recording Studio hosts. Built on RecordingStudio
-(dummy GitHub tag `v4.2.2`), FlatPack (dummy GitHub tag `v0.1.196`),
-Accessible (dummy GitHub tag `v0.10.1`), and Root Switchable (dummy GitHub tag `v0.5.1`).
+(dummy GitHub tag `v4.2.2`), FlatPack (dummy GitHub tag `v0.1.198`),
+Accessible (dummy GitHub tag `v0.11.2`), Users (dummy GitHub tag `v0.15.0`),
+and Root Switchable (dummy GitHub tag `v0.5.1`).
 
 ## What's Included
 
 - Sticky assignment (visitor / user / root recording) with deterministic SHA256 allocation
 - Target registry for view, partial, and component adapters (service in a later PR)
-- Dummy demos at `/demo/pricing` and `/demo/hero`
+- Exposures, event subscriptions, conversions, and identity linking
+- Dummy demos at `/demo/pricing`, `/demo/hero`, Users sign-up override, and `/demo/presskit`
 - **Recording Studio** 4.x gem pinned and configured
 - **Devise** authentication with a pre-seeded admin user
 - **Workspace**, **Folder**, and **Page** recordables seeded into the dummy host app
@@ -168,9 +170,12 @@ See the [FlatPack README](https://github.com/bowerbird-app/flatpack) for full do
 | PostgreSQL      | 16      |
 | TailwindCSS     | 4       |
 | RecordingStudio | 4.x (`~> 4.2` in the gemspec; dummy GitHub tag `v4.2.2`) |
-| Accessible      | dummy GitHub tag `v0.10.1` |
+| Accessible      | dummy GitHub tag `v0.11.2` |
+| Users           | dummy GitHub tag `v0.15.0` |
+| Admin           | dummy GitHub tag `v2.0.5` (soft dep; screens land in a later PR) |
+| Attachable      | dummy GitHub tag `v0.7.4` (Users soft dep) |
 | Root Switchable | dummy GitHub tag `v0.5.1` |
-| FlatPack        | dummy GitHub tag `v0.1.196` |
+| FlatPack        | dummy GitHub tag `v0.1.198` |
 | Devise          | latest  |
 
 The dummy Gemfile keeps `github:` sources so Bundler can fetch those gems. The gemspec still pins `recording_studio` to `~> 4.2` so copied addons declare the core dependency even when GitHub is the fetch source.

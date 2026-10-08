@@ -28,7 +28,7 @@ module RecordingStudioAbTests
         assignments.each do |assignment|
           goals.select { |g| g[:experiment_id] == assignment.experiment_id }.each do |goal|
             window_end = assignment.assigned_at + goal[:attribution_window_hours].hours
-            next unless occurred_at >= assignment.assigned_at && occurred_at <= window_end
+            next unless occurred_at.between?(assignment.assigned_at, window_end)
 
             idem = idempotency_key(
               goal: goal,
@@ -108,10 +108,7 @@ module RecordingStudioAbTests
       end
 
       def idempotency_key(goal:, assignment:, event_key:, event_id:)
-        case goal[:counting_policy]
-        when "once_per_participant"
-          Digest::SHA256.hexdigest("#{goal[:goal_id]}|#{assignment.id}")
-        when "every_event"
+        if goal[:counting_policy] == "every_event"
           if event_id.blank?
             message = "every_event goal #{goal[:key]} requires event_id"
             raise InvalidEvent, message if raise_on_unknown?
@@ -119,10 +116,10 @@ module RecordingStudioAbTests
             Rails.logger.warn("[RecordingStudioAbTests] #{message}")
             return nil
           end
-          Digest::SHA256.hexdigest("#{goal[:goal_id]}|#{assignment.id}|#{event_key}|#{event_id}")
-        else
-          Digest::SHA256.hexdigest("#{goal[:goal_id]}|#{assignment.id}")
+          return Digest::SHA256.hexdigest("#{goal[:goal_id]}|#{assignment.id}|#{event_key}|#{event_id}")
         end
+
+        Digest::SHA256.hexdigest("#{goal[:goal_id]}|#{assignment.id}")
       end
 
       def sanitize_metadata(metadata)

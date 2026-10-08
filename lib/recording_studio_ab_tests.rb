@@ -108,17 +108,13 @@ module RecordingStudioAbTests
     def resolve_event_subject(subject)
       return [nil, nil] if subject.nil?
 
-      if subject.respond_to?(:ab_subject_kind) && subject.ab_subject_kind == :visitor
-        return [:visitor, subject.id.to_s]
-      end
+      return [:visitor, subject.id.to_s] if subject.respond_to?(:ab_subject_kind) && subject.ab_subject_kind == :visitor
 
       if defined?(RecordingStudio::Recording) && subject.is_a?(RecordingStudio::Recording)
         return [:root_recording, subject.id.to_s]
       end
 
-      if subject.respond_to?(:id)
-        return [:user, configuration.user_identifier.call(subject).to_s]
-      end
+      return [:user, configuration.user_identifier.call(subject).to_s] if subject.respond_to?(:id)
 
       [:user, subject.to_s]
     end

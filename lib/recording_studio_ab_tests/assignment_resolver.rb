@@ -224,7 +224,7 @@ module RecordingStudioAbTests
 
       def maybe_expose(entry, target, resolution, expose)
         return unless expose
-        return if resolution.reason == :inactive || resolution.reason == :forced
+        return if %i[inactive forced].include?(resolution.reason)
         return if %i[bot prefetch head consent disabled traffic_gate no_subject error
                      force_unknown invalid_target].include?(resolution.reason)
 

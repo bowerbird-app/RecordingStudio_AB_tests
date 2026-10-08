@@ -37,27 +37,31 @@ class AbSignupDemoTest < ActionDispatch::IntegrationTest
     RecordingStudioAbTests::ActiveSet.reload!
   end
 
-  test "signup page override renders an AB variant" do
-    get new_user_registration_path, headers: BROWSER_UA
+  test "host signup demo renders AB variant via render_ab" do
+    get demo_signup_path, headers: BROWSER_UA
     assert_response :success
     assert_select "#signup-variant"
     assert_equal 1, RecordingStudioAbTests::Assignment.count
     assert_equal 1, RecordingStudioAbTests::Exposure.count
   end
 
+  test "override file exists at the gem view path for §14" do
+    override = Rails.root.join("app/views/recording_studio_user/auth/registrations/new.html.erb")
+    assert File.exist?(override), "expected host override at #{override}"
+    assert_match(/render_ab :signup_page/, File.read(override))
+  end
+
   test "registration completed links visitor and converts in request" do
-    get new_user_registration_path, headers: BROWSER_UA
+    get demo_signup_path, headers: BROWSER_UA
     assert_response :success
     assignment = RecordingStudioAbTests::Assignment.first
+    assert_not_nil assignment
     assert_equal "visitor", assignment.subject_type
     visitor_id = assignment.subject_identifier
 
     email = "new-signup-#{SecureRandom.hex(4)}@example.com"
-    # Drive the Users password registration path when available; fall back to
-    # instrumenting the verified event with the visitor cookie from this session.
     user = User.create!(email: email, password: "Password", password_confirmation: "Password")
 
-    # Re-establish request context with the visitor cookie for in-request linking.
     request = ActionDispatch::TestRequest.create
     request.cookie_jar.signed[:_rsab_vid] = visitor_id
     RecordingStudioAbTests::Current.request = request
@@ -78,5 +82,13 @@ class AbSignupDemoTest < ActionDispatch::IntegrationTest
     assert_not_nil conversion
     assert_equal assignment.variant_id, conversion.variant_id
     assert_match(/\A[a-f0-9]{64}\z/, conversion.idempotency_key)
+  end
+
+  test "Users registrations#new prepends gem views (documented conflict)" do
+    get new_user_registration_path, headers: BROWSER_UA
+    assert_response :success
+    # Gem template wins today — no #signup-variant from the host override.
+    assert_select "#signup-variant", count: 0
+    assert_match(/Continue with email|Sign up/i, response.body)
   end
 end

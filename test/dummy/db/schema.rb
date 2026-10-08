@@ -75,7 +75,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_08_120011) do
     t.index ["experiment_id", "variant_id"], name: "idx_rsab_assignments_experiment_variant"
     t.index ["linked_user_id"], name: "idx_rsab_assignments_linked_user", where: "(linked_user_id IS NOT NULL)"
     t.check_constraint "bucket >= 0 AND bucket <= 9999", name: "chk_rsab_assignments_bucket"
-    t.check_constraint "subject_type::text = ANY (ARRAY['visitor'::character varying::text, 'user'::character varying::text, 'root_recording'::character varying::text])", name: "chk_rsab_assignments_subject_type"
+    t.check_constraint "subject_type::text = ANY (ARRAY['visitor'::character varying, 'user'::character varying, 'root_recording'::character varying]::text[])", name: "chk_rsab_assignments_subject_type"
   end
 
   create_table "recording_studio_ab_tests_conversions", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -118,9 +118,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_08_120011) do
     t.datetime "updated_at", null: false
     t.index ["key"], name: "idx_rsab_experiments_key", unique: true
     t.index ["target_key", "status"], name: "idx_rsab_experiments_target_status"
-    t.index ["target_key"], name: "idx_rsab_experiments_live_target", unique: true, where: "((status)::text = ANY (ARRAY[('running'::character varying)::text, ('paused'::character varying)::text]))"
-    t.check_constraint "assignment_scope::text = ANY (ARRAY['visitor'::character varying::text, 'user'::character varying::text, 'root_recording'::character varying::text])", name: "chk_rsab_experiments_scope"
-    t.check_constraint "status::text = ANY (ARRAY['draft'::character varying::text, 'running'::character varying::text, 'paused'::character varying::text, 'completed'::character varying::text, 'archived'::character varying::text])", name: "chk_rsab_experiments_status"
+    t.index ["target_key"], name: "idx_rsab_experiments_live_target", unique: true, where: "((status)::text = ANY ((ARRAY['running'::character varying, 'paused'::character varying])::text[]))"
+    t.check_constraint "assignment_scope::text = ANY (ARRAY['visitor'::character varying, 'user'::character varying, 'root_recording'::character varying]::text[])", name: "chk_rsab_experiments_scope"
+    t.check_constraint "status::text = ANY (ARRAY['draft'::character varying, 'running'::character varying, 'paused'::character varying, 'completed'::character varying, 'archived'::character varying]::text[])", name: "chk_rsab_experiments_status"
     t.check_constraint "traffic_percentage >= 0 AND traffic_percentage <= 100", name: "chk_rsab_experiments_traffic"
   end
 
@@ -154,7 +154,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_08_120011) do
     t.index ["experiment_id", "key"], name: "idx_rsab_goals_experiment_key", unique: true
     t.index ["experiment_id"], name: "idx_rsab_goals_primary", unique: true, where: "(is_primary = true)"
     t.check_constraint "attribution_window_hours >= 1 AND attribution_window_hours <= 2160", name: "chk_rsab_goals_window"
-    t.check_constraint "counting_policy::text = ANY (ARRAY['once_per_participant'::character varying::text, 'every_event'::character varying::text])", name: "chk_rsab_goals_counting"
+    t.check_constraint "counting_policy::text = ANY (ARRAY['once_per_participant'::character varying, 'every_event'::character varying]::text[])", name: "chk_rsab_goals_counting"
   end
 
   create_table "recording_studio_ab_tests_variants", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|

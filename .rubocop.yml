@@ -26,16 +26,22 @@ Metrics/ClassLength:
     - 'test/**/*'
     - 'lib/recording_studio_ab_tests/assignment_resolver.rb'
     - 'lib/recording_studio_ab_tests/lifecycle.rb'
+    - 'lib/recording_studio_ab_tests/conversion_recorder.rb'
+    - 'lib/recording_studio_ab_tests/event_subscriptions.rb'
+    - 'lib/recording_studio_ab_tests/engine.rb'
 
 Metrics/ModuleLength:
   Exclude:
     - 'lib/recording_studio_ab_tests/lifecycle.rb'
     - 'lib/recording_studio_ab_tests/eligibility.rb'
+    - 'lib/recording_studio_ab_tests/event_subscriptions.rb'
 
 Metrics/BlockLength:
   Exclude:
     - 'lib/recording_studio_ab_tests/lifecycle.rb'
+    - 'lib/recording_studio_ab_tests/identity_linker.rb'
     - 'lib/generators/**/*'
+    - 'lib/tasks/**/*'
 
 Naming/PredicateMethod:
   Exclude:
@@ -46,16 +52,20 @@ Metrics/MethodLength:
     - 'test/**/*'
     - 'lib/generators/**/*'
     - 'db/migrate/**/*'
+    - 'lib/recording_studio_ab_tests.rb'
     - 'lib/recording_studio_ab_tests/**/*'
     - 'app/models/recording_studio_ab_tests/**/*'
+    - 'app/jobs/recording_studio_ab_tests/**/*'
 
 Metrics/AbcSize:
   Exclude:
     - 'test/**/*'
     - 'lib/generators/**/*'
     - 'db/migrate/**/*'
+    - 'lib/recording_studio_ab_tests.rb'
     - 'lib/recording_studio_ab_tests/**/*'
     - 'app/models/recording_studio_ab_tests/**/*'
+    - 'app/jobs/recording_studio_ab_tests/**/*'
 
 Metrics/CyclomaticComplexity:
   Exclude:
@@ -70,6 +80,7 @@ Metrics/PerceivedComplexity:
 
 Metrics/ParameterLists:
   Exclude:
+    - 'lib/recording_studio_ab_tests.rb'
     - 'lib/recording_studio_ab_tests/**/*'
 
 Naming/PredicatePrefix:
