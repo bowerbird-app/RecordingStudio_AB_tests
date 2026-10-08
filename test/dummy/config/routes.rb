@@ -6,6 +6,13 @@ Rails.application.routes.draw do
   get "/recording_studio", to: redirect("/"), as: nil
   mount RecordingStudio::Engine, at: "/recording_studio"
   mount RecordingStudioRootSwitchable::Engine, at: "/recording_studio_root_switchable"
+  mount RecordingStudioAbTests::Engine, at: "/ab_tests"
+
+  namespace :demo do
+    get "pricing", to: "pricing#show", as: :pricing
+    post "pricing", to: "pricing#create"
+    get "hero", to: "hero#show", as: :hero
+  end
 
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 

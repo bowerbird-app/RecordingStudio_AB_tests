@@ -4,22 +4,22 @@ require "test_helper"
 
 class ConfigurationTest < Minitest::Test
   def setup
-    @configuration = GemTemplate::Configuration.new
+    @configuration = RecordingStudioAbTests::Configuration.new
   end
 
   def test_merge_updates_known_attributes
-    @configuration.merge!(api_key: "abc123", timeout: 9, enable_feature_x: true)
+    @configuration.merge!(enabled: false, max_cookie_entries: 9, exposure_mode: :inline)
 
-    assert_equal "abc123", @configuration.api_key
-    assert_equal 9, @configuration.timeout
-    assert_equal true, @configuration.enable_feature_x
+    assert_equal false, @configuration.enabled
+    assert_equal 9, @configuration.max_cookie_entries
+    assert_equal :inline, @configuration.exposure_mode
   end
 
   def test_merge_ignores_unknown_keys
-    @configuration.merge!(unknown_key: "ignored", timeout: 7)
+    @configuration.merge!(unknown_key: "ignored", max_cookie_entries: 7)
 
     refute_respond_to @configuration, :unknown_key
-    assert_equal 7, @configuration.timeout
+    assert_equal 7, @configuration.max_cookie_entries
   end
 
   def test_merge_with_non_enumerable_is_noop
@@ -27,31 +27,25 @@ class ConfigurationTest < Minitest::Test
 
     @configuration.merge!(nil)
 
-    assert_nil @configuration.api_key if original[:api_key].nil?
-    assert_equal original[:api_key], @configuration.api_key unless original[:api_key].nil?
-    assert_equal original[:timeout], @configuration.timeout
-    assert_equal original[:enable_feature_x], @configuration.enable_feature_x
+    assert_equal original[:enabled], @configuration.enabled
+    assert_equal original[:max_cookie_entries], @configuration.max_cookie_entries
   end
 
-  def test_initialize_uses_environment_api_key_and_defaults
-    previous_value = ENV.fetch("GEM_TEMPLATE_API_KEY", nil)
-    ENV["GEM_TEMPLATE_API_KEY"] = "env-token"
+  def test_initialize_sets_ab_defaults
+    configuration = RecordingStudioAbTests::Configuration.new
 
-    configuration = GemTemplate::Configuration.new
-
-    assert_equal "env-token", configuration.api_key
-    assert_equal false, configuration.enable_feature_x
-    assert_equal 5, configuration.timeout
+    assert_equal true, configuration.enabled
+    assert_equal :async, configuration.exposure_mode
+    assert_equal 15, configuration.max_cookie_entries
+    assert_equal "/ab_tests", configuration.mount_path
     assert_instance_of RecordingStudio::Hooks, configuration.hooks
-  ensure
-    ENV["GEM_TEMPLATE_API_KEY"] = previous_value
   end
 
   def test_merge_accepts_string_keys
-    @configuration.merge!("api_key" => "string-key", "timeout" => 12)
+    @configuration.merge!("enabled" => false, "max_cookie_entries" => 12)
 
-    assert_equal "string-key", @configuration.api_key
-    assert_equal 12, @configuration.timeout
+    assert_equal false, @configuration.enabled
+    assert_equal 12, @configuration.max_cookie_entries
   end
 
   def test_to_h_reports_registered_hook_counts
@@ -66,8 +60,8 @@ class ConfigurationTest < Minitest::Test
   end
 
   def test_configure_without_block_is_safe
-    GemTemplate.configure
+    RecordingStudioAbTests.configure
 
-    assert_kind_of GemTemplate::Configuration, GemTemplate.configuration
+    assert_kind_of RecordingStudioAbTests::Configuration, RecordingStudioAbTests.configuration
   end
 end

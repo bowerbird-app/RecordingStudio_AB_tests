@@ -1,0 +1,7 @@
+development:
+  enabled: true
+  max_cookie_entries: 15
+
+production:
+  enabled: true
+  max_cookie_entries: 15
