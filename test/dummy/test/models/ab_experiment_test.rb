@@ -35,6 +35,7 @@ class AbExperimentTest < ActiveSupport::TestCase
 
     refute experiment.update(key: "other_key")
     assert_includes experiment.errors[:key], "cannot change after experiment has started"
+    experiment.reload
 
     assert RecordingStudioAbTests::Lifecycle.pause!(experiment)
     assert experiment.reload.paused?

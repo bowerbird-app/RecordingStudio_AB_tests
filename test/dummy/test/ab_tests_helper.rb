@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 module AbTestsHelper
+  BROWSER_UA = { "User-Agent" => "Mozilla/5.0 (compatible; ABTest/1.0)" }.freeze
+
   def create_running_experiment!(key:, target_key:, scope: "visitor", traffic: 100, weights: [50, 50], seed: "abcd1234efgh5678")
     experiment = RecordingStudioAbTests::Experiment.create!(
       key: key,

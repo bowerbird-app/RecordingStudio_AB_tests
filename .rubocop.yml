@@ -59,6 +59,7 @@ Metrics/AbcSize:
 
 Metrics/CyclomaticComplexity:
   Exclude:
+    - 'test/**/*'
     - 'lib/recording_studio_ab_tests/**/*'
     - 'db/migrate/**/*'
 

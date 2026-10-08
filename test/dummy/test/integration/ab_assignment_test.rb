@@ -20,14 +20,13 @@ class AbAssignmentTest < ActionDispatch::IntegrationTest
     RecordingStudioAbTests::Experiment.delete_all
     RecordingStudioAbTests::ActiveSet.clear_local!
     Rails.cache.clear
+    sign_in User.find_by!(email: "admin@admin.com")
   end
 
   test "inactive target performs zero SQL" do
-    # Warm the process-local ActiveSet so evaluation is memory-only.
     RecordingStudioAbTests::ActiveSet.reload!
-    sign_in User.find_by!(email: "admin@admin.com")
     queries = count_sql do
-      get demo_pricing_path, headers: { "User-Agent" => "Mozilla/5.0" }
+      get demo_pricing_path, headers: BROWSER_UA
       assert_response :success
       assert_select "#pricing-variant[data-variant=control]"
     end
@@ -38,14 +37,13 @@ class AbAssignmentTest < ActionDispatch::IntegrationTest
 
   test "cookie hit performs zero SQL against assignments" do
     create_running_experiment!(key: "pricing_run", target_key: "pricing_page")
-    sign_in User.find_by!(email: "admin@admin.com")
 
-    get demo_pricing_path
+    get demo_pricing_path, headers: BROWSER_UA
     assert_response :success
     assert_equal 1, RecordingStudioAbTests::Assignment.count
 
     queries = count_sql do
-      get demo_pricing_path
+      get demo_pricing_path, headers: BROWSER_UA
       assert_response :success
     end
     assignment_queries = queries.select { |sql| sql.include?("recording_studio_ab_tests_assignments") }
@@ -54,10 +52,9 @@ class AbAssignmentTest < ActionDispatch::IntegrationTest
 
   test "first anonymous exposure is insert plus select" do
     create_running_experiment!(key: "pricing_run", target_key: "pricing_page")
-    sign_in User.find_by!(email: "admin@admin.com")
 
     queries = count_sql do
-      get demo_pricing_path
+      get demo_pricing_path, headers: BROWSER_UA
       assert_response :success
     end
     inserts = queries.count { |sql| sql.match?(/INSERT INTO ["`]?recording_studio_ab_tests_assignments/i) }
@@ -105,30 +102,19 @@ class AbAssignmentTest < ActionDispatch::IntegrationTest
 
   test "weight change does not move existing assignment rows" do
     experiment = create_running_experiment!(key: "pricing_run", target_key: "pricing_page", weights: [100, 0])
-    sign_in User.find_by!(email: "admin@admin.com")
 
-    get demo_pricing_path
+    get demo_pricing_path, headers: BROWSER_UA
     assert_response :success
     assignment = RecordingStudioAbTests::Assignment.first
+    assert assignment, "expected an assignment row"
     original_variant_id = assignment.variant_id
 
     experiment.variants.find_by!(key: "control").update!(weight: 0)
     experiment.variants.find_by!(key: "b").update!(weight: 100)
     RecordingStudioAbTests::ActiveSet.reload!
 
-    get demo_pricing_path
+    get demo_pricing_path, headers: BROWSER_UA
     assert_response :success
     assert_equal original_variant_id, assignment.reload.variant_id
-  end
-
-  test "variants option is scoped to the render call" do
-    create_running_experiment!(key: "pricing_run", target_key: "pricing_page")
-    sign_in User.find_by!(email: "admin@admin.com")
-
-    get demo_pricing_path
-    assert_response :success
-    # request.variant is not a lasting side effect of render_ab
-    # Integration test cannot easily inspect the controller request after render,
-    # so we assert via a unit-style controller check below through a probe endpoint.
   end
 end

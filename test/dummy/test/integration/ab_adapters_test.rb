@@ -22,47 +22,62 @@ class AbAdaptersTest < ActionDispatch::IntegrationTest
   end
 
   test "view adapter renders control when inactive and variant when assigned" do
-    get demo_pricing_path
+    get demo_pricing_path, headers: BROWSER_UA
     assert_response :success
     assert_select "#pricing-variant[data-variant=control]"
 
     create_running_experiment!(key: "pricing_run", target_key: "pricing_page", weights: [0, 100])
-    get demo_pricing_path
+    get demo_pricing_path, headers: BROWSER_UA
     assert_response :success
     assert_select "#pricing-variant[data-variant=b]"
   end
 
   test "component adapter renders control and variant B" do
-    get demo_hero_path
+    get demo_hero_path, headers: BROWSER_UA
     assert_response :success
     assert_select "#hero-variant[data-variant=control]"
 
     create_running_experiment!(key: "hero_run", target_key: "hero_component", weights: [0, 100])
-    get demo_hero_path
+    get demo_hero_path, headers: BROWSER_UA
     assert_response :success
     assert_select "#hero-variant[data-variant=b]"
   end
 
   test "request.variant and view paths remain untouched" do
-    create_running_experiment!(key: "pricing_run", target_key: "pricing_page", weights: [0, 100])
-
     controller = Demo::PricingController.new
-    request = ActionDispatch::Request.new(Rack::MockRequest.env_for("/demo/pricing", "HTTP_USER_AGENT" => "Mozilla/5.0"))
+    request = ActionDispatch::Request.new(
+      Rack::MockRequest.env_for("/demo/pricing", "HTTP_USER_AGENT" => BROWSER_UA["User-Agent"])
+    )
     response = ActionDispatch::Response.new
     controller.set_request!(request)
     controller.set_response!(response)
-    RecordingStudioAbTests::Current.request = request
-    RecordingStudioAbTests::Current.controller = controller
 
     before_paths = controller.view_paths.map(&:to_s)
     before_variant = request.variant.dup
 
-    # Drive the adapter the same way the action does
     controller.define_singleton_method(:render) do |**opts|
       @_render_opts = opts
       self.response_body = "ok"
     end
-    RecordingStudioAbTests::Adapters::View.render(controller, RecordingStudioAbTests.registry.fetch_target!(:pricing_page))
+
+    target = RecordingStudioAbTests.registry.fetch_target!(:pricing_page)
+    resolution = RecordingStudioAbTests::AssignmentResolver::Resolution.new(
+      variant_key: "b",
+      implementation_key: "b",
+      assignment: nil,
+      experiment_id: SecureRandom.uuid,
+      reason: :assigned,
+      rails_variant: :ab_pricing_b,
+      created: false
+    )
+
+    original = RecordingStudioAbTests::AssignmentResolver.method(:resolve)
+    RecordingStudioAbTests::AssignmentResolver.define_singleton_method(:resolve) { |*| resolution }
+    begin
+      RecordingStudioAbTests::Adapters::View.render(controller, target)
+    ensure
+      RecordingStudioAbTests::AssignmentResolver.define_singleton_method(:resolve, original)
+    end
 
     assert_equal before_variant, request.variant
     assert_equal before_paths, controller.view_paths.map(&:to_s)
