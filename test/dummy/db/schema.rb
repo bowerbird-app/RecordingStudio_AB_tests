@@ -10,10 +10,38 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_08_010005) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_08_120011) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
+
+  create_table "active_storage_attachments", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "name", null: false
+    t.string "record_type", null: false
+    t.uuid "record_id", null: false
+    t.uuid "blob_id", null: false
+    t.datetime "created_at", null: false
+    t.index ["blob_id"], name: "index_active_storage_attachments_on_blob_id"
+    t.index ["record_type", "record_id", "name", "blob_id"], name: "index_active_storage_attachments_uniqueness", unique: true
+  end
+
+  create_table "active_storage_blobs", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "key", null: false
+    t.string "filename", null: false
+    t.string "content_type"
+    t.text "metadata"
+    t.string "service_name", null: false
+    t.bigint "byte_size", null: false
+    t.string "checksum"
+    t.datetime "created_at", null: false
+    t.index ["key"], name: "index_active_storage_blobs_on_key", unique: true
+  end
+
+  create_table "active_storage_variant_records", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "blob_id", null: false
+    t.string "variation_digest", null: false
+    t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
+  end
 
   create_table "folders", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.datetime "created_at", null: false
@@ -47,7 +75,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_08_010005) do
     t.index ["experiment_id", "variant_id"], name: "idx_rsab_assignments_experiment_variant"
     t.index ["linked_user_id"], name: "idx_rsab_assignments_linked_user", where: "(linked_user_id IS NOT NULL)"
     t.check_constraint "bucket >= 0 AND bucket <= 9999", name: "chk_rsab_assignments_bucket"
-    t.check_constraint "subject_type::text = ANY (ARRAY['visitor'::character varying, 'user'::character varying, 'root_recording'::character varying]::text[])", name: "chk_rsab_assignments_subject_type"
+    t.check_constraint "subject_type::text = ANY (ARRAY['visitor'::character varying::text, 'user'::character varying::text, 'root_recording'::character varying::text])", name: "chk_rsab_assignments_subject_type"
   end
 
   create_table "recording_studio_ab_tests_conversions", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -90,9 +118,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_08_010005) do
     t.datetime "updated_at", null: false
     t.index ["key"], name: "idx_rsab_experiments_key", unique: true
     t.index ["target_key", "status"], name: "idx_rsab_experiments_target_status"
-    t.index ["target_key"], name: "idx_rsab_experiments_live_target", unique: true, where: "((status)::text = ANY ((ARRAY['running'::character varying, 'paused'::character varying])::text[]))"
-    t.check_constraint "assignment_scope::text = ANY (ARRAY['visitor'::character varying, 'user'::character varying, 'root_recording'::character varying]::text[])", name: "chk_rsab_experiments_scope"
-    t.check_constraint "status::text = ANY (ARRAY['draft'::character varying, 'running'::character varying, 'paused'::character varying, 'completed'::character varying, 'archived'::character varying]::text[])", name: "chk_rsab_experiments_status"
+    t.index ["target_key"], name: "idx_rsab_experiments_live_target", unique: true, where: "((status)::text = ANY (ARRAY[('running'::character varying)::text, ('paused'::character varying)::text]))"
+    t.check_constraint "assignment_scope::text = ANY (ARRAY['visitor'::character varying::text, 'user'::character varying::text, 'root_recording'::character varying::text])", name: "chk_rsab_experiments_scope"
+    t.check_constraint "status::text = ANY (ARRAY['draft'::character varying::text, 'running'::character varying::text, 'paused'::character varying::text, 'completed'::character varying::text, 'archived'::character varying::text])", name: "chk_rsab_experiments_status"
     t.check_constraint "traffic_percentage >= 0 AND traffic_percentage <= 100", name: "chk_rsab_experiments_traffic"
   end
 
@@ -126,7 +154,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_08_010005) do
     t.index ["experiment_id", "key"], name: "idx_rsab_goals_experiment_key", unique: true
     t.index ["experiment_id"], name: "idx_rsab_goals_primary", unique: true, where: "(is_primary = true)"
     t.check_constraint "attribution_window_hours >= 1 AND attribution_window_hours <= 2160", name: "chk_rsab_goals_window"
-    t.check_constraint "counting_policy::text = ANY (ARRAY['once_per_participant'::character varying, 'every_event'::character varying]::text[])", name: "chk_rsab_goals_counting"
+    t.check_constraint "counting_policy::text = ANY (ARRAY['once_per_participant'::character varying::text, 'every_event'::character varying::text])", name: "chk_rsab_goals_counting"
   end
 
   create_table "recording_studio_ab_tests_variants", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -171,10 +199,26 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_08_010005) do
     t.string "actor_type", null: false
     t.datetime "created_at", null: false
     t.uuid "depends_on_recording_id"
-    t.integer "role", default: 0, null: false
+    t.string "role", default: "view", null: false
     t.index ["actor_type", "actor_id", "role"], name: "index_recording_studio_accesses_on_actor_and_role"
     t.index ["actor_type", "actor_id"], name: "index_recording_studio_accesses_on_actor"
     t.index ["depends_on_recording_id"], name: "index_recording_studio_accesses_on_depends_on_recording_id"
+  end
+
+  create_table "recording_studio_attachable_attachments", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "name", null: false
+    t.text "description"
+    t.string "attachment_kind", null: false
+    t.string "original_filename", null: false
+    t.string "content_type", null: false
+    t.bigint "byte_size", null: false
+    t.uuid "root_recording_id"
+    t.text "caption"
+    t.text "credit"
+    t.text "alt_text"
+    t.index ["attachment_kind", "content_type"], name: "idx_rs_attachable_kind_type"
+    t.index ["attachment_kind"], name: "idx_on_attachment_kind_d683071625"
+    t.index ["root_recording_id"], name: "index_rs_attachable_attachments_on_root_recording_id"
   end
 
   create_table "recording_studio_events", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -207,12 +251,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_08_010005) do
     t.uuid "root_recording_id"
     t.datetime "trashed_at"
     t.datetime "updated_at", null: false
+    t.index ["parent_recording_id"], name: "idx_rs_attachable_parent_active", where: "(((recordable_type)::text = 'RecordingStudioAttachable::Attachment'::text) AND (trashed_at IS NULL))"
     t.index ["parent_recording_id"], name: "index_recording_studio_recordings_on_parent_recording_id"
     t.index ["recordable_type", "recordable_id", "parent_recording_id", "trashed_at"], name: "index_recording_studio_recordings_on_recordable_parent_trashed"
     t.index ["recordable_type", "recordable_id"], name: "index_recording_studio_recordings_on_recordable"
     t.index ["recordable_type", "recordable_id"], name: "index_rs_unique_root_recording_per_recordable", unique: true, where: "(parent_recording_id IS NULL)"
     t.index ["root_recording_id", "parent_recording_id"], name: "index_rs_recordings_on_root_and_parent"
     t.index ["root_recording_id", "recordable_type", "recordable_id"], name: "index_rs_recordings_on_root_and_recordable"
+    t.index ["root_recording_id"], name: "idx_rs_attachable_root_active", where: "(((recordable_type)::text = 'RecordingStudioAttachable::Attachment'::text) AND (trashed_at IS NULL))"
     t.index ["root_recording_id"], name: "index_rs_recordings_on_root_recording"
   end
 
@@ -235,6 +281,50 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_08_010005) do
     t.index ["root_recording_id"], name: "idx_rs_root_switchable_root_recording"
   end
 
+  create_table "recording_studio_user_identities", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "user_id", null: false
+    t.string "provider", null: false
+    t.string "uid", null: false
+    t.string "email"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["provider", "uid"], name: "index_recording_studio_user_identities_on_provider_and_uid", unique: true
+    t.index ["user_id", "provider"], name: "index_recording_studio_user_identities_on_user_id_and_provider", unique: true
+    t.index ["user_id"], name: "index_recording_studio_user_identities_on_user_id"
+  end
+
+  create_table "recording_studio_user_otp_challenges", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "user_id", null: false
+    t.string "purpose", null: false
+    t.string "code_digest", null: false
+    t.text "delivery_code_ciphertext"
+    t.datetime "expires_at", null: false
+    t.integer "attempts_count", default: 0, null: false
+    t.datetime "verified_at"
+    t.datetime "consumed_at"
+    t.datetime "revoked_at"
+    t.datetime "delivery_requested_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["expires_at"], name: "index_recording_studio_user_otp_challenges_on_expires_at"
+    t.index ["user_id", "purpose"], name: "idx_on_user_id_purpose_2b7c2a59c4"
+    t.index ["user_id"], name: "index_recording_studio_user_otp_challenges_on_user_id"
+  end
+
+  create_table "recording_studio_user_people", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.datetime "created_at", null: false
+  end
+
+  create_table "recording_studio_user_profiles", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "user_id", null: false
+    t.string "first_name", null: false
+    t.string "last_name"
+    t.string "time_zone", default: "UTC"
+    t.jsonb "additional_profile_attributes", default: {}, null: false
+    t.datetime "created_at", null: false
+    t.index ["user_id"], name: "index_recording_studio_user_profiles_on_user_id"
+  end
+
   create_table "users", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "email", default: "", null: false
@@ -243,8 +333,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_08_010005) do
     t.datetime "reset_password_sent_at"
     t.string "reset_password_token"
     t.datetime "updated_at", null: false
+    t.string "confirmation_token"
+    t.datetime "confirmed_at"
+    t.datetime "confirmation_sent_at"
+    t.string "unconfirmed_email"
+    t.string "registered_with", default: "password", null: false
+    t.index ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
+    t.check_constraint "registered_with::text = ANY (ARRAY['password'::character varying, 'otp'::character varying]::text[])", name: "users_registered_with_check"
   end
 
   create_table "workspaces", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -253,6 +350,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_08_010005) do
     t.datetime "updated_at", null: false
   end
 
+  add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "recording_studio_ab_tests_assignments", "recording_studio_ab_tests_experiments", column: "experiment_id"
   add_foreign_key "recording_studio_ab_tests_assignments", "recording_studio_ab_tests_variants", column: "variant_id"
   add_foreign_key "recording_studio_ab_tests_conversions", "recording_studio_ab_tests_assignments", column: "assignment_id"
@@ -269,4 +368,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_08_010005) do
   add_foreign_key "recording_studio_events", "recording_studio_recordings", column: "recording_id"
   add_foreign_key "recording_studio_recordings", "recording_studio_recordings", column: "parent_recording_id"
   add_foreign_key "recording_studio_recordings", "recording_studio_recordings", column: "root_recording_id"
+  add_foreign_key "recording_studio_user_identities", "users"
+  add_foreign_key "recording_studio_user_otp_challenges", "users"
+  add_foreign_key "recording_studio_user_profiles", "users"
 end

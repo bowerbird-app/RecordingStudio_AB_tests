@@ -109,9 +109,70 @@ hero_running = seed_experiment.call(
   status: "running"
 )
 
+# Demo C/D: signup page experiment (weights favor B for demos) with registration goals.
+signup_running = RecordingStudioAbTests::Experiment.find_or_initialize_by(key: "signup_running_demo")
+if signup_running.new_record?
+  signup_running.assign_attributes(
+    name: "Signup page (running)",
+    target_key: "signup_page",
+    assignment_scope: "visitor",
+    traffic_percentage: 100,
+    status: "draft",
+    allocation_version: "sha256-v1",
+    allocation_seed: SecureRandom.hex(8),
+    created_by: user
+  )
+  signup_running.save!
+end
+if signup_running.variants.none?
+  signup_running.variants.create!(key: "control", name: "Control", implementation_key: "control",
+                                  is_control: true, weight: 20, position: 0)
+  signup_running.variants.create!(key: "b", name: "Variant B", implementation_key: "b",
+                                  is_control: false, weight: 80, position: 1)
+end
+if signup_running.goals.none?
+  signup_running.goals.create!(key: "registered", name: "User registered",
+                               event_key: "user_registered", is_primary: true,
+                               attribution_window_hours: 168, counting_policy: "once_per_participant")
+end
+if signup_running.draft?
+  signup_running.update!(status: "running", started_at: Time.current)
+end
+
+# Demo D: presskit track_event conversion experiment (user scope).
+presskit_running = RecordingStudioAbTests::Experiment.find_or_initialize_by(key: "presskit_running_demo")
+if presskit_running.new_record?
+  presskit_running.assign_attributes(
+    name: "Press kit (running)",
+    target_key: "presskit_cta",
+    assignment_scope: "user",
+    traffic_percentage: 100,
+    status: "draft",
+    allocation_version: "sha256-v1",
+    allocation_seed: SecureRandom.hex(8),
+    created_by: user
+  )
+  presskit_running.save!
+end
+if presskit_running.variants.none?
+  presskit_running.variants.create!(key: "control", name: "Control", implementation_key: "control",
+                                    is_control: true, weight: 50, position: 0)
+  presskit_running.variants.create!(key: "b", name: "Variant B", implementation_key: "b",
+                                    is_control: false, weight: 50, position: 1)
+end
+if presskit_running.goals.none?
+  presskit_running.goals.create!(key: "presskit", name: "Press kit created",
+                                 event_key: "presskit_created", is_primary: true,
+                                 attribution_window_hours: 168, counting_policy: "every_event")
+end
+if presskit_running.draft?
+  presskit_running.update!(status: "running", started_at: Time.current)
+end
+
 # Only one live experiment per target — archive the draft's conflict by keeping
 # pricing_running as the live experiment. The draft uses a different key and
 # remains draft so ActiveSet ignores it for serving.
 RecordingStudioAbTests::ActiveSet.bump!
 
 puts "Seeded AB: #{pricing_draft.key} (draft), #{pricing_running.key} (running), #{hero_running.key} (running)"
+puts "Seeded AB: #{signup_running.key} (running), #{presskit_running.key} (running)"

@@ -1,0 +1,45 @@
+<%#
+  Control copy of RecordingStudioUser v0.15.0
+  app/views/recording_studio_user/auth/registrations/new.html.erb
+  Digest: f844930af9cae292428cd333547320c802a3fee5eba0ce78d18056223ca3a52b
+  Refresh via recording_studio_ab_tests:verify_overrides when the gem template drifts.
+%>
+<%= render layout: "recording_studio_user/auth/shell", locals: { title: t("recording_studio_user.auth.sign_up") } do %>
+  <% if flash[:alert].present? %>
+    <%= render FlatPack::Alert::Component.new(title: flash[:alert], style: :danger) %>
+  <% end %>
+
+  <div id="signup-variant" data-variant="control">
+    <%= form_with scope: :user, url: auth_sign_up_path, method: :post do %>
+      <div class="space-y-4">
+        <%= render FlatPack::EmailInput::Component.new(
+          name: "user[email]",
+          id: "user_email",
+          value: @resource&.email,
+          placeholder: t("recording_studio_user.auth.email_placeholder"),
+          required: true,
+          autocomplete: "email",
+          aria: { label: t("recording_studio_user.auth.email") },
+          error: @resource&.errors&.[](:email)&.first
+        ) %>
+
+        <%= render FlatPack::Button::Component.new(
+          text: t("recording_studio_user.auth.continue_with_email"),
+          style: :primary,
+          size: :md,
+          type: "submit",
+          class: "w-full"
+        ) %>
+      </div>
+    <% end %>
+  </div>
+
+  <p class="text-center text-sm text-[var(--surface-muted-content-color)]">
+    <%= t("recording_studio_user.auth.already_have_one") %>
+    <%= render FlatPack::Link::Component.new(href: auth_sign_in_path) do %>
+      <%= t("recording_studio_user.auth.log_in") %>
+    <% end %>
+  </p>
+
+  <%= render "recording_studio_user/omniauth/continue_with_providers" %>
+<% end %>
