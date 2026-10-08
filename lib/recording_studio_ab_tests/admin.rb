@@ -596,11 +596,11 @@ module RecordingStudioAbTests
         # Flatpack defaults both series to near-identical primary opacities; override
         # via ChartDefinition#options (passed through to FlatPack::Chart::Component).
         options({
-          colors: [
-            "color-mix(in oklab, var(--color-primary) 100%, transparent)",
-            "color-mix(in oklab, var(--color-primary) 40%, transparent)"
-          ]
-        })
+                  colors: [
+                    "color-mix(in oklab, var(--color-primary) 100%, transparent)",
+                    "color-mix(in oklab, var(--color-primary) 40%, transparent)"
+                  ]
+                })
         series { |_context| RecordingStudioAbTests::Admin.daily_reporting_series }
       end
 
