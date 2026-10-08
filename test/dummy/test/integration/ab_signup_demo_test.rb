@@ -37,8 +37,8 @@ class AbSignupDemoTest < ActionDispatch::IntegrationTest
     RecordingStudioAbTests::ActiveSet.reload!
   end
 
-  test "host signup demo renders AB variant via render_ab" do
-    get demo_signup_path, headers: BROWSER_UA
+  test "real /users/sign_up host override renders AB variant via render_ab" do
+    get new_user_registration_path, headers: BROWSER_UA
     assert_response :success
     assert_select "#signup-variant"
     assert_equal 1, RecordingStudioAbTests::Assignment.count
@@ -51,8 +51,8 @@ class AbSignupDemoTest < ActionDispatch::IntegrationTest
     assert_match(/render_ab :signup_page/, File.read(override))
   end
 
-  test "registration completed links visitor and converts in request" do
-    get demo_signup_path, headers: BROWSER_UA
+  test "registration.completed.recording_studio_user links visitor and converts" do
+    get new_user_registration_path, headers: BROWSER_UA
     assert_response :success
     assignment = RecordingStudioAbTests::Assignment.first
     assert_not_nil assignment
@@ -82,13 +82,5 @@ class AbSignupDemoTest < ActionDispatch::IntegrationTest
     assert_not_nil conversion
     assert_equal assignment.variant_id, conversion.variant_id
     assert_match(/\A[a-f0-9]{64}\z/, conversion.idempotency_key)
-  end
-
-  test "Users registrations#new prepends gem views (documented conflict)" do
-    get new_user_registration_path, headers: BROWSER_UA
-    assert_response :success
-    # Gem template wins today — no #signup-variant from the host override.
-    assert_select "#signup-variant", count: 0
-    assert_match(/Continue with email|Sign up/i, response.body)
   end
 end

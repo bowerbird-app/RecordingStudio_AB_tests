@@ -21,8 +21,9 @@ Rails.application.config.to_prepare do
     control: "Demo::HeroControlComponent",
     variants: { b: "Demo::HeroVariantBComponent" }
 
-  # Demo C: gem-owned sign-up page override (plan §14). Digest of
-  # recording_studio_user v0.15.0 registrations/new.html.erb.
+  # Demo C: gem-owned sign-up page override on real /users/sign_up (plan §14).
+  # Digest of recording_studio_user v0.16.0 registrations/new.html.erb
+  # (template unchanged from v0.15.0; host views win as of v0.16.0).
   signup_path = "recording_studio_user/auth/registrations/new.html.erb"
   signup_digest = "f844930af9cae292428cd333547320c802a3fee5eba0ce78d18056223ca3a52b"
   RecordingStudioAbTests.register_target :signup_page,

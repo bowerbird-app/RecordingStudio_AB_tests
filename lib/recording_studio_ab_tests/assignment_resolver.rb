@@ -161,7 +161,7 @@ module RecordingStudioAbTests
         end
 
         # Concurrent-safe insert-if-absent; uniqueness enforced by idx_rsab_assignments_subject.
-        RecordingStudioAbTests::Assignment.insert_all( # rubocop:disable Rails/SkipsModelValidations
+        RecordingStudioAbTests::Assignment.insert_all(
           [attrs],
           unique_by: :idx_rsab_assignments_subject
         )

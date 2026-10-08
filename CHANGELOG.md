@@ -21,10 +21,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Version `0.2.3` → `0.3.0`.
 - README documents the full Part K public API and integration contracts.
+- Dummy pins `recording_studio_user` **v0.16.0** so host overrides win on `/users/sign_up`. Demo C and tests use the real registration surface; `/demo/signup` removed.
 
 ### Upgrade notes
 - Optionally add `recording_studio_cache` (public GitHub tag `v0.4.0`) to host Gemfiles for RecordingStudioCache-backed `render_ab cache:`.
 - Register service targets with `type: :service, control:, variants:` and call `RecordingStudioAbTests.execute`.
+- For Users-backed sign-up experiments, pin `recording_studio_user` ≥ `v0.16.0` and override `recording_studio_user/auth/registrations/new.html.erb` with `render_ab`.
 - Rebuild Tailwind after pulling dummy view changes if you run the dummy app.
 
 ## [0.2.3] - 2026-10-01

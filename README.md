@@ -4,7 +4,7 @@ Server-side A/B testing for Recording Studio hosts. Sticky assignment, exposures
 event-driven conversions, Admin screens, service targets, and variant-aware
 fragment caching.
 
-Built on RecordingStudio (dummy GitHub tag `v4.3.0`), FlatPack (dummy GitHub tag `v0.1.198`), Accessible (dummy GitHub tag `v0.11.2`), Users (dummy GitHub tag `v0.15.0`), Admin (dummy GitHub tag `v2.0.5`), Root Switchable (dummy GitHub tag `v0.5.1`), and optionally RecordingStudioCache (dummy GitHub tag `v0.4.0`, public).
+Built on RecordingStudio (dummy GitHub tag `v4.3.0`), FlatPack (dummy GitHub tag `v0.1.198`), Accessible (dummy GitHub tag `v0.11.2`), Users (dummy GitHub tag `v0.16.0`), Admin (dummy GitHub tag `v2.0.5`), Root Switchable (dummy GitHub tag `v0.5.1`), and optionally RecordingStudioCache (dummy GitHub tag `v0.4.0`, public).
 
 **Version:** `0.3.0`
 
@@ -89,8 +89,10 @@ app/views/ab/signup/_body.html+ab_signup_b.erb
 Pin `source_template: { engine:, path:, digest: }` and run
 `bin/rails recording_studio_ab_tests:verify_overrides` to catch gem-template drift.
 
-> Note: Users `v0.15.0` prepends its engine views on `registrations#new`, so the
-> host override cannot win without a Users change. The dummy uses `/demo/signup`.
+Users **v0.16.0** prefers host `app/views` on auth screens, so the real
+`/users/sign_up` surface can carry `<%= render_ab :signup_page %>`. Conversions
+subscribe to `registration.completed.recording_studio_user` (password / OAuth /
+OTP).
 
 ## Identity and linking
 
@@ -159,7 +161,7 @@ Not a CI gate. Numbers are environment-specific.
 | --- | --- | --- |
 | A View | `/demo/pricing` | `:pricing_page` |
 | B Component | `/demo/hero` | `:hero_component` |
-| C Signup | `/demo/signup` | `:signup_page` |
+| C Signup | `/users/sign_up` | `:signup_page` (host override) |
 | D Press kit | `/demo/presskit` | `:presskit_cta` + `track_event` |
 | E Admin | `/admin` → A/B Tests | lifecycle + reporting |
 | F Service | `/demo/quote` | `execute(:quote_strategy)` |

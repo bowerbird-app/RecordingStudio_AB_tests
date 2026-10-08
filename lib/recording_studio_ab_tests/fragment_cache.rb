@@ -38,7 +38,7 @@ module RecordingStudioAbTests
       return value if value.nil?
       return value if value.respond_to?(:html_safe?) && value.html_safe?
       # Cache backends may strip SafeBuffer; variant HTML is host-authored.
-      return value.html_safe if value.respond_to?(:html_safe) # rubocop:disable Rails/OutputSafety
+      return value.html_safe if value.respond_to?(:html_safe)
 
       value
     end
