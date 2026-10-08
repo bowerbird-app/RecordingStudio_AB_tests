@@ -15,6 +15,10 @@ module RecordingStudioAbTests
         entry = ActiveSet.experiment_for(target.key)
         return control_resolution(reason: :inactive) unless entry && entry[:status] == "running"
 
+        if (forced = forced_resolution(entry, target, expose: expose))
+          return forced
+        end
+
         request = Current.request
         eligibility = Eligibility.evaluate(request: request, experiment: OpenStructExperiment.new(entry))
         unless eligibility.eligible?
@@ -61,6 +65,25 @@ module RecordingStudioAbTests
       end
 
       private
+
+      # Development/test override: ?ab_force=<variant_key> when allow_force_param is set
+      # and Rails.env.local? (see plan §38). Never creates an assignment.
+      def forced_resolution(entry, target, expose:)
+        return nil unless RecordingStudioAbTests.configuration.allow_force_param
+        return nil unless defined?(Rails) && Rails.env.local?
+        return nil unless Current.request
+
+        raw = Current.request.params[:ab_force].presence || Current.request.params["ab_force"].presence
+        return nil if raw.blank?
+
+        key = raw.to_s
+        variant = entry[:variants].find { |v| v[:key].to_s == key }
+        return control_resolution(reason: :force_unknown) unless variant
+
+        resolution = build_resolution(entry, variant, assignment: nil, reason: :forced, created: false)
+        maybe_expose(entry, target, resolution, expose)
+        resolution
+      end
 
       def anonymous_cookie_path?(entry, subject)
         subject[:subject_type] == "visitor" &&

@@ -7,8 +7,8 @@ Gem::Specification.new do |spec|
   spec.version     = RecordingStudioAbTests::VERSION
   spec.authors     = ["Bowerbird"]
   spec.homepage    = "https://github.com/bowerbird-app/RecordingStudio_AB_tests"
-  spec.summary     = "A/B testing for Recording Studio hosts"
-  spec.description = "Server-side A/B experiments for Recording Studio hosts."
+  spec.summary     = "Server-side A/B testing for Recording Studio hosts"
+  spec.description = "Sticky server-side A/B experiments: targets, allocation, exposures, and conversions."
   spec.license     = "MIT"
   spec.required_ruby_version = ">= 3.3.0"
 
