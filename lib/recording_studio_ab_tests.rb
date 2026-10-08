@@ -21,11 +21,15 @@ require "recording_studio_ab_tests/exposer"
 require "recording_studio_ab_tests/conversion_recorder"
 require "recording_studio_ab_tests/identity_linker"
 require "recording_studio_ab_tests/event_subscriptions"
+require "recording_studio_ab_tests/response_headers"
+require "recording_studio_ab_tests/subject_context"
+require "recording_studio_ab_tests/fragment_cache"
 require "recording_studio_ab_tests/view_helper"
 require "recording_studio_ab_tests/controller_helper"
 require "recording_studio_ab_tests/adapters/view"
 require "recording_studio_ab_tests/adapters/partial"
 require "recording_studio_ab_tests/adapters/component"
+require "recording_studio_ab_tests/adapters/service"
 require "recording_studio_ab_tests/test_helpers"
 require "recording_studio_ab_tests/engine"
 
@@ -57,20 +61,25 @@ module RecordingStudioAbTests
       EventSubscriptions.install!
     end
 
-    # subject: is reserved for authenticated/out-of-request subjects (PR4).
-    def execute(target_key, subject: nil, **)
-      _ = subject
+    # Selects the service variant before execution and calls `klass.call(**kwargs)`.
+    # Pass subject: for authenticated / out-of-request subjects (plan §12, Part K).
+    def execute(target_key, subject: nil, **kwargs)
       target = registry.fetch_target!(target_key)
-      raise NotImplementedError, "service adapter lands in PR4" if target.type == :service
+      unless target.type == :service
+        raise ArgumentError, "execute only supports service targets (got #{target.type})"
+      end
 
-      raise ArgumentError, "execute only supports service targets (got #{target.type})"
+      SubjectContext.with(subject) do
+        Adapters::Service.execute(target, **kwargs)
+      end
     end
 
     # Records exposure for hosts that render the implementation themselves.
-    # subject: reserved for out-of-request exposure (PR4).
+    # Pass subject: for out-of-request exposure (jobs, mailers).
     def expose(target_key, subject: nil)
-      _ = subject
-      AssignmentResolver.resolve(target_key, expose: true)
+      SubjectContext.with(subject) do
+        AssignmentResolver.resolve(target_key, expose: true)
+      end
     end
 
     def track_event(event_key, subject:, event_id: nil, value: nil, occurred_at: Time.current, metadata: {})

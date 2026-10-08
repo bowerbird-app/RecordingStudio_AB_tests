@@ -15,6 +15,9 @@ module RecordingStudioAbTests
         entry = ActiveSet.experiment_for(target.key)
         return control_resolution(reason: :inactive) unless entry && entry[:status] == "running"
 
+        # Running experiment evaluated → never shared-cache this response (plan §27).
+        ResponseHeaders.mark_experiment_response!
+
         if (forced = forced_resolution(entry, target, expose: expose))
           return forced
         end
