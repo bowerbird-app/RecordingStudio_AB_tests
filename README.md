@@ -1,7 +1,7 @@
 # RecordingStudioAbTests
 
 Server-side A/B testing for Recording Studio hosts. Built on RecordingStudio
-(dummy GitHub tag `v4.2.2`), FlatPack (dummy GitHub tag `v0.1.198`),
+(dummy GitHub tag `v4.3.0`), FlatPack (dummy GitHub tag `v0.1.198`),
 Accessible (dummy GitHub tag `v0.11.2`), Users (dummy GitHub tag `v0.15.0`),
 and Root Switchable (dummy GitHub tag `v0.5.1`).
 
@@ -171,7 +171,7 @@ See the [FlatPack README](https://github.com/bowerbird-app/flatpack) for full do
 | Rails           | 8.1+    |
 | PostgreSQL      | 16      |
 | TailwindCSS     | 4       |
-| RecordingStudio | 4.x (`~> 4.2` in the gemspec; dummy GitHub tag `v4.2.2`) |
+| RecordingStudio | 4.x (`~> 4.2` in the gemspec; dummy GitHub tag `v4.3.0`) |
 | Accessible      | dummy GitHub tag `v0.11.2` |
 | Users           | dummy GitHub tag `v0.15.0` |
 | Admin           | dummy GitHub tag `v2.0.5` (soft dep; screens land in a later PR) |
