@@ -7,11 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-10-08
+
+### Added
+- Service adapter and `RecordingStudioAbTests.execute(target_key, subject: nil, **kwargs)` — selects the variant before calling `klass.call(**kwargs)`; start validation requires `.call`.
+- Workflow demo G (`/demo/flow/1..3`) — one sticky assignment across steps (not a separate target type).
+- Variant-aware fragment caching: `ab_cache_vary`, `render_ab(..., cache:)` via RecordingStudioCache `vary:` (dummy pin `v0.4.0`) or Rails cache fallback.
+- Private/`no_store` response marking when a running experiment is evaluated.
+- Benchmark rake task `recording_studio_ab_tests:benchmark` → `tmp/ab_benchmark.md` (not a CI gate).
+- CDN docs: Artifacts/R2 pages are excluded from server-side experiments (`docs/cdn_and_public_pages.md`).
+- Dummy demos F/H: `/demo/quote`, `/demo/cached`.
+
 ### Changed
-- Dummy and root GitHub tags: Recording Studio `v4.2.1` → `v4.2.2`.
+- Version `0.2.3` → `0.3.0`.
+- README documents the full Part K public API and integration contracts.
+- Dummy pins `recording_studio_user` **v0.16.0** so host overrides win on `/users/sign_up`. Demo C and tests use the real registration surface; `/demo/signup` removed.
 
 ### Upgrade notes
-- Point host and dummy Gemfiles at Recording Studio `v4.2.2`.
+- Optionally add `recording_studio_cache` (public GitHub tag `v0.4.0`) to host Gemfiles for RecordingStudioCache-backed `render_ab cache:`.
+- Register service targets with `type: :service, control:, variants:` and call `RecordingStudioAbTests.execute`.
+- For Users-backed sign-up experiments, pin `recording_studio_user` ≥ `v0.16.0` and override `recording_studio_user/auth/registrations/new.html.erb` with `render_ab`.
+- Rebuild Tailwind after pulling dummy view changes if you run the dummy app.
 
 ## [0.2.3] - 2026-10-01
 

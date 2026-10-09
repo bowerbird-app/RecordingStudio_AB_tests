@@ -8,7 +8,7 @@
 - Accessible dummy tag `v0.11.2` (bumped from `v0.10.1` for Users)
 - Root Switchable dummy tag `v0.5.1`
 - FlatPack dummy tag `v0.1.198` (Attachable requires `>= 0.1.198`)
-- Users dummy tag `v0.15.0` (PR2)
+- Users dummy tag `v0.16.0` (PR4; host overrides win on `/users/sign_up`)
 - Admin dummy tag `v2.0.5` and Attachable `v0.7.4` (Users gemspec soft deps, pinned in dummy only)
 - Public RubyGems and GitHub access for dependency installation
 

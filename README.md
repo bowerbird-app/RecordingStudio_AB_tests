@@ -1,187 +1,185 @@
 # RecordingStudioAbTests
 
-Server-side A/B testing for Recording Studio hosts. Built on RecordingStudio
-(dummy GitHub tag `v4.3.0`), FlatPack (dummy GitHub tag `v0.1.198`),
-Accessible (dummy GitHub tag `v0.11.2`), Users (dummy GitHub tag `v0.15.0`),
-and Root Switchable (dummy GitHub tag `v0.5.1`).
+Server-side A/B testing for Recording Studio hosts. Sticky assignment, exposures,
+event-driven conversions, Admin screens, service targets, and variant-aware
+fragment caching.
 
-## What's Included
+Built on RecordingStudio (dummy GitHub tag `v4.3.0`), FlatPack (dummy GitHub tag `v0.1.198`), Accessible (dummy GitHub tag `v0.11.2`), Users (dummy GitHub tag `v0.16.0`), Admin (dummy GitHub tag `v2.0.5`), Root Switchable (dummy GitHub tag `v0.5.1`), and optionally RecordingStudioCache (dummy GitHub tag `v0.4.0`, public).
 
-- Sticky assignment (visitor / user / root recording) with deterministic SHA256 allocation
-- Target registry for view, partial, and component adapters (service in a later PR)
-- Exposures, event subscriptions, conversions, and identity linking
-- Dummy demos at `/demo/pricing`, `/demo/hero`, `/demo/signup` (signup AB partials), and `/demo/presskit`
-- Note: Users `v0.15.0` prepends its engine views on `registrations#new`, so the §14 host
-  override file cannot win without a Users change; demos use `/demo/signup` instead
-- **Recording Studio** 4.x gem pinned and configured
-- **Devise** authentication with a pre-seeded admin user
-- **Workspace**, **Folder**, and **Page** recordables seeded into the dummy host app
-- **FlatPack** UI component library for all views
-- **Dummy app** (`test/dummy/`) with a FlatPack sign-in screen, a home page on Recording Studio's default layout, mounted Recording Studio routes, and FlatPack's built-in rounded theme
+**Version:** `0.3.0`
 
-Authenticated dummy pages use Recording Studio's shared default layout (`RecordingStudio::UsesDefaultLayout`) plus FlatPack CSS and JS. Devise keeps its own sign-in layout. Dummy `/docs/*` pages stay in the dummy app as a host-app sandbox; they are not the product README.
-
-## Quick Start
-
-### Cursor Cloud Agent (Recommended)
-
-A Cloud Agent boots this repo into a ready-to-use dev environment with no manual steps. The setup lives in `.cursor/`:
-
-- `install.sh` provisions Ruby (pinned by `.ruby-version`), PostgreSQL 16, all gems, the seeded dummy database, and compiled CSS at build time, then fetches Recording Studio skills.
-- `start.sh` starts PostgreSQL on every boot.
-- `environment.json` runs the `rails-server` and `tailwind-watch` terminals and exposes port 3000.
-
-Open port 3000 and sign in at `/users/sign_in`. No environment variables are required — the dummy app's `database.yml` defaults match the provisioned PostgreSQL cluster.
-
-### GitHub Codespaces
-
-1. Click **Code** → **Codespaces** → **Create codespace**
-2. Wait for setup to complete
-3. Run:
-   ```bash
-   cd test/dummy
-   bin/rails db:setup
-   bin/dev
-   ```
-4. Open port 3000 — you'll land on the dummy app home page and can sign in at `/users/sign_in`
-
-The dummy app is intended as a host-app validation surface for authentication, FlatPack rendering, Tailwind source scanning, and Recording Studio route wiring.
-
-Dummy credentials (`test/dummy/config/credentials.yml.enc`) are encrypted with the shared RecordingStudio_* development master key. Set `RAILS_MASTER_KEY` or put that key in `test/dummy/config/master.key` (gitignored). Keep the encrypted file; do not generate a per-repo dummy key.
-
-### Login Credentials
-
-| Field    | Value             |
-|----------|-------------------|
-| Email    | admin@admin.com   |
-| Password | Password          |
-
-The login form is prefilled with these credentials for fast access.
-
-### Useful Routes
-
-- `/` — dummy app home page
-- `/users/sign_in` — Devise sign-in page
-- `/demo/pricing` — host view A/B demo (`:pricing_page`)
-- `/demo/hero` — ViewComponent A/B demo (`:hero_component`)
-- `/ab_tests` — RecordingStudioAbTests engine mount
-- `/recording_studio` — redirect to `/` while the mounted Recording Studio engine remains data/API-focused
-- `/docs/install`, `/docs/config`, `/docs/recordable_types`, `/docs/recordings_tree`, `/docs/gem_views`, `/docs/methods` — dummy-only starter pages
-
-The home page in `test/dummy/app/views/home/index.html.erb` is a starting point for a minimal demo of the gem's primary behavior. Keep deeper explanations on the dummy docs pages, not in this README.
-
-## Architecture
-
-### Root Recording Pattern
-
-This template follows Recording Studio's root recording pattern:
-
-- **Workspace** is the top-level recordable
-- **Folder** and **Page** demonstrate nested recordables under the workspace root
-- Each configured recordable declares `recording_studio_recordable(...)`; strict declaration validation stays enabled
-- A root `RecordingStudio::Recording` wraps the Workspace
-- `Current.actor` is set from `current_user` (Devise) in `ApplicationController`
-
-### Extending Recording Studio
-
-To add new recordable types:
-
-1. Create your model (e.g., `Page`, `Comment`)
-2. Register it in `config/initializers/recording_studio.rb`:
-   ```ruby
-   RecordingStudio.configure do |config|
-     config.recordable_types = ["Workspace", "YourNewType"]
-   end
-   ```
-3. Declare whether the model can be a root and which parents may contain it:
-   ```ruby
-   class YourNewType < ApplicationRecord
-     recording_studio_recordable label: "Your new type",
-                                 root: false,
-                                 allowed_parent_types: ["Workspace", "Folder"]
-   end
-   ```
-4. Validate declarations and create recordings under the root:
-   ```ruby
-   RecordingStudio.validate_recordable_declarations!
-   root_recording = RecordingStudio.root_recording_for(workspace)
-   root_recording.record(YourNewType) do |record|
-     record.title = "Example"
-   end
-   ```
-
-### Recordable Declarations
-
-Every configured ActiveRecord recordable type must declare its hierarchy rules. Declarations are required; they are not version-specific.
-
-- `Workspace` declares `root: true`
-- `Folder` and `Page` declare `root: false, allowed_parent_types: ["Workspace", "Folder"]`
-- `config.require_recordable_declarations = true` remains enabled in the dummy app initializer
-
-Useful console checks:
+## Install
 
 ```ruby
-RecordingStudio.validate_recordable_declarations!
-RecordingStudio.root_recordable_types
-RecordingStudio.allowed_parent_types_for("Page")
+# Host Gemfile
+gem "recording_studio_ab_tests", github: "bowerbird-app/RecordingStudio_AB_tests", tag: "v0.3.0"
+# Optional — enables RecordingStudioCache-backed render_ab cache:
+gem "recording_studio_cache", github: "bowerbird-app/RecordingStudio_cache", tag: "v0.4.0"
 ```
 
-### Capabilities
+```bash
+bundle install
+bin/rails g recording_studio_ab_tests:install
+bin/rails g recording_studio_ab_tests:migrations
+bin/rails db:migrate
+```
 
-Capability mixins are opt-in. Installing this gem does not enable mixins on host types.
+Installation creates no experiments. With zero running experiments the gem does no work.
 
-The dummy Workspace enables Accessible because that addon is bundled:
+## Registration
+
+Register inside `Rails.application.config.to_prepare` so development reloads re-register.
+Class names are **strings**, constantized at use.
 
 ```ruby
-RecordingStudio.enable_capability(:accessible, on: Workspace)
+Rails.application.config.to_prepare do
+  RecordingStudioAbTests.register_target :pricing_page, type: :view,
+    template: "pricing/show",
+    variants: { b: { rails_variant: :ab_pricing_b } }
+
+  RecordingStudioAbTests.register_target :signup_page, type: :partial,
+    partial: "ab/signup/body",
+    variants: { b: { rails_variant: :ab_signup_b } }
+
+  RecordingStudioAbTests.register_target :hero_component, type: :component,
+    control: "Demo::HeroControlComponent",
+    variants: { b: "Demo::HeroVariantBComponent" }
+
+  RecordingStudioAbTests.register_target :quote_strategy, type: :service,
+    control: "Quote::Standard",
+    variants: { b: "Quote::Alternative" }
+
+  RecordingStudioAbTests.register_event :presskit_created,
+    label: "Press kit created", subject: :user, value: false, source: :host
+end
 ```
 
-The template also ships one example mixin that uses core 4.2.0's `include_for` factory:
+Unknown targets raise `UnknownTarget`. Invalid registrations raise in development/test.
+
+## Public API (Part K)
 
 ```ruby
-include RecordingStudio::Capabilities::Example.to(label: "dummy workspace")
+RecordingStudioAbTests.configure { |c| ... }
+RecordingStudioAbTests.register_target(key, type:, **opts)
+RecordingStudioAbTests.register_event(key, label:, subject:, **opts)
+
+render_ab(target_key, **opts)          # view helper (partial/component) and controller (view)
+ab_variant(target_key, expose: false)  # :control or variant key; peek never assigns
+ab_cache_vary(*target_keys)            # Hash for Cache vary: / Rails cache keys
+RecordingStudioAbTests.execute(target_key, subject: nil, **kwargs)
+
+RecordingStudioAbTests.expose(target_key, subject: nil)
+RecordingStudioAbTests.track_event(event_key, subject:, event_id: nil, value: nil, occurred_at: Time.current, metadata: {})
+RecordingStudioAbTests.link_identity(visitor_id:, user:, source:)
+RecordingStudioAbTests.current_visitor_id
 ```
 
-`.to` wraps `RecordingStudio::Capabilities.include_for`. It does not add a fourth verb and it does not call `enable_capability` / `set_capability_options` itself. Folder and Page stay without the example mixin.
+Conversion recording is internal. No other public methods.
 
-Use core `RecordingStudio::Hooks` and `RecordingStudio::Services::BaseService`. Do not copy those classes into a new addon.
+## Override pattern (gem-owned pages)
 
-### FlatPack UI Components
+Host `app/views` take precedence. Override the gem template at the **same path** and call `render_ab` inside:
 
-All views use FlatPack ViewComponents. Available components include:
+```text
+app/views/.../registrations/new.html.erb   # <%= render_ab :signup_page %>
+app/views/ab/signup/_body.html.erb         # control (verbatim gem copy)
+app/views/ab/signup/_body.html+ab_signup_b.erb
+```
 
-- `FlatPack::Button::Component` — Buttons (`:primary`, `:secondary`, `:ghost`)
-- `FlatPack::Card::Component` — Cards (`:default`, `:elevated`, `:outlined`)
-- `FlatPack::Alert::Component` — Alerts (`:success`, `:error`, `:warning`, `:info`)
-- `FlatPack::Badge::Component` — Status badges
-- `FlatPack::Table::Component` — Data tables
-- `FlatPack::TextInput::Component`, `EmailInput`, `PasswordInput` — Form inputs
-- `FlatPack::PageNav::Component` — Default-layout page navigation
-- `FlatPack::PageTitle::Component` — Page titles
+Pin `source_template: { engine:, path:, digest: }` and run
+`bin/rails recording_studio_ab_tests:verify_overrides` to catch gem-template drift.
 
-Use the live FlatPack demo app at [flatpack.bowerbird.io](https://flatpack.bowerbird.io/) as the approved UI reference for current shared patterns. Its component table is the fastest way to discover available FlatPack components before introducing new custom UI.
+Users **v0.16.0** prefers host `app/views` on auth screens, so the real
+`/users/sign_up` surface can carry `<%= render_ab :signup_page %>`. Conversions
+subscribe to `registration.completed.recording_studio_user` (password / OAuth /
+OTP).
 
-See the [FlatPack README](https://github.com/bowerbird-app/flatpack) for full documentation.
+## Identity and linking
 
-## Tech Stack
+- Scopes: `visitor` (signed cookie), `user`, `root_recording`.
+- Anonymous sticky via signed cookie; authenticated always DB (cross-device).
+- `link_identity` / in-request linking promote visitor → user; user row wins.
+- **Jobs caveat:** job context gets **no** auto-link. Pass `subject:` (or
+  `visitor_id:` where applicable) explicitly for out-of-request `execute` /
+  `expose` / `track_event`.
 
-| Component       | Version |
-|-----------------|---------|
-| Ruby            | 3.3+    |
-| Rails           | 8.1+    |
-| PostgreSQL      | 16      |
-| TailwindCSS     | 4       |
-| RecordingStudio | 4.x (`~> 4.2` in the gemspec; dummy GitHub tag `v4.3.0`) |
-| Accessible      | dummy GitHub tag `v0.11.2` |
-| Users           | dummy GitHub tag `v0.15.0` |
-| Admin           | dummy GitHub tag `v2.0.5` (soft dep; screens land in a later PR) |
-| Attachable      | dummy GitHub tag `v0.7.4` (Users soft dep) |
-| Root Switchable | dummy GitHub tag `v0.5.1` |
-| FlatPack        | dummy GitHub tag `v0.1.198` |
-| Devise          | latest  |
+## Prefetch / bots / consent
 
-The dummy Gemfile keeps `github:` sources so Bundler can fetch those gems. The gemspec still pins `recording_studio` to `~> 4.2` so copied addons declare the core dependency even when GitHub is the fetch source.
+Eligibility serves control (no new assignment) for bots, blank UA, prefetch
+(`Sec-Purpose` / `Purpose` / `X-Sec-Purpose`), HEAD, denied consent, and when
+`enabled=false`. Non-GET honours an existing assignment and never creates one.
 
-## Documentation
+## Events and conversions
 
-The original gem template documentation is preserved in `docs/recording_studio_ab_tests/` as architectural reference material. Use it as background on the engine conventions; this README and the dummy app are the source of truth for the Recording Studio addon workflow.
+Register events, attach goals in Admin, then `track_event` (or the built-in
+`registration.completed.recording_studio_user` subscription). Conversions are
+after-commit and idempotent. Assignment ≠ exposure.
+
+## Admin enablement
+
+Soft-registers when `RecordingStudioAdmin` is loaded. Host `AdminRoot` must
+include `section :ab_tests`. See Admin docs / dummy `AdminRoot` for the pattern.
+
+## Caching rules
+
+```erb
+<%= render_ab :cached_hero,
+      cache: { recording: rec, entry: :cached_hero, policy: :default } %>
+```
+
+- `ab_cache_vary(:t)` → `{ "ab.t" => "b" }`; resolves **and exposes** before lookup.
+- With RecordingStudioCache: `fetch(recording, entry, vary: ab_cache_vary(:t), policy:)`.
+- Without: Rails `cache([entry, ab_cache_vary(:t)])`.
+- **Never** put visitor or user ids in cache keys.
+- **Never** wrap `render_ab` in a cache block that omits `ab_cache_vary` for that target.
+- Running-experiment responses are marked `private` + `no_store`.
+
+## CDN / Artifacts exclusion
+
+Pages published through RecordingStudio_artifacts (Cloudflare R2) never hit Rails.
+**Server-side experiments cannot run there.** See [`docs/cdn_and_public_pages.md`](docs/cdn_and_public_pages.md).
+
+## Failure policy
+
+AB infrastructure failures (DB/cache/config) → log, instrument
+`resolution_error.recording_studio_ab_tests`, serve **control**. Errors inside
+host implementations (variant template/component/service) are **not** rescued.
+
+## Benchmarks
+
+```bash
+cd test/dummy
+bin/rails recording_studio_ab_tests:benchmark
+# → tmp/ab_benchmark.md
+```
+
+Not a CI gate. Numbers are environment-specific.
+
+## Dummy demos
+
+| Demo | Path | Target |
+| --- | --- | --- |
+| A View | `/demo/pricing` | `:pricing_page` |
+| B Component | `/demo/hero` | `:hero_component` |
+| C Signup | `/users/sign_up` | `:signup_page` (host override) |
+| D Press kit | `/demo/presskit` | `:presskit_cta` + `track_event` |
+| E Admin | `/admin` → A/B Tests | lifecycle + reporting |
+| F Service | `/demo/quote` | `execute(:quote_strategy)` |
+| G Workflow | `/demo/flow/1..3` | `:onboarding_flow` (sticky) |
+| H Cached | `/demo/cached` | `render_ab cache:` |
+
+Force a variant in local/test with `?ab_force=b` when `allow_force_param` is set.
+
+### Quick start (Cloud / Codespaces)
+
+Open port 3000, sign in at `/users/sign_in` (`admin@admin.com` / `Password`).
+
+```bash
+cd test/dummy && bin/rails db:setup && bin/dev
+```
+
+## Exclusions (V1)
+
+No client-side SDK, no CDN-edge assignment, no per-variant Artifacts publishing,
+no multi-armed bandits, no automatic winner deployment, no statistical significance
+engine, no AB admin UI outside Recording Studio Admin.

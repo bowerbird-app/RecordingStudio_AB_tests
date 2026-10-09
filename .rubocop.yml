@@ -55,6 +55,7 @@ Metrics/MethodLength:
   Exclude:
     - 'test/**/*'
     - 'lib/generators/**/*'
+    - 'lib/tasks/**/*'
     - 'db/migrate/**/*'
     - 'lib/recording_studio_ab_tests.rb'
     - 'lib/recording_studio_ab_tests/**/*'
@@ -66,6 +67,7 @@ Metrics/AbcSize:
   Exclude:
     - 'test/**/*'
     - 'lib/generators/**/*'
+    - 'lib/tasks/**/*'
     - 'db/migrate/**/*'
     - 'lib/recording_studio_ab_tests.rb'
     - 'lib/recording_studio_ab_tests/**/*'

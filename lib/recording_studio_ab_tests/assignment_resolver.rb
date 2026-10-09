@@ -15,6 +15,9 @@ module RecordingStudioAbTests
         entry = ActiveSet.experiment_for(target.key)
         return control_resolution(reason: :inactive) unless entry && entry[:status] == "running"
 
+        # Running experiment evaluated → never shared-cache this response (plan §27).
+        ResponseHeaders.mark_experiment_response!
+
         if (forced = forced_resolution(entry, target, expose: expose))
           return forced
         end
@@ -157,6 +160,7 @@ module RecordingStudioAbTests
           attrs[:link_source] = "authenticated_request"
         end
 
+        # Concurrent-safe insert-if-absent; uniqueness enforced by idx_rsab_assignments_subject.
         RecordingStudioAbTests::Assignment.insert_all(
           [attrs],
           unique_by: :idx_rsab_assignments_subject
@@ -217,7 +221,7 @@ module RecordingStudioAbTests
           target_key: entry[:target_key],
           visitor_id: subject[:subject_identifier]
         )
-        active_ids = ActiveSet.current[:by_target].values.map { |e| e[:id] }
+        active_ids = ActiveSet.current[:by_target].values.pluck(:id)
         payload = CookieCodec.evict!(payload, active_experiment_ids: active_ids)
         CookieCodec.write!(Current.request, payload)
       end

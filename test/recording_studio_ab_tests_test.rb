@@ -4,7 +4,7 @@ require "test_helper"
 
 class RecordingStudioAbTestsTest < Minitest::Test
   def test_version_matches_release
-    assert_equal "0.2.3", ::RecordingStudioAbTests::VERSION
+    assert_equal "0.3.0", ::RecordingStudioAbTests::VERSION
   end
 
   def test_engine_exists
@@ -47,7 +47,7 @@ class RecordingStudioAbTestsTest < Minitest::Test
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio", tag: "v4.3.0"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_accessible", tag: "v0.11.2"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_root_switchable", tag: "v0.5.1"'
-    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_users", tag: "v0.15.0"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_users", tag: "v0.16.0"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_admin", tag: "v2.0.5"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_attachable", tag: "v0.7.4"'
     assert_includes gemfile, 'github: "bowerbird-app/flatpack", tag: "v0.1.198"'
@@ -178,7 +178,7 @@ class RecordingStudioAbTestsTest < Minitest::Test
     assert_includes readme, "dummy GitHub tag `v4.3.0`"
     assert_includes readme, "dummy GitHub tag `v0.1.198`"
     assert_includes readme, "dummy GitHub tag `v0.11.2`"
-    assert_includes readme, "dummy GitHub tag `v0.15.0`"
+    assert_includes readme, "dummy GitHub tag `v0.16.0`"
     assert_includes readme, "dummy GitHub tag `v0.5.1`"
     refute_includes readme, "dummy GitHub tag `v4.2.2`"
     refute_includes readme, "dummy GitHub tag `v4.2.1`"

@@ -20,6 +20,9 @@ Rails.application.config.to_prepare do
   #   template: "pricing/show",
   #   variants: { b: { rails_variant: :ab_pricing_b } }
   #
+  # RecordingStudioAbTests.register_target :quote_strategy, type: :service,
+  #   control: "Quote::Standard", variants: { b: "Quote::Alternative" }
+  #
   # RecordingStudioAbTests.register_event :presskit_created,
   #   label: "Press kit created", subject: :user, value: false, source: :host
 end

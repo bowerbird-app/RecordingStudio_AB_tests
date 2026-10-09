@@ -1,30 +1,15 @@
-# PR2 stopped-on: Users v0.15.0 view-path prepend
+# PR2 stopped-on: Users view-path prepend — RESOLVED in Users v0.16.0
 
-## Conflict
+## Original conflict (Users v0.15.0)
 
-`RecordingStudioUser::Auth::RegistrationsController#prefer_users_signup_extra_fields`
-calls `prepend_view_path(Engine.root.join("app/views"))` on **every** request
-(including `registrations#new`). That forces the gem's
-`recording_studio_user/auth/registrations/new.html.erb` ahead of any host override
-at the same path.
+`RecordingStudioUser::Auth` prepended the gem's `app/views` ahead of the host, so
+plan §14 host overrides could not win on `/users/sign_up`.
 
-Plan §14's host-override pattern therefore **cannot take effect** for the real
-`/users/sign_up` surface without a Users change.
+## Resolution
 
-## What PR2 ships instead
+`RecordingStudio_users` **v0.16.0** (tag `v0.16.0` @ `6ceb672`) puts host
+`app/views` first on auth screens. PR4 pins that tag and runs Demo C on the real
+`/users/sign_up` surface via
+`app/views/recording_studio_user/auth/registrations/new.html.erb`.
 
-- Host control/variant partials under `test/dummy/app/views/ab/signup/`
-- Host override file kept at the gem path (`render_ab :signup_page`) for when Users stops prepending
-- `source_template` digest + `verify_overrides` / `assert_ab_override_current`
-- Host demo route `/demo/signup` that renders `render_ab :signup_page` (screenshots + tests)
-- Documented in `test/dummy/config/initializers/recording_studio_ab_tests_view_paths.rb` and README
-
-## Forbidden workaround (not taken)
-
-Monkey-patching or `include`-ing into `RecordingStudioUser::Auth::RegistrationsController`
-from this gem/dummy would violate the standing rule against touching other gems' controllers.
-
-## Ask for Users
-
-Prefer limiting `prefer_users_signup_extra_fields` to password/`extra_fields` actions,
-or provide a documented host hook so §14 overrides can win on `registrations#new`.
+The temporary `/demo/signup` host route was removed.

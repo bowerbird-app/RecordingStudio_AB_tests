@@ -26,9 +26,11 @@ Rails.application.routes.draw do
     get "pricing", to: "pricing#show", as: :pricing
     post "pricing", to: "pricing#create"
     get "hero", to: "hero#show", as: :hero
-    get "signup", to: "signup#show", as: :signup
     get "presskit", to: "presskit#show", as: :presskit
     post "presskit", to: "presskit#create"
+    get "quote", to: "quote#show", as: :quote
+    get "flow/:step", to: "flow#show", as: :flow, constraints: { step: /[123]/ }
+    get "cached", to: "cached#show", as: :cached
   end
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.

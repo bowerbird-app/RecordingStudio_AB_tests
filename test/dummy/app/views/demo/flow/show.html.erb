@@ -1,0 +1,17 @@
+<%= render FlatPack::PageHeader::Component.new(
+  title: "Onboarding flow — step #{@step}",
+  subtitle: "Demo G — one sticky assignment across steps via :onboarding_flow"
+) %>
+
+<div class="mt-6">
+  <%= render_ab :onboarding_flow, partial: @partial, locals: { step: @step } %>
+</div>
+
+<nav class="mt-8 flex gap-4 text-sm">
+  <% if @step != "1" %>
+    <%= link_to "← Previous", demo_flow_path(step: @step.to_i - 1) %>
+  <% end %>
+  <% if @step != "3" %>
+    <%= link_to "Next →", demo_flow_path(step: @step.to_i + 1) %>
+  <% end %>
+</nav>
