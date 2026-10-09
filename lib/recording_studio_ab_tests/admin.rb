@@ -593,6 +593,14 @@ module RecordingStudioAbTests
       chart do
         title "Daily exposures and conversions"
         type :line
+        # Flatpack defaults both series to near-identical primary opacities; override
+        # via ChartDefinition#options (passed through to FlatPack::Chart::Component).
+        options({
+                  colors: [
+                    "color-mix(in oklab, var(--color-primary) 100%, transparent)",
+                    "color-mix(in oklab, var(--color-primary) 40%, transparent)"
+                  ]
+                })
         series { |_context| RecordingStudioAbTests::Admin.daily_reporting_series }
       end
 
@@ -604,7 +612,8 @@ module RecordingStudioAbTests
         column :unique_exposed, title: "Unique exposed"
         column :unique_converters, title: "Unique converters"
         column :conversion_rate, title: "Conversion rate"
-        column :sample_size, title: "Sample size"
+        # sample_size duplicates unique_exposed; omit so Relative lift / Lift note fit.
+        # Admin TableDefinition does not expose FlatPack min_width (no custom CSS).
         column :relative_lift, title: "Relative lift"
         column :lift_label, title: "Lift note"
         paginate per_page: 25

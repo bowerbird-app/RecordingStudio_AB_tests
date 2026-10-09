@@ -224,11 +224,16 @@ if archived.draft? || !archived.archived?
 end
 
 # Generated traffic so Admin list/detail/report screens show real rows.
-seed_traffic = lambda do |experiment, visitors:, convert_ratio:|
+# Assign even indices to control and odd to treatment. Conversion uses each
+# variant's own ordinal (i/2) so an even convert_ratio does not starve variant b
+# (previously `i % convert_ratio` only hit control → −100% relative lift).
+seed_traffic = lambda do |experiment, visitors:, convert_ratio:, treatment_convert_ratio: nil|
   goal = experiment.goals.find_by(is_primary: true) || experiment.goals.first
   control = experiment.variants.find_by(is_control: true)
   treatment = experiment.variants.where(is_control: false).order(:position).first
   next unless goal && control && treatment
+
+  treatment_ratio = treatment_convert_ratio || convert_ratio
 
   visitors.times do |i|
     variant = i.even? ? control : treatment
@@ -256,7 +261,9 @@ seed_traffic = lambda do |experiment, visitors:, convert_ratio:|
       row.metadata = {}
     end
 
-    next unless (i % convert_ratio).zero?
+    ordinal = i / 2
+    ratio = variant.is_control? ? convert_ratio : treatment_ratio
+    next unless (ordinal % ratio).zero?
 
     RecordingStudioAbTests::Conversion.find_or_create_by!(
       idempotency_key: "seed-#{experiment.key}-#{subject}-#{goal.key}"
@@ -280,12 +287,13 @@ end
 test_db = Rails.env.test? ||
   ActiveRecord::Base.connection_db_config.database.to_s.end_with?("_test")
 unless test_db
-  seed_traffic.call(pricing_running, visitors: 40, convert_ratio: 5)
-  seed_traffic.call(hero_running, visitors: 30, convert_ratio: 4)
-  seed_traffic.call(signup_running, visitors: 50, convert_ratio: 5)
-  seed_traffic.call(presskit_running, visitors: 24, convert_ratio: 3)
-  seed_traffic.call(paused, visitors: 16, convert_ratio: 4)
-  seed_traffic.call(completed, visitors: 20, convert_ratio: 4)
+  # treatment_convert_ratio slightly lower → positive relative lift for demos
+  seed_traffic.call(pricing_running, visitors: 40, convert_ratio: 5, treatment_convert_ratio: 4)
+  seed_traffic.call(hero_running, visitors: 30, convert_ratio: 4, treatment_convert_ratio: 3)
+  seed_traffic.call(signup_running, visitors: 50, convert_ratio: 5, treatment_convert_ratio: 4)
+  seed_traffic.call(presskit_running, visitors: 24, convert_ratio: 3, treatment_convert_ratio: 2)
+  seed_traffic.call(paused, visitors: 16, convert_ratio: 4, treatment_convert_ratio: 3)
+  seed_traffic.call(completed, visitors: 20, convert_ratio: 4, treatment_convert_ratio: 3)
 end
 
 # Only one live experiment per target — archive the draft's conflict by keeping
