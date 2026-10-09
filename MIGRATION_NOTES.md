@@ -6,7 +6,7 @@
 - Rails 8.1 or newer
 - Recording Studio 4.x (`~> 4.2` in the gemspec; dummy GitHub tag `v4.4.0`)
 - Accessible dummy tag `v0.13.0` (i18n release; no host migration from 0.11.x)
-- Root Switchable dummy tag `v0.5.1`
+- Root Switchable dummy tag `v0.6.0` (i18n release; rendered English unchanged; no host migration)
 - FlatPack dummy tag `v0.1.213` (Attachable 0.12+ requires `>= 0.1.213`)
 - Users dummy tag `v0.16.0` (PR4; host overrides win on `/users/sign_up`)
 - Admin dummy tag `v2.0.5` and Attachable `v0.13.0` (Users gemspec soft deps, pinned in dummy only)

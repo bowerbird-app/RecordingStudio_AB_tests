@@ -46,7 +46,7 @@ class RecordingStudioAbTestsTest < Minitest::Test
 
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio", tag: "v4.4.0"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_accessible", tag: "v0.13.0"'
-    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_root_switchable", tag: "v0.5.1"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_root_switchable", tag: "v0.6.0"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_users", tag: "v0.16.0"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_admin", tag: "v2.0.5"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_attachable", tag: "v0.13.0"'
@@ -59,12 +59,12 @@ class RecordingStudioAbTestsTest < Minitest::Test
     refute_includes gemfile, 'tag: "v0.10.1"'
     refute_includes gemfile, 'tag: "v0.9.1"'
     refute_includes gemfile, 'tag: "v0.7.4"'
+    refute_includes gemfile, 'tag: "v0.5.1"'
     refute_includes gemfile, 'tag: "v0.5.0"'
     refute_includes gemfile, 'tag: "v0.1.198"'
     refute_includes gemfile, 'tag: "v0.1.196"'
     refute_includes gemfile, 'tag: "v0.1.177"'
     refute_includes gemfile, 'tag: "v0.1.133"'
-    refute_includes gemfile, 'tag: "v0.6.0"'
     refute_includes gemfile, 'tag: "0.3.1"'
   end
 
@@ -203,12 +203,13 @@ class RecordingStudioAbTestsTest < Minitest::Test
     assert_includes readme, "dummy GitHub tag `v0.1.213`"
     assert_includes readme, "dummy GitHub tag `v0.13.0`"
     assert_includes readme, "dummy GitHub tag `v0.16.0`"
-    assert_includes readme, "dummy GitHub tag `v0.5.1`"
+    assert_includes readme, "dummy GitHub tag `v0.6.0`"
     refute_includes readme, "dummy GitHub tag `v4.2.2`"
     refute_includes readme, "dummy GitHub tag `v4.2.1`"
     refute_includes readme, "dummy GitHub tag `v4.2.0`"
     refute_includes readme, "dummy GitHub tag `v0.11.2`"
     refute_includes readme, "dummy GitHub tag `v0.10.1`"
+    refute_includes readme, "dummy GitHub tag `v0.5.1`"
     refute_includes readme, "dummy GitHub tag `v0.1.198`"
     refute_includes readme, "dummy GitHub tag `v0.1.196`"
     refute_includes readme, "v0.1.177"
