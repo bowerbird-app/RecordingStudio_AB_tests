@@ -5,6 +5,8 @@ require "yaml"
 require "i18n"
 
 class LocalesTest < Minitest::Test
+  # I18n interpolation uses %{name} tokens; RuboCop FormatStringToken does not apply.
+  # rubocop:disable Style/FormatStringToken
   EXPECTED_LEAVES = {
     "recording_studio.ab_tests.layout.title" => "A/B Tests admin",
     "recording_studio.ab_tests.common.cancel" => "Cancel",
@@ -118,6 +120,7 @@ class LocalesTest < Minitest::Test
     "recording_studio.ab_tests.experiments.results.columns.total_value" => "Total value",
     "recording_studio.ab_tests.experiments.results.columns.value_per_exposed" => "Value / exposed"
   }.freeze
+  # rubocop:enable Style/FormatStringToken
 
   def setup
     @previous_load_path = I18n.load_path.dup
