@@ -4,7 +4,7 @@ Server-side A/B testing for Recording Studio hosts. Sticky assignment, exposures
 event-driven conversions, Admin screens, service targets, and variant-aware
 fragment caching.
 
-Built on RecordingStudio (dummy GitHub tag `v4.4.0`), FlatPack (dummy GitHub tag `v0.1.213`), Accessible (dummy GitHub tag `v0.13.0`), Users (dummy GitHub tag `v0.16.0`), Admin (dummy GitHub tag `v2.0.5`), Attachable (dummy GitHub tag `v0.13.0`), Root Switchable (dummy GitHub tag `v0.6.0`), and optionally RecordingStudioCache (dummy GitHub tag `v0.4.0`, public).
+Built on RecordingStudio (dummy GitHub tag `v4.4.0`), FlatPack (dummy GitHub tag `v0.1.213`), Accessible (dummy GitHub tag `v0.13.0`), Users (dummy GitHub tag `v0.16.0`), Admin (dummy GitHub tag `v2.1.0`), Attachable (dummy GitHub tag `v0.13.0`), Root Switchable (dummy GitHub tag `v0.6.0`), and optionally RecordingStudioCache (dummy GitHub tag `v0.4.0`, public).
 
 **Version:** `0.4.1`
 
