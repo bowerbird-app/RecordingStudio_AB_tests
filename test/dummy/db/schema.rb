@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_08_120011) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_09_100041) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -112,7 +112,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_08_120011) do
     t.index ["experiment_id", "variant_id"], name: "idx_rsab_assignments_experiment_variant"
     t.index ["linked_user_id"], name: "idx_rsab_assignments_linked_user", where: "(linked_user_id IS NOT NULL)"
     t.check_constraint "bucket >= 0 AND bucket <= 9999", name: "chk_rsab_assignments_bucket"
-    t.check_constraint "subject_type::text = ANY (ARRAY['visitor'::character varying, 'user'::character varying, 'root_recording'::character varying]::text[])", name: "chk_rsab_assignments_subject_type"
+    t.check_constraint "subject_type::text = ANY (ARRAY['visitor'::character varying::text, 'user'::character varying::text, 'root_recording'::character varying::text])", name: "chk_rsab_assignments_subject_type"
   end
 
   create_table "recording_studio_ab_tests_conversions", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -155,9 +155,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_08_120011) do
     t.datetime "updated_at", null: false
     t.index ["key"], name: "idx_rsab_experiments_key", unique: true
     t.index ["target_key", "status"], name: "idx_rsab_experiments_target_status"
-    t.index ["target_key"], name: "idx_rsab_experiments_live_target", unique: true, where: "((status)::text = ANY ((ARRAY['running'::character varying, 'paused'::character varying])::text[]))"
-    t.check_constraint "assignment_scope::text = ANY (ARRAY['visitor'::character varying, 'user'::character varying, 'root_recording'::character varying]::text[])", name: "chk_rsab_experiments_scope"
-    t.check_constraint "status::text = ANY (ARRAY['draft'::character varying, 'running'::character varying, 'paused'::character varying, 'completed'::character varying, 'archived'::character varying]::text[])", name: "chk_rsab_experiments_status"
+    t.index ["target_key"], name: "idx_rsab_experiments_live_target", unique: true, where: "((status)::text = ANY (ARRAY[('running'::character varying)::text, ('paused'::character varying)::text]))"
+    t.check_constraint "assignment_scope::text = ANY (ARRAY['visitor'::character varying::text, 'user'::character varying::text, 'root_recording'::character varying::text])", name: "chk_rsab_experiments_scope"
+    t.check_constraint "status::text = ANY (ARRAY['draft'::character varying::text, 'running'::character varying::text, 'paused'::character varying::text, 'completed'::character varying::text, 'archived'::character varying::text])", name: "chk_rsab_experiments_status"
     t.check_constraint "traffic_percentage >= 0 AND traffic_percentage <= 100", name: "chk_rsab_experiments_traffic"
   end
 
@@ -191,7 +191,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_08_120011) do
     t.index ["experiment_id", "key"], name: "idx_rsab_goals_experiment_key", unique: true
     t.index ["experiment_id"], name: "idx_rsab_goals_primary", unique: true, where: "(is_primary = true)"
     t.check_constraint "attribution_window_hours >= 1 AND attribution_window_hours <= 2160", name: "chk_rsab_goals_window"
-    t.check_constraint "counting_policy::text = ANY (ARRAY['once_per_participant'::character varying, 'every_event'::character varying]::text[])", name: "chk_rsab_goals_counting"
+    t.check_constraint "counting_policy::text = ANY (ARRAY['once_per_participant'::character varying::text, 'every_event'::character varying::text])", name: "chk_rsab_goals_counting"
   end
 
   create_table "recording_studio_ab_tests_variants", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -256,6 +256,18 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_08_120011) do
     t.index ["attachment_kind", "content_type"], name: "idx_rs_attachable_kind_type"
     t.index ["attachment_kind"], name: "idx_on_attachment_kind_d683071625"
     t.index ["root_recording_id"], name: "index_rs_attachable_attachments_on_root_recording_id"
+  end
+
+  create_table "recording_studio_attachable_libraries", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "key", default: "default", null: false
+    t.datetime "created_at", null: false
+    t.index ["key"], name: "index_recording_studio_attachable_libraries_on_key"
+  end
+
+  create_table "recording_studio_attachable_placements", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "attachment_recording_id", null: false
+    t.datetime "created_at", null: false
+    t.index ["attachment_recording_id"], name: "idx_on_attachment_recording_id_76c6286907"
   end
 
   create_table "recording_studio_events", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -378,7 +390,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_08_120011) do
     t.index ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
-    t.check_constraint "registered_with::text = ANY (ARRAY['password'::character varying, 'otp'::character varying]::text[])", name: "users_registered_with_check"
+    t.check_constraint "registered_with::text = ANY (ARRAY['password'::character varying::text, 'otp'::character varying::text])", name: "users_registered_with_check"
   end
 
   create_table "workspaces", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
