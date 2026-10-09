@@ -140,7 +140,7 @@ class AbAdminTest < ActionDispatch::IntegrationTest
   test "experiment CRUD new and show pages render literal english chrome" do
     get "/ab_tests/admin/experiments/new"
     assert_response :success
-    assert_includes response.body, "New experiment"
+    assert_includes response.body, "HOST New experiment"
     assert_includes response.body, "Save as draft, then start when ready"
     assert_includes response.body, "Save draft"
     assert_includes response.body, "Cancel"
