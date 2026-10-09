@@ -1,21 +1,21 @@
-<% content_for :title, "New experiment" %>
+<% content_for :title, t("recording_studio.ab_tests.experiments.new.title") %>
 
 <%= render FlatPack::PageHeader::Component.new(
-  title: "New experiment",
-  subtitle: "Save as draft, then start when ready"
+  title: t("recording_studio.ab_tests.experiments.new.title"),
+  subtitle: t("recording_studio.ab_tests.experiments.new.subtitle")
 ) %>
 
 <% if flash[:alert].present? %>
-  <%= render FlatPack::Alert::Component.new(title: "Could not save", description: flash[:alert], style: :danger) %>
+  <%= render FlatPack::Alert::Component.new(title: t("recording_studio.ab_tests.experiments.new.alert_title"), description: flash[:alert], style: :danger) %>
 <% end %>
 
 <%= form_with model: @experiment, url: admin_experiments_path, method: :post, class: "space-y-6" do %>
   <%= render "form", experiment: @experiment, targets: @targets, events: @events, frozen: false %>
 
   <div class="flex flex-wrap gap-3">
-    <%= render FlatPack::Button::Component.new(text: "Save draft", style: :primary, type: "submit") %>
+    <%= render FlatPack::Button::Component.new(text: t("recording_studio.ab_tests.experiments.new.save"), style: :primary, type: "submit") %>
     <%= render FlatPack::Button::Component.new(
-      text: "Cancel",
+      text: t("recording_studio.ab_tests.common.cancel"),
       style: :secondary,
       href: admin_experiments_path
     ) %>

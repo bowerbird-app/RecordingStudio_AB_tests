@@ -6,13 +6,13 @@ fragment caching.
 
 Built on RecordingStudio (dummy GitHub tag `v4.4.0`), FlatPack (dummy GitHub tag `v0.1.198`), Accessible (dummy GitHub tag `v0.11.2`), Users (dummy GitHub tag `v0.16.0`), Admin (dummy GitHub tag `v2.0.5`), Root Switchable (dummy GitHub tag `v0.5.1`), and optionally RecordingStudioCache (dummy GitHub tag `v0.4.0`, public).
 
-**Version:** `0.3.0`
+**Version:** `0.4.0`
 
 ## Install
 
 ```ruby
 # Host Gemfile
-gem "recording_studio_ab_tests", github: "bowerbird-app/RecordingStudio_AB_tests", tag: "v0.3.0"
+gem "recording_studio_ab_tests", github: "bowerbird-app/RecordingStudio_AB_tests", tag: "v0.4.0"
 # Optional — enables RecordingStudioCache-backed render_ab cache:
 gem "recording_studio_cache", github: "bowerbird-app/RecordingStudio_cache", tag: "v0.4.0"
 ```
@@ -119,6 +119,15 @@ after-commit and idempotent. Assignment ≠ exposure.
 
 Soft-registers when `RecordingStudioAdmin` is loaded. Host `AdminRoot` must
 include `section :ab_tests`. See Admin docs / dummy `AdminRoot` for the pattern.
+
+## Interface text
+
+Static copy on the gem's own admin experiment screens uses Rails I18n keys under
+`recording_studio.ab_tests` in `config/locales/en.yml` (English only). Hosts can
+override or add other languages in their own locale files. There is no dependency
+on `recording_studio_internationalization`. Controller flash notices, database
+content, Admin DSL widget labels in `lib/`, and dummy app views stay outside
+this file.
 
 ## Caching rules
 

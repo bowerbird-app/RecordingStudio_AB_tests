@@ -90,6 +90,13 @@ class AbAdminTest < ActionDispatch::IntegrationTest
     assert_includes application_js, 'import "@hotwired/turbo-rails"'
   end
 
+  test "rails i18n load path includes the gem english locale file" do
+    locale_path = RecordingStudioAbTests::Engine.root.join("config/locales/en.yml").to_s
+
+    assert_includes I18n.load_path.map { |path| File.expand_path(path) }, File.expand_path(locale_path)
+    assert_equal "A/B Tests admin", I18n.t("recording_studio.ab_tests.layout.title")
+  end
+
   test "admin ab_tests section and screens render" do
     get "/admin/sections/ab_tests"
     assert_response :success
@@ -130,12 +137,87 @@ class AbAdminTest < ActionDispatch::IntegrationTest
     assert_select "turbo-frame#screen-chart"
   end
 
-  test "experiment CRUD new and show pages render" do
+  test "experiment CRUD new and show pages render literal english chrome" do
     get "/ab_tests/admin/experiments/new"
     assert_response :success
+    assert_includes response.body, "New experiment"
+    assert_includes response.body, "Save as draft, then start when ready"
+    assert_includes response.body, "Save draft"
+    assert_includes response.body, "Cancel"
+    assert_includes response.body, "Lowercase snake_case identifier"
+    assert_includes response.body, "Assignment scope"
+    assert_includes response.body, "Primary goal event"
+    assert_includes response.body, "Control is always included. Select additional implementations and set weights."
 
     get "/ab_tests/admin/experiments/#{@experiment.id}"
     assert_response :success
+    assert_includes response.body, "Configuration"
+    assert_includes response.body, "Variants"
+    assert_includes response.body, "Goals"
+    assert_includes response.body, "Results"
+    assert_includes response.body, "Duplicate"
+    assert_includes response.body, "Edit"
+    assert_includes response.body, "Name:"
+    assert_includes response.body, "Sample sizes are shown next to rates. Relative lift is not statistically tested."
+
+    get "/ab_tests/admin/experiments/#{@experiment.id}/edit"
+    assert_response :success
+    assert_includes response.body, "Edit experiment"
+    assert_includes response.body, "Save changes"
+    assert_includes response.body, "Cancel"
+  end
+
+  test "experiment show empty panels and draft add forms use literal english" do
+    experiment = RecordingStudioAbTests::Experiment.find_or_initialize_by(key: "admin_empty_panels_demo")
+    if experiment.new_record?
+      experiment.assign_attributes(
+        name: "Empty panels demo",
+        target_key: "hero_component",
+        assignment_scope: "visitor",
+        traffic_percentage: 100,
+        status: "draft",
+        allocation_version: "sha256-v1",
+        allocation_seed: SecureRandom.hex(8),
+        created_by: @user
+      )
+      experiment.save!
+    else
+      experiment.variants.destroy_all
+      experiment.goals.destroy_all
+      experiment.update!(status: "draft")
+    end
+
+    get "/ab_tests/admin/experiments/#{experiment.id}", params: { tab: "variants" }
+    assert_response :success
+    assert_includes response.body, "No variants"
+    assert_includes response.body, "Add variants while the experiment is draft."
+    assert_includes response.body, "Add variant"
+    assert_includes response.body, "Implementation key"
+
+    get "/ab_tests/admin/experiments/#{experiment.id}", params: { tab: "goals" }
+    assert_response :success
+    assert_includes response.body, "No goals"
+    assert_includes response.body, "Add at least one primary goal before starting."
+    assert_includes response.body, "Add goal"
+    assert_includes response.body, "Primary goal"
+
+    get "/ab_tests/admin/experiments/#{experiment.id}", params: { tab: "results" }
+    assert_response :success
+    assert_includes response.body, "No metrics yet"
+    assert_includes response.body, "Add a primary goal and collect exposures/conversions to see results."
+  end
+
+  test "non-draft edit shows frozen fields warning in english" do
+    get "/ab_tests/admin/experiments/#{@experiment.id}/edit"
+    assert_response :success
+
+    if @experiment.draft?
+      assert_includes response.body, "Lowercase snake_case identifier"
+    else
+      assert_includes response.body, "Some fields are frozen"
+      assert_includes response.body, "Key, target, and assignment scope cannot change after start."
+      assert_includes response.body, "Frozen after start"
+    end
   end
 
   test "lifecycle pause and resume are audited" do
