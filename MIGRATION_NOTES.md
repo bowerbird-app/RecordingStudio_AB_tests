@@ -5,11 +5,11 @@
 - Ruby 3.3 or newer
 - Rails 8.1 or newer
 - Recording Studio 4.x (`~> 4.2` in the gemspec; dummy GitHub tag `v4.4.0`)
-- Accessible dummy tag `v0.11.2` (bumped from `v0.10.1` for Users)
+- Accessible dummy tag `v0.13.0` (i18n release; no host migration from 0.11.x)
 - Root Switchable dummy tag `v0.5.1`
-- FlatPack dummy tag `v0.1.198` (Attachable requires `>= 0.1.198`)
+- FlatPack dummy tag `v0.1.213` (Attachable 0.12+ requires `>= 0.1.213`)
 - Users dummy tag `v0.16.0` (PR4; host overrides win on `/users/sign_up`)
-- Admin dummy tag `v2.0.5` and Attachable `v0.7.4` (Users gemspec soft deps, pinned in dummy only)
+- Admin dummy tag `v2.0.5` and Attachable `v0.13.0` (Users gemspec soft deps, pinned in dummy only)
 - Public RubyGems and GitHub access for dependency installation
 
 ## Accessible 0.11 role migration (PR2)
@@ -25,10 +25,10 @@ Hosts upgrading Accessible to 0.11.x must run this migration before Users 0.15. 
 ## Users + Attachable (PR2 dummy)
 
 - `recording_studio_user:migrations` — People, Profile, identities, confirmable columns, `registered_with`, OTP challenges
-- `recording_studio_attachable:migrations` — attachments tables + indexes
+- `recording_studio_attachable:migrations` — attachments tables + indexes, plus libraries and placements (Attachable 0.12+)
 - `active_storage:install` — blobs/attachments/variants (Attachable uploads)
 - Routes: `devise_for :users, skip: %i[sessions registrations passwords], …` + `recording_studio_user_auth_for :users` + mount Users/Attachable engines
-- Recordables: `RecordingStudioUser::People`, `RecordingStudioUser::Profile`, `RecordingStudioAttachable::Attachment`
+- Recordables: `RecordingStudioUser::People`, `RecordingStudioUser::Profile`, `RecordingStudioAttachable::Attachment`, `RecordingStudioAttachable::Library`, `RecordingStudioAttachable::Placement`
 - Coexists with the existing Devise `User` model (ProfiledUser is applied by the Users engine)
 
 ## Verification
