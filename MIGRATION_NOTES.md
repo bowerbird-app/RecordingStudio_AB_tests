@@ -9,7 +9,7 @@
 - Root Switchable dummy tag `v0.6.0` (i18n release; rendered English unchanged; no host migration)
 - FlatPack dummy tag `v0.1.213` (Attachable 0.12+ requires `>= 0.1.213`)
 - Users dummy tag `v0.16.0` (PR4; host overrides win on `/users/sign_up`)
-- Admin dummy tag `v2.0.5` and Attachable `v0.13.0` (Users gemspec soft deps, pinned in dummy only)
+- Admin dummy tag `v2.1.0` (i18n release; rendered English unchanged; no host migration) and Attachable `v0.13.0` (Users gemspec soft deps, pinned in dummy only)
 - Public RubyGems and GitHub access for dependency installation
 
 ## Accessible 0.11 role migration (PR2)

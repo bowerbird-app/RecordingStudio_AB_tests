@@ -13,7 +13,7 @@ gem "recording_studio_root_switchable", github: "bowerbird-app/RecordingStudio_r
 
 # Users gem (PR2): People/Profile + registration.completed events. Soft deps pinned here.
 gem "recording_studio_user", github: "bowerbird-app/RecordingStudio_users", tag: "v0.16.0"
-gem "recording_studio_admin", github: "bowerbird-app/RecordingStudio_admin", tag: "v2.0.5"
+gem "recording_studio_admin", github: "bowerbird-app/RecordingStudio_admin", tag: "v2.1.0"
 gem "recording_studio_attachable", github: "bowerbird-app/RecordingStudio_attachable", tag: "v0.13.0"
 
 # Cache gem (PR4): variant-aware fragment caching via vary:. Public repo — no GitHub token.
