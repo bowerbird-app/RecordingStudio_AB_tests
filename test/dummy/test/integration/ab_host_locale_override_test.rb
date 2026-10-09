@@ -5,6 +5,9 @@ require "test_helper"
 class AbHostLocaleOverrideTest < ActionDispatch::IntegrationTest
   include Devise::Test::IntegrationHelpers
 
+  HOST_ALERT_TITLE = "HOST Could not save"
+  OVERRIDE_KEY = "recording_studio.ab_tests.experiments.new.alert_title"
+
   setup do
     @load_path_before = I18n.load_path.dup
     @user = User.find_or_create_by!(email: "admin@admin.com") do |u|
@@ -47,14 +50,26 @@ class AbHostLocaleOverrideTest < ActionDispatch::IntegrationTest
   end
 
   test "host locale override for recording_studio.ab_tests wins on real admin page" do
-    host_locale = Rails.root.join("config/locales/en.yml")
+    host_locale = Rails.root.join("config/locales/recording_studio_ab_tests_host.en.yml")
     assert File.exist?(host_locale)
-    assert_includes File.read(host_locale), "HOST New experiment"
+    assert_includes File.read(host_locale), HOST_ALERT_TITLE
+    assert_equal HOST_ALERT_TITLE, I18n.t(OVERRIDE_KEY)
 
-    get "/ab_tests/admin/experiments/new"
-    assert_response :success
-    assert_includes response.body, "HOST New experiment"
-    assert_equal "HOST New experiment",
-                 I18n.t("recording_studio.ab_tests.experiments.new.title")
+    post "/ab_tests/admin/experiments",
+         params: {
+           experiment: {
+             name: "",
+             key: "",
+             target_key: "pricing_page",
+             assignment_scope: "visitor",
+             traffic_percentage: 100,
+             primary_event_key: "demo_signup"
+           }
+         }
+
+    assert_response :unprocessable_entity
+    assert_includes response.body, HOST_ALERT_TITLE
+    assert_includes response.body, "New experiment"
+    refute_includes response.body, "HOST New experiment"
   end
 end

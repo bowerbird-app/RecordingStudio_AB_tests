@@ -29,8 +29,3 @@
 
 en:
   hello: "Hello world"
-  recording_studio:
-    ab_tests:
-      experiments:
-        new:
-          title: "HOST New experiment"
