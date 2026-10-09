@@ -55,6 +55,14 @@ module RecordingStudioAbTests
       end
     end
 
+    # Rails engines already add config/locales to the I18n load path; keep an
+    # explicit append so hosts always see the gem English file even if load
+    # order differs.
+    initializer "recording_studio_ab_tests.locales", before: :load_config_initializers do |app|
+      locale_files = root.glob("config/locales/**/*.{rb,yml}")
+      app.config.i18n.load_path |= locale_files.map(&:to_s)
+    end
+
     initializer "recording_studio_ab_tests.middleware" do |app|
       app.middleware.use RecordingStudioAbTests::RequestContext
     end

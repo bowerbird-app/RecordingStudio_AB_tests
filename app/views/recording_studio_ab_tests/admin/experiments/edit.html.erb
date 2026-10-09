@@ -1,19 +1,19 @@
-<% content_for :title, "Edit #{@experiment.name}" %>
+<% content_for :title, t("recording_studio.ab_tests.experiments.edit.page_title", name: @experiment.name) %>
 <% frozen = !@experiment.draft? %>
 
 <%= render FlatPack::PageHeader::Component.new(
-  title: "Edit experiment",
-  subtitle: "#{@experiment.key} · #{@experiment.status}"
+  title: t("recording_studio.ab_tests.experiments.edit.title"),
+  subtitle: t("recording_studio.ab_tests.experiments.edit.subtitle", key: @experiment.key, status: @experiment.status)
 ) %>
 
 <% if flash[:alert].present? %>
-  <%= render FlatPack::Alert::Component.new(title: "Could not update", description: flash[:alert], style: :danger) %>
+  <%= render FlatPack::Alert::Component.new(title: t("recording_studio.ab_tests.experiments.edit.alert_title"), description: flash[:alert], style: :danger) %>
 <% end %>
 
 <% if frozen %>
   <%= render FlatPack::Alert::Component.new(
-    title: "Some fields are frozen",
-    description: "Key, target, and assignment scope cannot change after start.",
+    title: t("recording_studio.ab_tests.experiments.edit.frozen_title"),
+    description: t("recording_studio.ab_tests.experiments.edit.frozen_description"),
     style: :warning
   ) %>
 <% end %>
@@ -22,9 +22,9 @@
   <%= render "form", experiment: @experiment, targets: @targets, events: @events, frozen: frozen %>
 
   <div class="flex flex-wrap gap-3">
-    <%= render FlatPack::Button::Component.new(text: "Save changes", style: :primary, type: "submit") %>
+    <%= render FlatPack::Button::Component.new(text: t("recording_studio.ab_tests.experiments.edit.save"), style: :primary, type: "submit") %>
     <%= render FlatPack::Button::Component.new(
-      text: "Cancel",
+      text: t("recording_studio.ab_tests.common.cancel"),
       style: :secondary,
       href: admin_experiment_path(@experiment)
     ) %>

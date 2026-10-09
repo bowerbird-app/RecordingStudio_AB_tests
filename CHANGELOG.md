@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-10-09
+
+### Added
+- English Rails I18n keys for static interface copy in the gem's own admin
+  experiment views, partials, and layout (`config/locales/en.yml` under
+  `recording_studio.ab_tests`)
+
+### Changed
+- Version `0.3.0` → `0.4.0`.
+- Admin experiment screens (new/edit/show and form/variants/goals/results
+  partials) plus the engine admin layout resolve static chrome through
+  `t("recording_studio.ab_tests...")` (English output unchanged).
+
+### Upgrade notes
+- No migration or host code change is required for English.
+- To translate or override the defaults, add keys under
+  `recording_studio.ab_tests` in the host's locale files.
+- There is no dependency on `recording_studio_internationalization`.
+
 ## [0.3.0] - 2026-10-08
 
 ### Added

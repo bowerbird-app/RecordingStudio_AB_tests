@@ -5,7 +5,7 @@
 <div class="space-y-4" data-testid="ab-experiment-form">
   <%= render FlatPack::TextInput::Component.new(
     name: "experiment[name]",
-    label: "Name",
+    label: t("recording_studio.ab_tests.experiments.form.name"),
     value: experiment.name,
     required: true,
     error: experiment.errors[:name].presence&.to_sentence
@@ -13,25 +13,25 @@
 
   <%= render FlatPack::TextArea::Component.new(
     name: "experiment[description]",
-    label: "Description",
+    label: t("recording_studio.ab_tests.experiments.form.description"),
     value: experiment.description,
     rows: 3
   ) %>
 
   <%= render FlatPack::TextInput::Component.new(
     name: "experiment[key]",
-    label: "Key",
+    label: t("recording_studio.ab_tests.experiments.form.key"),
     value: experiment.key,
     required: true,
     disabled: frozen,
-    help_text: frozen ? "Frozen after start" : "Lowercase snake_case identifier",
+    help_text: frozen ? t("recording_studio.ab_tests.experiments.form.key_frozen") : t("recording_studio.ab_tests.experiments.form.key_help"),
     error: experiment.errors[:key].presence&.to_sentence
   ) %>
 
-  <% target_options = targets.map { |t| [t.label.to_s, t.key.to_s] } %>
+  <% target_options = targets.map { |target| [target.label.to_s, target.key.to_s] } %>
   <%= render FlatPack::Select::Component.new(
     name: "experiment[target_key]",
-    label: "Target",
+    label: t("recording_studio.ab_tests.experiments.form.target"),
     options: target_options,
     value: experiment.target_key,
     required: true,
@@ -42,8 +42,8 @@
 
   <%= render FlatPack::Select::Component.new(
     name: "experiment[assignment_scope]",
-    label: "Assignment scope",
-    options: RecordingStudioAbTests::Experiment::SCOPES.map { |s| [s.humanize, s] },
+    label: t("recording_studio.ab_tests.experiments.form.assignment_scope"),
+    options: RecordingStudioAbTests::Experiment::SCOPES.map { |scope| [scope.humanize, scope] },
     value: experiment.assignment_scope,
     required: true,
     disabled: frozen
@@ -51,7 +51,7 @@
 
   <%= render FlatPack::NumberInput::Component.new(
     name: "experiment[traffic_percentage]",
-    label: "Traffic %",
+    label: t("recording_studio.ab_tests.experiments.form.traffic_percent"),
     value: experiment.traffic_percentage,
     min: 0,
     max: 100,
@@ -60,14 +60,14 @@
 
   <% unless frozen || experiment.persisted? %>
     <div class="space-y-2" data-testid="ab-variant-picker">
-      <p class="text-sm font-medium">Variants</p>
+      <p class="text-sm font-medium"><%= t("recording_studio.ab_tests.experiments.form.variants_heading") %></p>
       <p class="text-xs text-[var(--surface-muted-content-color)]">
-        Control is always included. Select additional implementations and set weights.
+        <%= t("recording_studio.ab_tests.experiments.form.variants_hint") %>
       </p>
       <input type="hidden" name="experiment[variant_keys][]" value="control" />
       <% targets.each do |target| %>
         <div class="rounded border border-[var(--surface-border-color)] p-3 space-y-2" data-target-key="<%= target.key %>">
-          <p class="text-sm font-medium"><%= target.label %> implementations</p>
+          <p class="text-sm font-medium"><%= t("recording_studio.ab_tests.experiments.form.implementations", label: target.label) %></p>
           <% target.implementation_keys.each do |impl| %>
             <% is_control = impl == "control" %>
             <div class="flex flex-wrap items-end gap-3">
@@ -80,7 +80,7 @@
               ) %>
               <%= render FlatPack::NumberInput::Component.new(
                 name: "experiment[variant_weights][#{impl}]",
-                label: "Weight",
+                label: t("recording_studio.ab_tests.experiments.form.weight"),
                 value: 50,
                 min: 0,
                 max: 10_000
@@ -93,8 +93,8 @@
 
     <%= render FlatPack::Select::Component.new(
       name: "experiment[primary_event_key]",
-      label: "Primary goal event",
-      options: events.map { |e| [e.label.to_s, e.key.to_s] },
+      label: t("recording_studio.ab_tests.experiments.form.primary_goal_event"),
+      options: events.map { |event| [event.label.to_s, event.key.to_s] },
       value: nil,
       required: true,
       searchable: true
@@ -102,7 +102,7 @@
 
     <%= render FlatPack::NumberInput::Component.new(
       name: "experiment[attribution_window_hours]",
-      label: "Attribution window (hours)",
+      label: t("recording_studio.ab_tests.experiments.form.attribution_window_hours"),
       value: 168,
       min: 1,
       max: 2160
@@ -110,10 +110,9 @@
 
     <%= render FlatPack::Select::Component.new(
       name: "experiment[counting_policy]",
-      label: "Counting policy",
-      options: RecordingStudioAbTests::Goal::COUNTING_POLICIES.map { |p| [p.humanize, p] },
+      label: t("recording_studio.ab_tests.experiments.form.counting_policy"),
+      options: RecordingStudioAbTests::Goal::COUNTING_POLICIES.map { |policy| [policy.humanize, policy] },
       value: "once_per_participant"
     ) %>
   <% end %>
 </div>
-
