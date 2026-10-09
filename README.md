@@ -6,13 +6,13 @@ fragment caching.
 
 Built on RecordingStudio (dummy GitHub tag `v4.4.0`), FlatPack (dummy GitHub tag `v0.1.213`), Accessible (dummy GitHub tag `v0.13.0`), Users (dummy GitHub tag `v0.16.0`), Admin (dummy GitHub tag `v2.0.5`), Attachable (dummy GitHub tag `v0.13.0`), Root Switchable (dummy GitHub tag `v0.6.0`), and optionally RecordingStudioCache (dummy GitHub tag `v0.4.0`, public).
 
-**Version:** `0.4.0`
+**Version:** `0.4.1`
 
 ## Install
 
 ```ruby
 # Host Gemfile
-gem "recording_studio_ab_tests", github: "bowerbird-app/RecordingStudio_AB_tests", tag: "v0.4.0"
+gem "recording_studio_ab_tests", github: "bowerbird-app/RecordingStudio_AB_tests", tag: "v0.4.1"
 # Optional — enables RecordingStudioCache-backed render_ab cache:
 gem "recording_studio_cache", github: "bowerbird-app/RecordingStudio_cache", tag: "v0.4.0"
 ```

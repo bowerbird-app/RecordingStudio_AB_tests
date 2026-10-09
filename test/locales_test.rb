@@ -148,10 +148,12 @@ class LocalesTest < Minitest::Test
     assert_includes existent, locale_path
   end
 
-  def test_locales_initializer_is_registered
+  def test_locales_initializer_is_not_registered
     names = RecordingStudioAbTests::Engine.initializers.map(&:name)
+    engine_source = File.read(File.expand_path("../lib/recording_studio_ab_tests/engine.rb", __dir__))
 
-    assert_includes names, "recording_studio_ab_tests.locales"
+    refute_includes names, "recording_studio_ab_tests.locales"
+    refute_includes engine_source, "app.config.i18n.load_path"
   end
 
   def test_english_ab_tests_keys_resolve_without_missing_translations

@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.1] - 2026-10-09
+
+### Fixed
+- Removed the explicit `recording_studio_ab_tests.locales` initializer that
+  re-appended the gem's `config/locales` onto `I18n.load_path`. On Rails 8.1
+  that load ran after the host's locales, so the gem English overrode every
+  host translation under `recording_studio.ab_tests`. Rails engines already
+  load `config/locales` automatically.
+
+### Changed
+- Version `0.4.0` → `0.4.1`.
+
+### Upgrade notes
+- No migration or host code change is required.
+- Host locale overrides under `recording_studio.ab_tests` in the host's
+  `config/locales` now win over the gem English defaults (as documented in
+  0.4.0). Re-check any intentional reliance on gem English beating a host key.
+
 ## [0.4.0] - 2026-10-09
 
 ### Added
@@ -150,7 +168,9 @@ New addons copied from this template are born on Recording Studio 4.x.
 - Comprehensive README and documentation
 - Basic test suite with Minitest
 
-[Unreleased]: https://github.com/bowerbird-app/recording_studio_ab_tests/compare/v0.2.3...HEAD
+[0.4.1]: https://github.com/bowerbird-app/recording_studio_ab_tests/releases/tag/v0.4.1
+[0.4.0]: https://github.com/bowerbird-app/recording_studio_ab_tests/releases/tag/v0.4.0
+[0.3.0]: https://github.com/bowerbird-app/recording_studio_ab_tests/releases/tag/v0.3.0
 [0.2.3]: https://github.com/bowerbird-app/recording_studio_ab_tests/releases/tag/v0.2.3
 [0.2.2]: https://github.com/bowerbird-app/recording_studio_ab_tests/releases/tag/v0.2.2
 [0.2.1]: https://github.com/bowerbird-app/recording_studio_ab_tests/releases/tag/v0.2.1
