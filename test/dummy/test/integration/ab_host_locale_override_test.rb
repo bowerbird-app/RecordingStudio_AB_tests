@@ -91,11 +91,12 @@ class AbHostLocaleOverrideTest < ActionDispatch::IntegrationTest
     I18n.load_path = @load_path_before + [HOST_LOCALE.to_s]
     I18n.backend.load_translations
 
+    # Unique target_key: live rows share idx_rsab_experiments_live_target with seeds.
     experiment = RecordingStudioAbTests::Experiment.find_or_initialize_by(key: "host_frozen_demo")
     if experiment.new_record?
       experiment.assign_attributes(
         name: "Host frozen demo",
-        target_key: "pricing_page",
+        target_key: "host_frozen_target",
         assignment_scope: "visitor",
         traffic_percentage: 100,
         status: "draft",
@@ -110,6 +111,8 @@ class AbHostLocaleOverrideTest < ActionDispatch::IntegrationTest
                                   is_control: false, weight: 1, position: 1)
       experiment.goals.create!(key: "primary", name: "Primary", event_key: "demo_signup",
                                is_primary: true)
+    else
+      experiment.update_columns(target_key: "host_frozen_target") unless experiment.target_key == "host_frozen_target"
     end
     experiment.update_columns(status: "running", started_at: Time.current) if experiment.draft?
     primary = experiment.goals.find_by!(is_primary: true)
