@@ -7,6 +7,7 @@ class AbHostLocaleOverrideTest < ActionDispatch::IntegrationTest
 
   HOST_ALERT_TITLE = "HOST Could not save"
   OVERRIDE_KEY = "recording_studio.ab_tests.experiments.new.alert_title"
+  HOST_LOCALE = Rails.root.join("test/locales/ab_tests_host_override.en.yml")
 
   setup do
     @load_path_before = I18n.load_path.dup
@@ -29,8 +30,8 @@ class AbHostLocaleOverrideTest < ActionDispatch::IntegrationTest
 
   teardown do
     Current.actor = nil
-    assert_equal @load_path_before, I18n.load_path,
-                 "test must not leave I18n.load_path modified"
+    I18n.load_path = @load_path_before
+    I18n.reload!
   end
 
   def switch_to_admin_root!
@@ -50,9 +51,12 @@ class AbHostLocaleOverrideTest < ActionDispatch::IntegrationTest
   end
 
   test "host locale override for recording_studio.ab_tests wins on real admin page" do
-    host_locale = Rails.root.join("config/locales/recording_studio_ab_tests_host.en.yml")
-    assert File.exist?(host_locale)
-    assert_includes File.read(host_locale), HOST_ALERT_TITLE
+    assert File.exist?(HOST_LOCALE), "expected test-only host override fixture at #{HOST_LOCALE}"
+    assert_includes File.read(HOST_LOCALE), HOST_ALERT_TITLE
+
+    I18n.load_path = I18n.load_path + [HOST_LOCALE.to_s]
+    I18n.reload!
+
     assert_equal HOST_ALERT_TITLE, I18n.t(OVERRIDE_KEY)
 
     post "/ab_tests/admin/experiments",
@@ -71,5 +75,8 @@ class AbHostLocaleOverrideTest < ActionDispatch::IntegrationTest
     assert_includes response.body, HOST_ALERT_TITLE
     assert_includes response.body, "New experiment"
     refute_includes response.body, "HOST New experiment"
+  ensure
+    I18n.load_path = @load_path_before
+    I18n.reload!
   end
 end

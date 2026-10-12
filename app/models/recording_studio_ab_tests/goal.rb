@@ -31,7 +31,10 @@ module RecordingStudioAbTests
       return unless is_primary?
       return unless will_save_change_to_event_key?
 
-      errors.add(:event_key, "primary goal event is frozen after start")
+      errors.add(
+        :event_key,
+        Copy.t("errors.primary_event_frozen", default: "primary goal event is frozen after start")
+      )
     end
 
     def bump_active_set

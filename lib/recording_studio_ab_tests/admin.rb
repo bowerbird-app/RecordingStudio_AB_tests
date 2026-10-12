@@ -3,6 +3,8 @@
 # Soft-registers when RecordingStudioAdmin is present. Require this file only after
 # RecordingStudioAdmin is loaded (see Engine to_prepare).
 
+require "recording_studio_ab_tests/copy"
+
 module RecordingStudioAbTests
   module Admin
     module_function
@@ -73,7 +75,7 @@ module RecordingStudioAbTests
 
     def mask_id(value)
       str = value.to_s
-      return "—" if str.blank?
+      return Copy.empty if str.blank?
 
       str[0, 8]
     end
@@ -153,7 +155,7 @@ module RecordingStudioAbTests
           conversion_rate: Metrics.format_rate(rate),
           relative_lift: control ? aggregated_lift(rows, control_rate) : Metrics::ZERO_DISPLAY,
           sample_size: exposed,
-          lift_label: Metrics::LIFT_LABEL
+          lift_label: Copy.lift_label
         )
       end
     end
@@ -214,11 +216,11 @@ module RecordingStudioAbTests
       days = (0..13).map { |offset| Date.current - (13 - offset) }
       [
         {
-          name: "Exposures",
+          name: Copy.t("admin.charts.exposures", default: "Exposures"),
           data: days.map { |day| { x: day.iso8601, y: exposure_counts[day] || exposure_counts[day.to_s] || 0 } }
         },
         {
-          name: "Conversions",
+          name: Copy.t("admin.charts.conversions", default: "Conversions"),
           data: days.map { |day| { x: day.iso8601, y: conversion_counts[day] || conversion_counts[day.to_s] || 0 } }
         }
       ]
@@ -243,13 +245,13 @@ module RecordingStudioAbTests
     end
 
     def target_type_for(experiment)
-      RecordingStudioAbTests.registry.target(experiment.target_key)&.type&.to_s || "—"
+      RecordingStudioAbTests.registry.target(experiment.target_key)&.type&.to_s || Copy.empty
     end
 
     RunningWidget = RecordingStudioAdmin::Widget.new("ab_tests.running") do
       type :number
-      title "Running experiments"
-      info "Experiments currently in the running status."
+      title { Copy.t("admin.widgets.running.title", default: "Running experiments") }
+      info { Copy.t("admin.widgets.running.info", default: "Experiments currently in the running status.") }
       value { Experiment.where(status: "running").count }
       hide_change
       hide_period
@@ -259,8 +261,8 @@ module RecordingStudioAbTests
 
     Exposures7dWidget = RecordingStudioAdmin::Widget.new("ab_tests.exposures_7d") do
       type :number
-      title "Exposures (7d)"
-      info "Unique exposure rows first seen in the last 7 days."
+      title { Copy.t("admin.widgets.exposures_7d.title", default: "Exposures (7d)") }
+      info { Copy.t("admin.widgets.exposures_7d.info", default: "Unique exposure rows first seen in the last 7 days.") }
       value { Exposure.where("first_exposed_at >= ?", 7.days.ago).count }
       hide_change
       hide_period
@@ -270,8 +272,8 @@ module RecordingStudioAbTests
 
     Conversions7dWidget = RecordingStudioAdmin::Widget.new("ab_tests.conversions_7d") do
       type :number
-      title "Conversions (7d)"
-      info "Conversion rows in the last 7 days."
+      title { Copy.t("admin.widgets.conversions_7d.title", default: "Conversions (7d)") }
+      info { Copy.t("admin.widgets.conversions_7d.info", default: "Conversion rows in the last 7 days.") }
       value { Conversion.where("occurred_at >= ?", 7.days.ago).count }
       hide_change
       hide_period
@@ -281,11 +283,14 @@ module RecordingStudioAbTests
 
     ExposureTrendWidget = RecordingStudioAdmin::Widget.new("ab_tests.exposure_trend") do
       type :chart
-      title "Exposure trend"
-      info "Daily exposures over the last 7 days."
+      title { Copy.t("admin.widgets.exposure_trend.title", default: "Exposure trend") }
+      info { Copy.t("admin.widgets.exposure_trend.info", default: "Daily exposures over the last 7 days.") }
       chart_type :line
       series do
-        [{ name: "Exposures", data: RecordingStudioAbTests::Admin.exposures_last_7_days_series }]
+        [{
+          name: Copy.t("admin.charts.exposures", default: "Exposures"),
+          data: RecordingStudioAbTests::Admin.exposures_last_7_days_series
+        }]
       end
       hide_change
       hide_period
@@ -295,8 +300,8 @@ module RecordingStudioAbTests
 
     class AbTestsSection < RecordingStudioAdmin::Section
       key "ab_tests"
-      title "A/B Tests"
-      subtitle "Experiments, results, assignments, and registry"
+      title { Copy.t("admin.section.title", default: "A/B Tests") }
+      subtitle { Copy.t("admin.section.subtitle", default: "Experiments, results, assignments, and registry") }
       blast_radius :site
 
       widget "ab_tests.running"
@@ -306,22 +311,36 @@ module RecordingStudioAbTests
 
       # Screens are only enabled when linked from an enabled section
       # (RecordingStudioAdmin.screen_enabled? walks section link URLs).
-      link :experiments, text: "Experiments", url: ->(context) { context.admin_screen_path("ab_tests_experiments") }
-      link :results, text: "Results", url: ->(context) { context.admin_screen_path("ab_tests_results") }
-      link :assignments, text: "Assignments", url: ->(context) { context.admin_screen_path("ab_tests_assignments") }
-      link :exposures, text: "Exposures", url: ->(context) { context.admin_screen_path("ab_tests_exposures") }
-      link :conversions, text: "Conversions", url: ->(context) { context.admin_screen_path("ab_tests_conversions") }
-      link :reporting, text: "Reporting", url: ->(context) { context.admin_screen_path("ab_tests_reporting") }
-      link :registry, text: "Targets & events", url: ->(context) { context.admin_screen_path("ab_tests_registry") }
+      link :experiments,
+           text: ->(_context) { Copy.t("admin.links.experiments", default: "Experiments") },
+           url: ->(context) { context.admin_screen_path("ab_tests_experiments") }
+      link :results,
+           text: ->(_context) { Copy.t("admin.links.results", default: "Results") },
+           url: ->(context) { context.admin_screen_path("ab_tests_results") }
+      link :assignments,
+           text: ->(_context) { Copy.t("admin.links.assignments", default: "Assignments") },
+           url: ->(context) { context.admin_screen_path("ab_tests_assignments") }
+      link :exposures,
+           text: ->(_context) { Copy.t("admin.links.exposures", default: "Exposures") },
+           url: ->(context) { context.admin_screen_path("ab_tests_exposures") }
+      link :conversions,
+           text: ->(_context) { Copy.t("admin.links.conversions", default: "Conversions") },
+           url: ->(context) { context.admin_screen_path("ab_tests_conversions") }
+      link :reporting,
+           text: ->(_context) { Copy.t("admin.links.reporting", default: "Reporting") },
+           url: ->(context) { context.admin_screen_path("ab_tests_reporting") }
+      link :registry,
+           text: ->(_context) { Copy.t("admin.links.registry", default: "Targets & events") },
+           url: ->(context) { context.admin_screen_path("ab_tests_registry") }
       link :new_experiment,
-           text: "New experiment",
+           text: ->(_context) { Copy.t("admin.links.new_experiment", default: "New experiment") },
            url: ->(_context) { RecordingStudioAbTests::Admin.new_admin_experiment_path }
     end
 
     class ExperimentsScreen < RecordingStudioAdmin::Screen
       key "ab_tests_experiments"
-      title "Experiments"
-      subtitle "Create, run, and manage A/B experiments"
+      title { Copy.t("admin.screens.experiments.title", default: "Experiments") }
+      subtitle { Copy.t("admin.screens.experiments.subtitle", default: "Create, run, and manage A/B experiments") }
       blast_radius :site
 
       query { |_context| Experiment.order(created_at: :desc) }
@@ -337,7 +356,7 @@ module RecordingStudioAbTests
       filter_presentation :modal, inline_count: 2
 
       summary do
-        label "Experiments"
+        label ->(_context) { Copy.t("admin.summary.experiments", default: "Experiments") }
         hide_change
         hide_period
       end
@@ -346,6 +365,7 @@ module RecordingStudioAbTests
         column :name
         column :key
         column :status
+        # Admin column headers stay English (DSL stores them at class load).
         column :target_key, title: "Target"
         column :target_type, title: "Target type",
                              value: ->(row, _ctx) { RecordingStudioAbTests::Admin.target_type_for(row) }
@@ -360,45 +380,63 @@ module RecordingStudioAbTests
                               value: ->(row, _ctx) { RecordingStudioAbTests::Admin.primary_rate_for(row) }
         column :created_at
         action :view,
-               text: "View",
+               text: ->(_row, _ctx) { Copy.t("admin.actions.view", default: "View") },
                url: ->(row, _ctx) { RecordingStudioAbTests::Admin.admin_experiment_path(row) }
         action :edit,
-               text: "Edit",
+               text: ->(_row, _ctx) { Copy.t("admin.actions.edit", default: "Edit") },
                url: ->(row, _ctx) { RecordingStudioAbTests::Admin.edit_admin_experiment_path(row) }
         action :start,
-               text: "Start",
+               text: ->(_row, _ctx) { Copy.t("admin.actions.start", default: "Start") },
                method: :post,
-               confirm: "Start this experiment? Allocation fields will freeze.",
+               confirm: ->(_row, _ctx) {
+                 Copy.t(
+                   "admin.confirms.start",
+                   default: "Start this experiment? Allocation fields will freeze."
+                 )
+               },
                visible_if: ->(row, _ctx) { RecordingStudioAbTests::Admin.transition_allowed?(row, :start) },
                url: ->(row, _ctx) { RecordingStudioAbTests::Admin.start_admin_experiment_path(row) }
         action :pause,
-               text: "Pause",
+               text: ->(_row, _ctx) { Copy.t("admin.actions.pause", default: "Pause") },
                method: :post,
-               confirm: "Pause this experiment?",
+               confirm: ->(_row, _ctx) {
+                 Copy.t("admin.confirms.pause", default: "Pause this experiment?")
+               },
                visible_if: ->(row, _ctx) { RecordingStudioAbTests::Admin.transition_allowed?(row, :pause) },
                url: ->(row, _ctx) { RecordingStudioAbTests::Admin.pause_admin_experiment_path(row) }
         action :resume,
-               text: "Resume",
+               text: ->(_row, _ctx) { Copy.t("admin.actions.resume", default: "Resume") },
                method: :post,
-               confirm: "Resume this experiment?",
+               confirm: ->(_row, _ctx) {
+                 Copy.t("admin.confirms.resume", default: "Resume this experiment?")
+               },
                visible_if: ->(row, _ctx) { RecordingStudioAbTests::Admin.transition_allowed?(row, :resume) },
                url: ->(row, _ctx) { RecordingStudioAbTests::Admin.resume_admin_experiment_path(row) }
         action :complete,
-               text: "Complete",
+               text: ->(_row, _ctx) { Copy.t("admin.actions.complete", default: "Complete") },
                method: :post,
-               confirm: "Complete this experiment?",
+               confirm: ->(_row, _ctx) {
+                 Copy.t("admin.confirms.complete", default: "Complete this experiment?")
+               },
                visible_if: ->(row, _ctx) { RecordingStudioAbTests::Admin.transition_allowed?(row, :complete) },
                url: ->(row, _ctx) { RecordingStudioAbTests::Admin.complete_admin_experiment_path(row) }
         action :archive,
-               text: "Archive",
+               text: ->(_row, _ctx) { Copy.t("admin.actions.archive", default: "Archive") },
                method: :post,
-               confirm: "Archive this experiment?",
+               confirm: ->(_row, _ctx) {
+                 Copy.t("admin.confirms.archive", default: "Archive this experiment?")
+               },
                visible_if: ->(row, _ctx) { RecordingStudioAbTests::Admin.transition_allowed?(row, :archive) },
                url: ->(row, _ctx) { RecordingStudioAbTests::Admin.archive_admin_experiment_path(row) }
         action :duplicate,
-               text: "Duplicate",
+               text: ->(_row, _ctx) { Copy.t("admin.actions.duplicate", default: "Duplicate") },
                method: :post,
-               confirm: "Duplicate this experiment as a new draft?",
+               confirm: ->(_row, _ctx) {
+                 Copy.t(
+                   "admin.confirms.duplicate",
+                   default: "Duplicate this experiment as a new draft?"
+                 )
+               },
                visible_if: ->(row, _ctx) { RecordingStudioAbTests::Admin.transition_allowed?(row, :duplicate) },
                url: ->(row, _ctx) { RecordingStudioAbTests::Admin.duplicate_admin_experiment_path(row) }
         paginate per_page: 25
@@ -408,8 +446,13 @@ module RecordingStudioAbTests
 
     class ResultsScreen < RecordingStudioAdmin::Screen
       key "ab_tests_results"
-      title "Results"
-      subtitle "Per-variant metrics for a selected goal (not statistically tested)"
+      title { Copy.t("admin.screens.results.title", default: "Results") }
+      subtitle do
+        Copy.t(
+          "admin.screens.results.subtitle",
+          default: "Per-variant metrics for a selected goal (not statistically tested)"
+        )
+      end
       blast_radius :site
 
       query { |context| RecordingStudioAbTests::Admin.results_rows_for(context) }
@@ -420,19 +463,21 @@ module RecordingStudioAbTests
              options: -> { Goal.order(:name).pluck(:id).map(&:to_s) }
 
       summary do
-        label "Variants"
+        label ->(_context) { Copy.t("admin.summary.variants", default: "Variants") }
         hide_change
         hide_period
       end
 
       chart do
-        title "Conversion rate by variant"
+        title do
+          Copy.t("admin.charts.conversion_rate_by_variant", default: "Conversion rate by variant")
+        end
         type :bar
         series do |context|
           rows = Array(context.query_result&.relation)
           [
             {
-              name: "Conversion rate %",
+              name: Copy.t("admin.charts.conversion_rate_percent", default: "Conversion rate %"),
               data: rows.map do |row|
                 rate = row.conversion_rate.to_s.delete("%")
                 y = rate == Metrics::ZERO_DISPLAY ? 0 : rate.to_f
@@ -462,8 +507,13 @@ module RecordingStudioAbTests
 
     class AssignmentsScreen < RecordingStudioAdmin::Screen
       key "ab_tests_assignments"
-      title "Assignments"
-      subtitle "Sticky subject assignments (identifiers masked)"
+      title { Copy.t("admin.screens.assignments.title", default: "Assignments") }
+      subtitle do
+        Copy.t(
+          "admin.screens.assignments.subtitle",
+          default: "Sticky subject assignments (identifiers masked)"
+        )
+      end
       blast_radius :site
 
       query { |_context| Assignment.order(assigned_at: :desc) }
@@ -478,7 +528,7 @@ module RecordingStudioAbTests
       filter_presentation :modal, inline_count: 2
 
       summary do
-        label "Assignments"
+        label ->(_context) { Copy.t("admin.summary.assignments", default: "Assignments") }
         hide_change
         hide_period
       end
@@ -488,7 +538,7 @@ module RecordingStudioAbTests
         column :experiment_id, title: "Experiment",
                                value: ->(row, _ctx) { row.experiment&.key || RecordingStudioAbTests::Admin.mask_id(row.experiment_id) }
         column :variant_id, title: "Variant",
-                            value: ->(row, _ctx) { row.variant&.key || "—" }
+                            value: ->(row, _ctx) { row.variant&.key || Copy.empty }
         column :subject_type, title: "Subject type"
         column :subject_identifier, title: "Subject",
                                     value: ->(row, _ctx) { RecordingStudioAbTests::Admin.mask_id(row.subject_identifier) }
@@ -500,8 +550,13 @@ module RecordingStudioAbTests
 
     class ExposuresScreen < RecordingStudioAdmin::Screen
       key "ab_tests_exposures"
-      title "Exposures"
-      subtitle "First and repeat exposures (identifiers masked)"
+      title { Copy.t("admin.screens.exposures.title", default: "Exposures") }
+      subtitle do
+        Copy.t(
+          "admin.screens.exposures.subtitle",
+          default: "First and repeat exposures (identifiers masked)"
+        )
+      end
       blast_radius :site
 
       query { |_context| Exposure.order(first_exposed_at: :desc) }
@@ -516,7 +571,7 @@ module RecordingStudioAbTests
       filter_presentation :modal, inline_count: 2
 
       summary do
-        label "Exposures"
+        label ->(_context) { Copy.t("admin.summary.exposures", default: "Exposures") }
         hide_change
         hide_period
       end
@@ -524,8 +579,8 @@ module RecordingStudioAbTests
       table do
         column :id, title: "ID", value: ->(row, _ctx) { RecordingStudioAbTests::Admin.mask_id(row.id) }
         column :experiment_id, title: "Experiment",
-                               value: ->(row, _ctx) { row.experiment&.key || "—" }
-        column :variant_id, title: "Variant", value: ->(row, _ctx) { row.variant&.key || "—" }
+                               value: ->(row, _ctx) { row.experiment&.key || Copy.empty }
+        column :variant_id, title: "Variant", value: ->(row, _ctx) { row.variant&.key || Copy.empty }
         column :target_key, title: "Target"
         column :assignment_id, title: "Assignment",
                                value: ->(row, _ctx) { RecordingStudioAbTests::Admin.mask_id(row.assignment_id) }
@@ -538,8 +593,13 @@ module RecordingStudioAbTests
 
     class ConversionsScreen < RecordingStudioAdmin::Screen
       key "ab_tests_conversions"
-      title "Conversions"
-      subtitle "Attributed conversions (identifiers masked)"
+      title { Copy.t("admin.screens.conversions.title", default: "Conversions") }
+      subtitle do
+        Copy.t(
+          "admin.screens.conversions.subtitle",
+          default: "Attributed conversions (identifiers masked)"
+        )
+      end
       blast_radius :site
 
       query { |_context| Conversion.order(occurred_at: :desc) }
@@ -554,7 +614,7 @@ module RecordingStudioAbTests
       filter_presentation :modal, inline_count: 2
 
       summary do
-        label "Conversions"
+        label ->(_context) { Copy.t("admin.summary.conversions", default: "Conversions") }
         hide_change
         hide_period
       end
@@ -562,9 +622,9 @@ module RecordingStudioAbTests
       table do
         column :id, title: "ID", value: ->(row, _ctx) { RecordingStudioAbTests::Admin.mask_id(row.id) }
         column :experiment_id, title: "Experiment",
-                               value: ->(row, _ctx) { row.experiment&.key || "—" }
-        column :variant_id, title: "Variant", value: ->(row, _ctx) { row.variant&.key || "—" }
-        column :goal_id, title: "Goal", value: ->(row, _ctx) { row.goal&.key || "—" }
+                               value: ->(row, _ctx) { row.experiment&.key || Copy.empty }
+        column :variant_id, title: "Variant", value: ->(row, _ctx) { row.variant&.key || Copy.empty }
+        column :goal_id, title: "Goal", value: ->(row, _ctx) { row.goal&.key || Copy.empty }
         column :source_event_key, title: "Event"
         column :source_event_id, title: "Event id",
                                  value: ->(row, _ctx) { RecordingStudioAbTests::Admin.mask_id(row.source_event_id) }
@@ -578,20 +638,30 @@ module RecordingStudioAbTests
 
     class ReportingScreen < RecordingStudioAdmin::Screen
       key "ab_tests_reporting"
-      title "Reporting"
-      subtitle "Primary-goal metrics for non-draft experiments"
+      title { Copy.t("admin.screens.reporting.title", default: "Reporting") }
+      subtitle do
+        Copy.t(
+          "admin.screens.reporting.subtitle",
+          default: "Primary-goal metrics for non-draft experiments"
+        )
+      end
       blast_radius :site
 
       query { |_context| RecordingStudioAbTests::Admin.reporting_rows }
 
       summary do
-        label "Experiments"
+        label ->(_context) { Copy.t("admin.summary.experiments", default: "Experiments") }
         hide_change
         hide_period
       end
 
       chart do
-        title "Daily exposures and conversions"
+        title do
+          Copy.t(
+            "admin.charts.daily_exposures_and_conversions",
+            default: "Daily exposures and conversions"
+          )
+        end
         type :line
         # Flatpack defaults both series to near-identical primary opacities; override
         # via ChartDefinition#options (passed through to FlatPack::Chart::Component).
@@ -622,14 +692,19 @@ module RecordingStudioAbTests
 
     class RegistryScreen < RecordingStudioAdmin::Screen
       key "ab_tests_registry"
-      title "Targets & events"
-      subtitle "Host-registered AB targets and conversion events"
+      title { Copy.t("admin.screens.registry.title", default: "Targets & events") }
+      subtitle do
+        Copy.t(
+          "admin.screens.registry.subtitle",
+          default: "Host-registered AB targets and conversion events"
+        )
+      end
       blast_radius :site
 
       query { |_context| RecordingStudioAbTests::Admin.registry_rows }
 
       summary do
-        label "Registry entries"
+        label ->(_context) { Copy.t("admin.summary.registry_entries", default: "Registry entries") }
         hide_change
         hide_period
       end
@@ -647,60 +722,72 @@ module RecordingStudioAbTests
     class ExperimentsResource < RecordingStudioAdmin::Resource
       key "ab_tests_experiments"
       section "ab_tests"
-      title "A/B experiments"
+      title { Copy.t("admin.resource.title", default: "A/B experiments") }
       blast_radius :site
 
       action :view,
-             text: "View",
+             text: ->(_row, _ctx) { Copy.t("admin.actions.view", default: "View") },
              url: ->(row, _ctx) { RecordingStudioAbTests::Admin.admin_experiment_path(row) },
              required_role: :admin
       action :edit,
-             text: "Edit",
+             text: ->(_row, _ctx) { Copy.t("admin.actions.edit", default: "Edit") },
              url: ->(row, _ctx) { RecordingStudioAbTests::Admin.edit_admin_experiment_path(row) },
              required_role: :admin
       action :start,
-             text: "Start",
+             text: ->(_row, _ctx) { Copy.t("admin.actions.start", default: "Start") },
              method: :post,
              required_role: :admin,
-             confirm: "Start this experiment?",
+             confirm: ->(_row, _ctx) {
+               Copy.t("admin.confirms.start_short", default: "Start this experiment?")
+             },
              visible_if: ->(row, _ctx) { RecordingStudioAbTests::Admin.transition_allowed?(row, :start) },
              url: ->(row, _ctx) { RecordingStudioAbTests::Admin.start_admin_experiment_path(row) }
       action :pause,
-             text: "Pause",
+             text: ->(_row, _ctx) { Copy.t("admin.actions.pause", default: "Pause") },
              method: :post,
              required_role: :admin,
-             confirm: "Pause this experiment?",
+             confirm: ->(_row, _ctx) {
+               Copy.t("admin.confirms.pause", default: "Pause this experiment?")
+             },
              visible_if: ->(row, _ctx) { RecordingStudioAbTests::Admin.transition_allowed?(row, :pause) },
              url: ->(row, _ctx) { RecordingStudioAbTests::Admin.pause_admin_experiment_path(row) }
       action :resume,
-             text: "Resume",
+             text: ->(_row, _ctx) { Copy.t("admin.actions.resume", default: "Resume") },
              method: :post,
              required_role: :admin,
-             confirm: "Resume this experiment?",
+             confirm: ->(_row, _ctx) {
+               Copy.t("admin.confirms.resume", default: "Resume this experiment?")
+             },
              visible_if: ->(row, _ctx) { RecordingStudioAbTests::Admin.transition_allowed?(row, :resume) },
              url: ->(row, _ctx) { RecordingStudioAbTests::Admin.resume_admin_experiment_path(row) }
       action :complete,
-             text: "Complete",
+             text: ->(_row, _ctx) { Copy.t("admin.actions.complete", default: "Complete") },
              method: :post,
              required_role: :admin,
-             confirm: "Complete this experiment?",
+             confirm: ->(_row, _ctx) {
+               Copy.t("admin.confirms.complete", default: "Complete this experiment?")
+             },
              visible_if: ->(row, _ctx) { RecordingStudioAbTests::Admin.transition_allowed?(row, :complete) },
              url: ->(row, _ctx) { RecordingStudioAbTests::Admin.complete_admin_experiment_path(row) }
       action :archive,
-             text: "Archive",
+             text: ->(_row, _ctx) { Copy.t("admin.actions.archive", default: "Archive") },
              method: :post,
              required_role: :admin,
-             confirm: "Archive this experiment?",
+             confirm: ->(_row, _ctx) {
+               Copy.t("admin.confirms.archive", default: "Archive this experiment?")
+             },
              visible_if: ->(row, _ctx) { RecordingStudioAbTests::Admin.transition_allowed?(row, :archive) },
              url: ->(row, _ctx) { RecordingStudioAbTests::Admin.archive_admin_experiment_path(row) }
       action :duplicate,
-             text: "Duplicate",
+             text: ->(_row, _ctx) { Copy.t("admin.actions.duplicate", default: "Duplicate") },
              method: :post,
              required_role: :admin,
-             confirm: "Duplicate this experiment?",
+             confirm: ->(_row, _ctx) {
+               Copy.t("admin.confirms.duplicate_short", default: "Duplicate this experiment?")
+             },
              url: ->(row, _ctx) { RecordingStudioAbTests::Admin.duplicate_admin_experiment_path(row) }
       action :select_winner,
-             text: "Select winner",
+             text: ->(_row, _ctx) { Copy.t("admin.actions.select_winner", default: "Select winner") },
              method: :post,
              required_role: :admin,
              visible_if: ->(row, _ctx) { RecordingStudioAbTests::Admin.transition_allowed?(row, :select_winner) },

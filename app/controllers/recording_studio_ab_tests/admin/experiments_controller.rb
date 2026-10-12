@@ -43,7 +43,8 @@ module RecordingStudioAbTests
             ActiveSet.bump!
             true
           end
-          redirect_to admin_experiment_path(@experiment), notice: "Draft experiment created."
+          redirect_to admin_experiment_path(@experiment),
+                      notice: Copy.t("flashes.draft_created", default: "Draft experiment created.")
         rescue ActiveRecord::RecordInvalid => e
           flash.now[:alert] = e.record.errors.full_messages.to_sentence
           @targets = valid_targets
@@ -79,7 +80,8 @@ module RecordingStudioAbTests
             ActiveSet.bump!
             true
           end
-          redirect_to admin_experiment_path(@experiment), notice: "Experiment updated."
+          redirect_to admin_experiment_path(@experiment),
+                      notice: Copy.t("flashes.experiment_updated", default: "Experiment updated.")
         rescue ActiveRecord::RecordInvalid, LifecycleError => e
           flash.now[:alert] = e.message
           @targets = valid_targets
@@ -119,7 +121,11 @@ module RecordingStudioAbTests
             clone = Lifecycle.duplicate(@experiment)
             true
           end
-          redirect_to admin_experiment_path(clone), notice: "Experiment duplicated as draft."
+          redirect_to admin_experiment_path(clone),
+                      notice: Copy.t(
+                        "flashes.experiment_duplicated",
+                        default: "Experiment duplicated as draft."
+                      )
         rescue LifecycleError => e
           redirect_to admin_experiment_path(@experiment), alert: e.message
         end
@@ -136,7 +142,8 @@ module RecordingStudioAbTests
           ) do
             Lifecycle.select_winner!(@experiment, variant: variant, actor: current_admin_actor)
           end
-          redirect_to admin_experiment_path(@experiment), notice: "Winner selected."
+          redirect_to admin_experiment_path(@experiment),
+                      notice: Copy.t("flashes.winner_selected", default: "Winner selected.")
         rescue LifecycleError, ActiveRecord::RecordNotFound => e
           redirect_to admin_experiment_path(@experiment), alert: e.message
         end
@@ -158,7 +165,12 @@ module RecordingStudioAbTests
             "ab_tests_experiments", action_key, @experiment, audit_action: action_key,
                                                              metadata: { from: @experiment.status }, &
           )
-          redirect_to admin_experiment_path(@experiment), notice: "Experiment #{action_key}."
+          redirect_to admin_experiment_path(@experiment),
+                      notice: Copy.t(
+                        "flashes.experiment_action",
+                        default: "Experiment %{action}.",
+                        action: action_key
+                      )
         rescue LifecycleError => e
           redirect_to admin_experiment_path(@experiment), alert: e.message
         end
@@ -178,7 +190,7 @@ module RecordingStudioAbTests
 
       def create_variants_from_params!(experiment)
         target = RecordingStudioAbTests.registry.target(experiment.target_key)
-        raise LifecycleError, "target is not registered" unless target
+        raise LifecycleError, Copy.t("errors.target_not_registered", default: "target is not registered") unless target
 
         selected = Array(params.dig(:experiment, :variant_keys)).map(&:to_s).uniq
         selected &= target.implementation_keys
@@ -203,7 +215,12 @@ module RecordingStudioAbTests
 
       def create_primary_goal_from_params!(experiment)
         event_key = params.dig(:experiment, :primary_event_key).presence
-        raise LifecycleError, "primary goal event is required" if event_key.blank?
+        if event_key.blank?
+          raise LifecycleError, Copy.t(
+            "errors.primary_goal_event_required",
+            default: "primary goal event is required"
+          )
+        end
 
         experiment.goals.create!(
           key: "primary",

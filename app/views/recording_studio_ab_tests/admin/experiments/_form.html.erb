@@ -43,7 +43,9 @@
   <%= render FlatPack::Select::Component.new(
     name: "experiment[assignment_scope]",
     label: t("recording_studio.ab_tests.experiments.form.assignment_scope"),
-    options: RecordingStudioAbTests::Experiment::SCOPES.map { |scope| [scope.humanize, scope] },
+    options: RecordingStudioAbTests::Experiment::SCOPES.map { |scope|
+      [RecordingStudioAbTests::Copy.scope_label(scope), scope]
+    },
     value: experiment.assignment_scope,
     required: true,
     disabled: frozen
@@ -111,7 +113,9 @@
     <%= render FlatPack::Select::Component.new(
       name: "experiment[counting_policy]",
       label: t("recording_studio.ab_tests.experiments.form.counting_policy"),
-      options: RecordingStudioAbTests::Goal::COUNTING_POLICIES.map { |policy| [policy.humanize, policy] },
+      options: RecordingStudioAbTests::Goal::COUNTING_POLICIES.map { |policy|
+        [RecordingStudioAbTests::Copy.counting_policy_label(policy), policy]
+      },
       value: "once_per_participant"
     ) %>
   <% end %>

@@ -62,6 +62,38 @@ class MetricsTest < Minitest::Test
     assert_equal "not statistically tested", RecordingStudioAbTests::Metrics::LIFT_LABEL
   end
 
+  def test_lift_label_constant_stays_english_and_copy_resolves_at_call_time
+    assert_equal "not statistically tested", RecordingStudioAbTests::Metrics::LIFT_LABEL
+    assert_equal "not statistically tested", RecordingStudioAbTests::Copy.lift_label
+
+    I18n.backend.store_translations(
+      :xx,
+      recording_studio: { ab_tests: { metrics: { lift_label: "XX lift note" } } }
+    )
+    I18n.with_locale(:xx) do
+      assert_equal "XX lift note", RecordingStudioAbTests::Copy.lift_label
+      assert_equal "not statistically tested", RecordingStudioAbTests::Metrics::LIFT_LABEL
+
+      control = VariantStub.new(id: "c", key: "control", name: "Control", is_control: true, position: 0)
+      treatment = VariantStub.new(id: "b", key: "b", name: "B", is_control: false, position: 1)
+      rows = RecordingStudioAbTests::Metrics.build_rows(
+        [control, treatment],
+        {
+          assignments: { "c" => 1, "b" => 1 },
+          unique_exposed: { "c" => 1, "b" => 1 },
+          raw_conversions: { "c" => 0, "b" => 0 },
+          unique_converters: { "c" => 0, "b" => 0 },
+          total_values: { "c" => 0, "b" => 0 }
+        }
+      )
+      assert_equal "XX lift note", rows.first.lift_label
+    end
+
+    I18n.with_locale(:zz) do
+      assert_equal "not statistically tested", RecordingStudioAbTests::Copy.lift_label
+    end
+  end
+
   # Reporting -100% with a non-zero overall rate is accurate when treatment has
   # zero converters and control does not (old seed used even convert_ratio on
   # even→control indices). Metrics must still report -100.0%, not "—".

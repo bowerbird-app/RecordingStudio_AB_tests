@@ -207,17 +207,114 @@ class AbAdminTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "Add a primary goal and collect exposures/conversions to see results."
   end
 
-  test "non-draft edit shows frozen fields warning in english" do
-    get "/ab_tests/admin/experiments/#{@experiment.id}/edit"
-    assert_response :success
-
-    if @experiment.draft?
-      assert_includes response.body, "Lowercase snake_case identifier"
+  test "draft edit shows key help and non-draft edit shows frozen fields warning in english" do
+    draft = RecordingStudioAbTests::Experiment.find_or_initialize_by(key: "admin_draft_edit_demo")
+    if draft.new_record?
+      draft.assign_attributes(
+        name: "Draft edit demo",
+        target_key: "hero_component",
+        assignment_scope: "visitor",
+        traffic_percentage: 100,
+        status: "draft",
+        allocation_version: "sha256-v1",
+        allocation_seed: SecureRandom.hex(8),
+        created_by: @user
+      )
+      draft.save!
     else
-      assert_includes response.body, "Some fields are frozen"
-      assert_includes response.body, "Key, target, and assignment scope cannot change after start."
-      assert_includes response.body, "Frozen after start"
+      draft.update!(status: "draft")
     end
+
+    get "/ab_tests/admin/experiments/#{draft.id}/edit"
+    assert_response :success
+    assert_predicate draft, :draft?
+    assert_includes response.body, "Lowercase snake_case identifier"
+    refute_includes response.body, "Some fields are frozen"
+
+    non_draft = @experiment
+    non_draft.update_columns(status: "running", started_at: Time.current) if non_draft.draft?
+    refute_predicate non_draft.reload, :draft?
+
+    get "/ab_tests/admin/experiments/#{non_draft.id}/edit"
+    assert_response :success
+    assert_includes response.body, "Some fields are frozen"
+    assert_includes response.body, "Key, target, and assignment scope cannot change after start."
+    assert_includes response.body, "Frozen after start"
+  end
+
+  test "new experiment form renders humanized scope and counting policy labels in english" do
+    get "/ab_tests/admin/experiments/new"
+    assert_response :success
+    assert_includes response.body, "Visitor"
+    assert_includes response.body, "User"
+    assert_includes response.body, "Root recording"
+    assert_includes response.body, "Once per participant"
+    assert_includes response.body, "Every event"
+  end
+
+  test "admin section and experiments screen render english dsl chrome" do
+    get "/admin/sections/ab_tests"
+    assert_response :success
+    assert_includes response.body, "A/B Tests"
+    assert_includes response.body, "Experiments, results, assignments, and registry"
+    assert_includes response.body, "Running experiments"
+    assert_includes response.body, "Exposures (7d)"
+    assert_includes response.body, "New experiment"
+
+    get "/admin/screens/ab_tests_experiments"
+    assert_response :success
+    assert_includes response.body, "Experiments"
+    assert_includes response.body, "Create, run, and manage A/B experiments"
+  end
+
+  test "creating a draft experiment flashes english notice" do
+    key = "flash_draft_#{SecureRandom.hex(4)}"
+    post "/ab_tests/admin/experiments",
+         params: {
+           experiment: {
+             name: "Flash draft",
+             key: key,
+             target_key: "hero_component",
+             assignment_scope: "visitor",
+             traffic_percentage: 100,
+             primary_event_key: "demo_signup",
+             variant_keys: %w[control],
+             variant_weights: { "control" => 100 }
+           }
+         }
+    assert_response :redirect
+    follow_redirect!
+    assert_includes response.body, "Draft experiment created."
+  end
+
+
+  test "scope and counting policy labels resolve non-english locale overrides at render time" do
+    previous = I18n.load_path.dup
+    fixture = Rails.root.join("tmp/ab_tests_enum_override.xx.yml")
+    File.write(
+      fixture,
+      <<~YAML
+        xx:
+          recording_studio:
+            ab_tests:
+              scopes:
+                visitor: "XX Visitor"
+              counting_policies:
+                once_per_participant: "XX Once"
+      YAML
+    )
+    I18n.load_path = previous + [fixture.to_s]
+    I18n.reload!
+    I18n.locale = :xx
+    get "/ab_tests/admin/experiments/new"
+    assert_response :success
+    assert_includes response.body, "XX Visitor"
+    assert_includes response.body, "XX Once"
+  ensure
+    I18n.locale = :en
+    I18n.load_path = previous
+    I18n.reload!
+    File.delete(fixture) if defined?(fixture) && fixture && File.exist?(fixture)
   end
 
   test "lifecycle pause and resume are audited" do

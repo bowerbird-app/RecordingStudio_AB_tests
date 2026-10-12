@@ -6,13 +6,13 @@ fragment caching.
 
 Built on RecordingStudio (dummy GitHub tag `v4.4.0`), FlatPack (dummy GitHub tag `v0.1.213`), Accessible (dummy GitHub tag `v0.13.0`), Users (dummy GitHub tag `v0.16.0`), Admin (dummy GitHub tag `v2.1.0`), Attachable (dummy GitHub tag `v0.13.0`), Root Switchable (dummy GitHub tag `v0.8.0`), Metrics (dummy GitHub tag `v0.2.0`, required by Root Switchable 0.7+), and optionally RecordingStudioCache (dummy GitHub tag `v0.4.0`, public).
 
-**Version:** `0.4.1`
+**Version:** `0.5.0`
 
 ## Install
 
 ```ruby
 # Host Gemfile
-gem "recording_studio_ab_tests", github: "bowerbird-app/RecordingStudio_AB_tests", tag: "v0.4.1"
+gem "recording_studio_ab_tests", github: "bowerbird-app/RecordingStudio_AB_tests", tag: "v0.5.0"
 # Optional — enables RecordingStudioCache-backed render_ab cache:
 gem "recording_studio_cache", github: "bowerbird-app/RecordingStudio_cache", tag: "v0.4.0"
 ```
@@ -122,12 +122,18 @@ include `section :ab_tests`. See Admin docs / dummy `AdminRoot` for the pattern.
 
 ## Interface text
 
-Static copy on the gem's own admin experiment screens uses Rails I18n keys under
-`recording_studio.ab_tests` in `config/locales/en.yml` (English only). Hosts can
-override or add other languages in their own locale files. There is no dependency
-on `recording_studio_internationalization`. Controller flash notices, database
-content, Admin DSL widget labels in `lib/`, and dummy app views stay outside
-this file.
+User-facing copy in the gem (admin experiment views, controller flashes,
+validation and lifecycle errors, enum option labels, and Admin DSL chrome)
+uses Rails I18n keys under `recording_studio.ab_tests` in `config/locales/en.yml`
+(English only). Lookups go through `RecordingStudioAbTests::Copy` (or `t(...)`)
+with English `default:` so a host locale without a fallback never shows
+"translation missing". Hosts override or add languages in their own
+`config/locales`. There is no dependency on `recording_studio_internationalization`.
+
+Admin table column headers stay English. Stored/user data (experiment names,
+variant names, event labels hosts register), developer `ArgumentError`s, logs,
+and generator CLI text are not translated. `Metrics::LIFT_LABEL` remains the
+public English constant; screens resolve `Copy.lift_label` at render time.
 
 ## Caching rules
 

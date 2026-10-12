@@ -62,7 +62,7 @@ module RecordingStudioAbTests
           relative_lift: format_lift(rate, control_rate, control: control?(variant)),
           total_value: total_f,
           value_per_exposed: format_value_per_exposed(total_f, exposed),
-          lift_label: LIFT_LABEL,
+          lift_label: Copy.lift_label,
           sample_size: exposed
         )
       end
