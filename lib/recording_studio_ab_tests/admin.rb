@@ -75,7 +75,7 @@ module RecordingStudioAbTests
 
     def mask_id(value)
       str = value.to_s
-      return Copy.empty if str.blank?
+      return "—" if str.blank?
 
       str[0, 8]
     end
@@ -155,7 +155,7 @@ module RecordingStudioAbTests
           conversion_rate: Metrics.format_rate(rate),
           relative_lift: control ? aggregated_lift(rows, control_rate) : Metrics::ZERO_DISPLAY,
           sample_size: exposed,
-          lift_label: Copy.lift_label
+          lift_label: Metrics::LIFT_LABEL
         )
       end
     end
@@ -216,11 +216,11 @@ module RecordingStudioAbTests
       days = (0..13).map { |offset| Date.current - (13 - offset) }
       [
         {
-          name: Copy.t("admin.charts.exposures", default: "Exposures"),
+          name: "Exposures",
           data: days.map { |day| { x: day.iso8601, y: exposure_counts[day] || exposure_counts[day.to_s] || 0 } }
         },
         {
-          name: Copy.t("admin.charts.conversions", default: "Conversions"),
+          name: "Conversions",
           data: days.map { |day| { x: day.iso8601, y: conversion_counts[day] || conversion_counts[day.to_s] || 0 } }
         }
       ]
@@ -245,7 +245,7 @@ module RecordingStudioAbTests
     end
 
     def target_type_for(experiment)
-      RecordingStudioAbTests.registry.target(experiment.target_key)&.type&.to_s || Copy.empty
+      RecordingStudioAbTests.registry.target(experiment.target_key)&.type&.to_s || "—"
     end
 
     RunningWidget = RecordingStudioAdmin::Widget.new("ab_tests.running") do
@@ -498,7 +498,8 @@ module RecordingStudioAbTests
         column :conversion_rate, title: "Conversion rate"
         column :sample_size, title: "Sample size"
         column :relative_lift, title: "Relative lift"
-        column :lift_label, title: "Lift note"
+        column :lift_label, title: "Lift note",
+                            value: ->(_row, _ctx) { Copy.lift_label }
         column :total_value, title: "Total value"
         column :value_per_exposed, title: "Value / exposed"
         paginate per_page: 50
@@ -671,7 +672,13 @@ module RecordingStudioAbTests
                     "color-mix(in oklab, var(--color-primary) 40%, transparent)"
                   ]
                 })
-        series { |_context| RecordingStudioAbTests::Admin.daily_reporting_series }
+        series do |_context|
+          english = RecordingStudioAbTests::Admin.daily_reporting_series
+          [
+            english[0].merge(name: Copy.t("admin.charts.exposures", default: "Exposures")),
+            english[1].merge(name: Copy.t("admin.charts.conversions", default: "Conversions"))
+          ]
+        end
       end
 
       table do
@@ -685,7 +692,8 @@ module RecordingStudioAbTests
         # sample_size duplicates unique_exposed; omit so Relative lift / Lift note fit.
         # Admin TableDefinition does not expose FlatPack min_width (no custom CSS).
         column :relative_lift, title: "Relative lift"
-        column :lift_label, title: "Lift note"
+        column :lift_label, title: "Lift note",
+                            value: ->(_row, _ctx) { Copy.lift_label }
         paginate per_page: 25
       end
     end

@@ -34,8 +34,8 @@ class AbHostLocaleOverrideTest < ActionDispatch::IntegrationTest
 
   teardown do
     Current.actor = nil
-    I18n.load_path = @load_path_before
-    I18n.backend = @backend_before
+    assert_equal @load_path_before, I18n.load_path,
+                 "test must not leave I18n.load_path modified"
   end
 
   def switch_to_admin_root!
@@ -56,7 +56,7 @@ class AbHostLocaleOverrideTest < ActionDispatch::IntegrationTest
 
   # Real-boot-order guard from #10 / v0.4.1: host file under config/locales must win
   # without any test-time load_path mutation.
-  test "boot-loaded config/locales host override wins on real admin page" do
+  test "host locale override for recording_studio.ab_tests wins on real admin page" do
     assert File.exist?(BOOT_HOST_LOCALE)
     assert_includes File.read(BOOT_HOST_LOCALE), HOST_ALERT_TITLE
     assert_equal HOST_ALERT_TITLE, I18n.t(OVERRIDE_KEY)
