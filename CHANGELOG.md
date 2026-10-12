@@ -25,9 +25,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Removed unused locale key `common.counting_policy`. Deduped shared English
   strings in `en.yml` with YAML anchors while keeping host-overridable key
   names (`form.weight`, `variants.add` / `add_heading`, and related keys).
-- Custom model validations keep a stable symbol error type and pass the
-  translated string via `message:` (`errors.add(attr, :type, message: …)`),
-  so `errors.details`, `of_kind?`, and `added?` stay type-stable across locales.
+- Validation `errors.add` keeps the original English string as the error type
+  and passes the locale string via `message:`, so `errors.details`, `added?`,
+  and `of_kind?` match pre-i18n behavior.
 
 ### Upgrade notes
 - No migration or host code change is required for English.
@@ -37,12 +37,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Metrics::LIFT_LABEL` is unchanged. Prefer `Copy.lift_label` (or
   `t("recording_studio.ab_tests.metrics.lift_label", default: Metrics::LIFT_LABEL)`)
   when rendering so a host locale can translate it.
-- Custom validation error types are symbols (`:frozen_after_start`,
-  `:primary_event_frozen`, `:variant_identity_frozen`,
-  `:cannot_add_variants_after_start`, `:assignment_immutable`,
-  `:metadata_too_large`). Prefer `errors.of_kind?(:attr, :type)` / `added?`
-  over matching the English message string as the type. Displayed messages
-  still follow the locale.
 - There is still no dependency on `recording_studio_internationalization`.
 
 ## [0.4.1] - 2026-10-09

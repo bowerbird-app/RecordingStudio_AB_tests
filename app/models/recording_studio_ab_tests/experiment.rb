@@ -77,10 +77,11 @@ module RecordingStudioAbTests
       Lifecycle::FROZEN_AFTER_START.each do |attr|
         next unless will_save_change_to_attribute?(attr)
 
+        frozen_after_start = "cannot change after experiment has started"
         errors.add(
           attr,
-          :frozen_after_start,
-          message: Copy.t("errors.frozen_after_start", default: "cannot change after experiment has started")
+          frozen_after_start,
+          message: Copy.t("errors.frozen_after_start", default: frozen_after_start)
         )
       end
     end

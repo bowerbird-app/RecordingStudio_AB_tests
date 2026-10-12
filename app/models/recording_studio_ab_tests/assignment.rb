@@ -30,9 +30,11 @@ module RecordingStudioAbTests
       changed = changes.keys - allowed
       return if changed.empty?
 
+      # Keep main's interpolated English string as the error type.
+      assignment_immutable = "assignments are immutable except linked_* columns (changed: #{changed.join(', ')})"
       errors.add(
         :base,
-        :assignment_immutable,
+        assignment_immutable,
         message: Copy.t(
           "errors.assignment_immutable",
           default: "assignments are immutable except linked_* columns (changed: %{changed})",

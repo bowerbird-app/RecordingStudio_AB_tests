@@ -32,11 +32,13 @@ class AbExperimentTest < ActiveSupport::TestCase
 
   test "lifecycle transitions and frozen fields" do
     experiment = create_running_experiment!(key: "life_exp", target_key: "pricing_page")
+    frozen_after_start = "cannot change after experiment has started"
 
     refute experiment.update(key: "other_key")
-    assert_includes experiment.errors[:key], "cannot change after experiment has started"
-    assert experiment.errors.of_kind?(:key, :frozen_after_start)
-    assert_equal [{ error: :frozen_after_start }], experiment.errors.details[:key]
+    assert_includes experiment.errors[:key], frozen_after_start
+    assert_equal [{ error: frozen_after_start }], experiment.errors.details[:key]
+    assert experiment.errors.of_kind?(:key, frozen_after_start)
+    assert experiment.errors.added?(:key, frozen_after_start)
     experiment.reload
 
     assert RecordingStudioAbTests::Lifecycle.pause!(experiment)
@@ -52,27 +54,29 @@ class AbExperimentTest < ActiveSupport::TestCase
     assert experiment.reload.archived?
   end
 
-  test "custom validation errors keep symbol types in errors.details" do
+  test "custom validation errors.details match main English string types" do
     experiment = create_running_experiment!(key: "err_types", target_key: "pricing_page")
     control = experiment.variants.find_by!(is_control: true)
     primary = experiment.goals.find_by!(is_primary: true)
+    frozen_after_start = "cannot change after experiment has started"
+    primary_event_frozen = "primary goal event is frozen after start"
+    variant_identity_frozen = "variant identity is frozen after start"
+    cannot_add_variants_after_start = "cannot add variants after start"
+    metadata_too_large = "exceeds #{RecordingStudioAbTests::Exposure::MAX_METADATA_BYTES} bytes"
 
     refute experiment.update(key: "renamed")
-    assert_equal [{ error: :frozen_after_start }], experiment.errors.details[:key]
-    assert experiment.errors.of_kind?(:key, :frozen_after_start)
-    assert experiment.errors.added?(:key, :frozen_after_start)
-    assert_includes experiment.errors[:key], "cannot change after experiment has started"
+    assert_equal [{ error: frozen_after_start }], experiment.errors.details[:key]
+    assert experiment.errors.of_kind?(:key, frozen_after_start)
+    assert experiment.errors.added?(:key, frozen_after_start)
     experiment.reload
 
     refute primary.update(event_key: "other_event")
-    assert_equal [{ error: :primary_event_frozen }], primary.errors.details[:event_key]
-    assert primary.errors.of_kind?(:event_key, :primary_event_frozen)
-    assert_includes primary.errors[:event_key], "primary goal event is frozen after start"
+    assert_equal [{ error: primary_event_frozen }], primary.errors.details[:event_key]
+    assert primary.errors.of_kind?(:event_key, primary_event_frozen)
 
     refute control.update(key: "renamed_control")
-    assert_equal [{ error: :variant_identity_frozen }], control.errors.details[:base]
-    assert control.errors.of_kind?(:base, :variant_identity_frozen)
-    assert_includes control.errors[:base], "variant identity is frozen after start"
+    assert_equal [{ error: variant_identity_frozen }], control.errors.details[:base]
+    assert control.errors.of_kind?(:base, variant_identity_frozen)
 
     extra = experiment.variants.build(
       key: "late",
@@ -83,12 +87,10 @@ class AbExperimentTest < ActiveSupport::TestCase
       position: 9
     )
     refute extra.valid?
-    assert_includes extra.errors.details[:base], { error: :cannot_add_variants_after_start }
-    assert_includes extra.errors.details[:base], { error: :variant_identity_frozen }
-    assert extra.errors.of_kind?(:base, :cannot_add_variants_after_start)
-    assert extra.errors.of_kind?(:base, :variant_identity_frozen)
-    assert_includes extra.errors[:base], "cannot add variants after start"
-    assert_includes extra.errors[:base], "variant identity is frozen after start"
+    assert_includes extra.errors.details[:base], { error: cannot_add_variants_after_start }
+    assert_includes extra.errors.details[:base], { error: variant_identity_frozen }
+    assert extra.errors.of_kind?(:base, cannot_add_variants_after_start)
+    assert extra.errors.of_kind?(:base, variant_identity_frozen)
 
     assignment = experiment.assignments.create!(
       variant: control,
@@ -99,9 +101,10 @@ class AbExperimentTest < ActiveSupport::TestCase
       assigned_at: Time.current
     )
     refute assignment.update(subject_identifier: "mutated")
-    assert_equal [{ error: :assignment_immutable }], assignment.errors.details[:base]
-    assert assignment.errors.of_kind?(:base, :assignment_immutable)
-    assert_match(/assignments are immutable/, assignment.errors[:base].first)
+    assignment_immutable =
+      "assignments are immutable except linked_* columns (changed: subject_identifier)"
+    assert_equal [{ error: assignment_immutable }], assignment.errors.details[:base]
+    assert assignment.errors.of_kind?(:base, assignment_immutable)
 
     huge = { "pad" => "x" * (RecordingStudioAbTests::Exposure::MAX_METADATA_BYTES + 64) }
     exposure = experiment.exposures.build(
@@ -114,9 +117,8 @@ class AbExperimentTest < ActiveSupport::TestCase
       metadata: huge
     )
     refute exposure.valid?
-    assert_equal [{ error: :metadata_too_large }], exposure.errors.details[:metadata]
-    assert exposure.errors.of_kind?(:metadata, :metadata_too_large)
-    assert_includes exposure.errors[:metadata], "exceeds #{RecordingStudioAbTests::Exposure::MAX_METADATA_BYTES} bytes"
+    assert_equal [{ error: metadata_too_large }], exposure.errors.details[:metadata]
+    assert exposure.errors.of_kind?(:metadata, metadata_too_large)
 
     conversion = experiment.conversions.build(
       variant: control,
@@ -128,9 +130,39 @@ class AbExperimentTest < ActiveSupport::TestCase
       metadata: huge
     )
     refute conversion.valid?
-    assert_equal [{ error: :metadata_too_large }], conversion.errors.details[:metadata]
-    assert conversion.errors.of_kind?(:metadata, :metadata_too_large)
-    assert_includes conversion.errors[:metadata], "exceeds #{RecordingStudioAbTests::Conversion::MAX_METADATA_BYTES} bytes"
+    assert_equal [{ error: metadata_too_large }], conversion.errors.details[:metadata]
+    assert conversion.errors.of_kind?(:metadata, metadata_too_large)
+  end
+
+  test "errors.details English string types stay identical under a non-English locale" do
+    experiment = create_running_experiment!(key: "err_locale", target_key: "pricing_page")
+    frozen_after_start = "cannot change after experiment has started"
+    previous_locale = I18n.locale
+    previous_available = I18n.available_locales.dup
+    previous_backend = I18n.backend
+
+    I18n.backend = I18n::Backend::Simple.new
+    I18n.available_locales = previous_available | %i[fr]
+    I18n.backend.store_translations(
+      :fr,
+      recording_studio: {
+        ab_tests: {
+          errors: {
+            frozen_after_start: "impossible de modifier après le démarrage"
+          }
+        }
+      }
+    )
+    I18n.locale = :fr
+
+    refute experiment.update(key: "renamed")
+    assert_equal [{ error: frozen_after_start }], experiment.errors.details[:key]
+    assert experiment.errors.of_kind?(:key, frozen_after_start)
+    assert experiment.errors.added?(:key, frozen_after_start)
+  ensure
+    I18n.locale = previous_locale if previous_locale
+    I18n.available_locales = previous_available if previous_available
+    I18n.backend = previous_backend if previous_backend
   end
 
   test "duplicate copies variants goals with new key and seed" do

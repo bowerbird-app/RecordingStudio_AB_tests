@@ -134,9 +134,6 @@ Admin table column headers stay English. Stored/user data (experiment names,
 variant names, event labels hosts register), developer `ArgumentError`s, logs,
 and generator CLI text are not translated. `Metrics::LIFT_LABEL` remains the
 public English constant; screens resolve `Copy.lift_label` at render time.
-Custom model validations keep a symbol error type and pass the translated
-string via `message:` so `errors.details` / `of_kind?` / `added?` stay stable
-across locales.
 
 ## Caching rules
 

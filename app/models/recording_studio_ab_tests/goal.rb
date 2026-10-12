@@ -31,10 +31,11 @@ module RecordingStudioAbTests
       return unless is_primary?
       return unless will_save_change_to_event_key?
 
+      primary_event_frozen = "primary goal event is frozen after start"
       errors.add(
         :event_key,
-        :primary_event_frozen,
-        message: Copy.t("errors.primary_event_frozen", default: "primary goal event is frozen after start")
+        primary_event_frozen,
+        message: Copy.t("errors.primary_event_frozen", default: primary_event_frozen)
       )
     end
 
