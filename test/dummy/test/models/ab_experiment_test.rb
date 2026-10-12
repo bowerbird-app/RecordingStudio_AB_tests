@@ -83,9 +83,12 @@ class AbExperimentTest < ActiveSupport::TestCase
       position: 9
     )
     refute extra.valid?
-    assert_equal [{ error: :cannot_add_variants_after_start }], extra.errors.details[:base]
+    assert_includes extra.errors.details[:base], { error: :cannot_add_variants_after_start }
+    assert_includes extra.errors.details[:base], { error: :variant_identity_frozen }
     assert extra.errors.of_kind?(:base, :cannot_add_variants_after_start)
+    assert extra.errors.of_kind?(:base, :variant_identity_frozen)
     assert_includes extra.errors[:base], "cannot add variants after start"
+    assert_includes extra.errors[:base], "variant identity is frozen after start"
 
     assignment = experiment.assignments.create!(
       variant: control,
