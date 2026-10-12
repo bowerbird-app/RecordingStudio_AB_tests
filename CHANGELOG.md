@@ -7,6 +7,53 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-10-12
+
+### Added
+- Rails I18n for user-facing copy outside views: controller flash notices,
+  model and lifecycle validation errors, `.humanize` enum option labels
+  (assignment scopes and counting policies), and Admin DSL chrome in
+  `lib/recording_studio_ab_tests/admin.rb` (section/screen/widget titles,
+  subtitles, info, link and action text, confirms, summary labels, chart
+  series names). Keys live under `recording_studio.ab_tests` with English
+  `default:` on every lookup.
+- `RecordingStudioAbTests::Copy` helper for those lookups. `Metrics::LIFT_LABEL`
+  stays the public English constant and remains what `Metrics.build_rows` stores;
+  screens resolve `Copy.lift_label` at render time.
+
+### Changed
+- Version `0.4.1` → `0.5.0`.
+- Deduped shared English strings in `en.yml` with YAML anchors while keeping
+  host-overridable key names (`form.weight`, `variants.add` / `add_heading`,
+  and related keys).
+- Validation `errors.add` for former English-string types passes
+  `Copy.t(..., default: <main English>)` as the type (ActiveModel 8.1 ignores
+  `message:` for String types). Under the English gem defaults, messages and
+  `errors.details` match main — including the frozen-after-start check on the
+  five `Lifecycle::FROZEN_AFTER_START` attributes (`key`, `target_key`,
+  `assignment_scope`, `allocation_seed`, `allocation_version`). In non-English
+  locales or with a host override, `errors.details` carries the translated
+  string as the type.
+- Lifecycle flash `Experiment %{action}.` translates the `%{action}` word via
+  `flashes.experiment_actions.*` (English defaults unchanged).
+
+### Deprecated
+- Locale key `common.counting_policy` (same English as
+  `experiments.form.counting_policy` / `experiments.goals.counting_policy`).
+  Prefer the form/goals keys; the common key remains for hosts that already
+  override it.
+
+### Upgrade notes
+- No migration or host code change is required for English.
+- Hosts that override `recording_studio.ab_tests` keys continue to win. New
+  keys cover flashes, errors, scopes, counting policies, metrics lift label,
+  and Admin DSL chrome; Admin table column headers remain English literals.
+- `Metrics::LIFT_LABEL` and `Metrics.build_rows` lift labels stay English.
+  Prefer `Copy.lift_label` (or
+  `t("recording_studio.ab_tests.metrics.lift_label", default: Metrics::LIFT_LABEL)`)
+  when rendering so a host locale can translate it.
+- There is still no dependency on `recording_studio_internationalization`.
+
 ## [0.4.1] - 2026-10-09
 
 ### Fixed
@@ -168,6 +215,8 @@ New addons copied from this template are born on Recording Studio 4.x.
 - Comprehensive README and documentation
 - Basic test suite with Minitest
 
+[Unreleased]: https://github.com/bowerbird-app/recording_studio_ab_tests/compare/v0.5.0...HEAD
+[0.5.0]: https://github.com/bowerbird-app/recording_studio_ab_tests/releases/tag/v0.5.0
 [0.4.1]: https://github.com/bowerbird-app/recording_studio_ab_tests/releases/tag/v0.4.1
 [0.4.0]: https://github.com/bowerbird-app/recording_studio_ab_tests/releases/tag/v0.4.0
 [0.3.0]: https://github.com/bowerbird-app/recording_studio_ab_tests/releases/tag/v0.3.0

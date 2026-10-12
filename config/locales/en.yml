@@ -8,11 +8,59 @@ en:
         remove: "Remove"
         "yes": "yes"
         empty: "—"
-        key: "Key"
-        name: "Name"
-        weight: "Weight"
-        event: "Event"
-        counting_policy: "Counting policy"
+        key: &key "Key"
+        name: &name "Name"
+        weight: &weight "Weight"
+        event: &event "Event"
+        # Deprecated: prefer experiments.form.counting_policy / experiments.goals.counting_policy.
+        counting_policy: &counting_policy "Counting policy"
+      scopes:
+        visitor: "Visitor"
+        user: "User"
+        root_recording: "Root recording"
+      counting_policies:
+        once_per_participant: "Once per participant"
+        every_event: "Every event"
+      metrics:
+        lift_label: "not statistically tested"
+      flashes:
+        draft_created: "Draft experiment created."
+        experiment_updated: "Experiment updated."
+        experiment_duplicated: "Experiment duplicated as draft."
+        winner_selected: "Winner selected."
+        experiment_action: "Experiment %{action}."
+        experiment_actions:
+          start: "start"
+          pause: "pause"
+          resume: "resume"
+          complete: "complete"
+          archive: "archive"
+        variant_added: "Variant added."
+        variant_updated: "Variant updated."
+        variant_removed: "Variant removed."
+        variants_draft_only: "Variants can only change while draft."
+        goal_added: "Goal added."
+        goal_updated: "Goal updated."
+        goal_removed: "Goal removed."
+      errors:
+        target_not_registered: "target is not registered"
+        primary_goal_event_required: "primary goal event is required"
+        target_invalid: "target is invalid: %{message}"
+        exactly_one_control: "exactly one control is required"
+        weight_sum_positive: "weight sum must be > 0"
+        unknown_implementation: "unknown implementation_key %{key}"
+        exactly_one_primary_goal: "exactly one primary goal is required"
+        unknown_event: "unknown event_key %{key}"
+        missing_constant: "missing constant %{name}"
+        service_must_call: "%{name} must respond to .call"
+        cannot_transition: "cannot transition from %{from} to %{to}"
+        winner_must_belong: "winner must belong to the experiment"
+        frozen_after_start: "cannot change after experiment has started"
+        primary_event_frozen: "primary goal event is frozen after start"
+        variant_identity_frozen: "variant identity is frozen after start"
+        cannot_add_variants_after_start: "cannot add variants after start"
+        assignment_immutable: "assignments are immutable except linked_* columns (changed: %{changed})"
+        metadata_too_large: "exceeds %{max} bytes"
       experiments:
         new:
           title: "New experiment"
@@ -30,17 +78,20 @@ en:
         show:
           subtitle: "%{key} · %{status} · %{target}"
           action_failed: "Action failed"
-          start: "Start"
-          start_confirm: "Start this experiment? Allocation fields will freeze."
-          pause: "Pause"
-          pause_confirm: "Pause this experiment?"
-          resume: "Resume"
-          complete: "Complete"
-          complete_confirm: "Complete this experiment?"
-          archive: "Archive"
-          duplicate: "Duplicate"
-          edit: "Edit"
-          select_winner: "Select winner"
+          start: &start "Start"
+          start_confirm: &start_confirm "Start this experiment? Allocation fields will freeze."
+          pause: &pause "Pause"
+          pause_confirm: &pause_confirm "Pause this experiment?"
+          resume: &resume "Resume"
+          resume_confirm: &resume_confirm "Resume this experiment?"
+          complete: &complete "Complete"
+          complete_confirm: &complete_confirm "Complete this experiment?"
+          archive: &archive "Archive"
+          archive_confirm: &archive_confirm "Archive this experiment?"
+          duplicate: &duplicate "Duplicate"
+          duplicate_confirm: &duplicate_confirm "Duplicate this experiment as a new draft?"
+          edit: &edit "Edit"
+          select_winner: &select_winner "Select winner"
           set_winner: "Set winner"
           tabs:
             configuration: "Configuration"
@@ -59,39 +110,39 @@ en:
             completed: "Completed:"
             winner: "Winner:"
         form:
-          name: "Name"
+          name: *name
           description: "Description"
-          key: "Key"
+          key: *key
           key_help: "Lowercase snake_case identifier"
           key_frozen: "Frozen after start"
-          target: "Target"
+          target: &target "Target"
           assignment_scope: "Assignment scope"
           traffic_percent: "Traffic %"
           variants_heading: "Variants"
           variants_hint: "Control is always included. Select additional implementations and set weights."
           implementations: "%{label} implementations"
-          weight: "Weight"
+          weight: *weight
           primary_goal_event: "Primary goal event"
           attribution_window_hours: "Attribution window (hours)"
-          counting_policy: "Counting policy"
+          counting_policy: *counting_policy
         variants:
           columns:
-            key: "Key"
-            name: "Name"
+            key: *key
+            name: *name
             implementation: "Implementation"
             control: "Control"
-            weight: "Weight"
+            weight: *weight
           empty_title: "No variants"
           empty_description: "Add variants while the experiment is draft."
-          add_heading: "Add variant"
+          add_heading: &add_variant "Add variant"
           implementation_key: "Implementation key"
           position: "Position"
-          add: "Add variant"
+          add: *add_variant
         goals:
           columns:
-            key: "Key"
-            name: "Name"
-            event: "Event"
+            key: *key
+            name: *name
+            event: *event
             primary: "Primary"
             window_h: "Window (h)"
             counting: "Counting"
@@ -99,7 +150,7 @@ en:
           empty_description: "Add at least one primary goal before starting."
           add_heading: "Add goal"
           window_hours: "Window (hours)"
-          counting_policy: "Counting policy"
+          counting_policy: *counting_policy
           primary_goal: "Primary goal"
           add: "Add goal"
         results:
@@ -108,13 +159,95 @@ en:
           empty_title: "No metrics yet"
           empty_description: "Add a primary goal and collect exposures/conversions to see results."
           columns:
-            variant: "Variant"
-            assignments: "Assignments"
-            unique_exposed: "Unique exposed"
-            raw_conversions: "Raw conversions"
-            unique_converters: "Unique converters"
-            conversion_rate: "Conversion rate"
+            variant: &variant "Variant"
+            assignments: &assignments "Assignments"
+            unique_exposed: &unique_exposed "Unique exposed"
+            raw_conversions: &raw_conversions "Raw conversions"
+            unique_converters: &unique_converters "Unique converters"
+            conversion_rate: &conversion_rate "Conversion rate"
             sample_size: "Sample size"
-            relative_lift: "Relative lift"
+            relative_lift: &relative_lift "Relative lift"
             total_value: "Total value"
             value_per_exposed: "Value / exposed"
+      admin:
+        section:
+          title: "A/B Tests"
+          subtitle: "Experiments, results, assignments, and registry"
+        links:
+          experiments: &experiments "Experiments"
+          results: &results "Results"
+          assignments: *assignments
+          exposures: &exposures "Exposures"
+          conversions: &conversions "Conversions"
+          reporting: "Reporting"
+          registry: "Targets & events"
+          new_experiment: "New experiment"
+        widgets:
+          running:
+            title: "Running experiments"
+            info: "Experiments currently in the running status."
+          exposures_7d:
+            title: "Exposures (7d)"
+            info: "Unique exposure rows first seen in the last 7 days."
+          conversions_7d:
+            title: "Conversions (7d)"
+            info: "Conversion rows in the last 7 days."
+          exposure_trend:
+            title: "Exposure trend"
+            info: "Daily exposures over the last 7 days."
+        charts:
+          exposures: *exposures
+          conversions: *conversions
+          conversion_rate_by_variant: "Conversion rate by variant"
+          conversion_rate_percent: "Conversion rate %"
+          daily_exposures_and_conversions: "Daily exposures and conversions"
+        summary:
+          experiments: *experiments
+          variants: "Variants"
+          assignments: *assignments
+          exposures: *exposures
+          conversions: *conversions
+          registry_entries: "Registry entries"
+        actions:
+          view: "View"
+          edit: *edit
+          start: *start
+          pause: *pause
+          resume: *resume
+          complete: *complete
+          archive: *archive
+          duplicate: *duplicate
+          select_winner: *select_winner
+        confirms:
+          start: *start_confirm
+          start_short: "Start this experiment?"
+          pause: *pause_confirm
+          resume: *resume_confirm
+          complete: *complete_confirm
+          archive: *archive_confirm
+          duplicate: *duplicate_confirm
+          duplicate_short: "Duplicate this experiment?"
+        screens:
+          experiments:
+            title: *experiments
+            subtitle: "Create, run, and manage A/B experiments"
+          results:
+            title: *results
+            subtitle: "Per-variant metrics for a selected goal (not statistically tested)"
+          assignments:
+            title: *assignments
+            subtitle: "Sticky subject assignments (identifiers masked)"
+          exposures:
+            title: *exposures
+            subtitle: "First and repeat exposures (identifiers masked)"
+          conversions:
+            title: *conversions
+            subtitle: "Attributed conversions (identifiers masked)"
+          reporting:
+            title: "Reporting"
+            subtitle: "Primary-goal metrics for non-draft experiments"
+          registry:
+            title: "Targets & events"
+            subtitle: "Host-registered AB targets and conversion events"
+        resource:
+          title: "A/B experiments"

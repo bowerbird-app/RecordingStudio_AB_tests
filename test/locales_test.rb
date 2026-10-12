@@ -5,8 +5,6 @@ require "yaml"
 require "i18n"
 
 class LocalesTest < Minitest::Test
-  # I18n interpolation uses %{name} tokens; RuboCop FormatStringToken does not apply.
-  # rubocop:disable-next Style/FormatStringToken
   EXPECTED_LEAVES = {
     "recording_studio.ab_tests.layout.title" => "A/B Tests admin",
     "recording_studio.ab_tests.common.cancel" => "Cancel",
@@ -38,10 +36,14 @@ class LocalesTest < Minitest::Test
     "recording_studio.ab_tests.experiments.show.pause" => "Pause",
     "recording_studio.ab_tests.experiments.show.pause_confirm" => "Pause this experiment?",
     "recording_studio.ab_tests.experiments.show.resume" => "Resume",
+    "recording_studio.ab_tests.experiments.show.resume_confirm" => "Resume this experiment?",
     "recording_studio.ab_tests.experiments.show.complete" => "Complete",
     "recording_studio.ab_tests.experiments.show.complete_confirm" => "Complete this experiment?",
     "recording_studio.ab_tests.experiments.show.archive" => "Archive",
+    "recording_studio.ab_tests.experiments.show.archive_confirm" => "Archive this experiment?",
     "recording_studio.ab_tests.experiments.show.duplicate" => "Duplicate",
+    "recording_studio.ab_tests.experiments.show.duplicate_confirm" =>
+      "Duplicate this experiment as a new draft?",
     "recording_studio.ab_tests.experiments.show.edit" => "Edit",
     "recording_studio.ab_tests.experiments.show.select_winner" => "Select winner",
     "recording_studio.ab_tests.experiments.show.set_winner" => "Set winner",
@@ -118,6 +120,34 @@ class LocalesTest < Minitest::Test
     "recording_studio.ab_tests.experiments.results.columns.sample_size" => "Sample size",
     "recording_studio.ab_tests.experiments.results.columns.relative_lift" => "Relative lift",
     "recording_studio.ab_tests.experiments.results.columns.total_value" => "Total value",
+    "recording_studio.ab_tests.scopes.visitor" => "Visitor",
+    "recording_studio.ab_tests.scopes.user" => "User",
+    "recording_studio.ab_tests.scopes.root_recording" => "Root recording",
+    "recording_studio.ab_tests.counting_policies.once_per_participant" => "Once per participant",
+    "recording_studio.ab_tests.counting_policies.every_event" => "Every event",
+    "recording_studio.ab_tests.metrics.lift_label" => "not statistically tested",
+    "recording_studio.ab_tests.flashes.draft_created" => "Draft experiment created.",
+    "recording_studio.ab_tests.flashes.experiment_updated" => "Experiment updated.",
+    "recording_studio.ab_tests.flashes.experiment_duplicated" => "Experiment duplicated as draft.",
+    "recording_studio.ab_tests.flashes.winner_selected" => "Winner selected.",
+    "recording_studio.ab_tests.flashes.experiment_action" => "Experiment %{action}.",
+    "recording_studio.ab_tests.flashes.experiment_actions.start" => "start",
+    "recording_studio.ab_tests.flashes.experiment_actions.pause" => "pause",
+    "recording_studio.ab_tests.flashes.experiment_actions.resume" => "resume",
+    "recording_studio.ab_tests.flashes.experiment_actions.complete" => "complete",
+    "recording_studio.ab_tests.flashes.experiment_actions.archive" => "archive",
+    "recording_studio.ab_tests.flashes.variant_added" => "Variant added.",
+    "recording_studio.ab_tests.flashes.variant_updated" => "Variant updated.",
+    "recording_studio.ab_tests.flashes.variant_removed" => "Variant removed.",
+    "recording_studio.ab_tests.flashes.variants_draft_only" => "Variants can only change while draft.",
+    "recording_studio.ab_tests.flashes.goal_added" => "Goal added.",
+    "recording_studio.ab_tests.flashes.goal_updated" => "Goal updated.",
+    "recording_studio.ab_tests.flashes.goal_removed" => "Goal removed.",
+    "recording_studio.ab_tests.errors.target_not_registered" => "target is not registered",
+    "recording_studio.ab_tests.errors.primary_goal_event_required" => "primary goal event is required",
+    "recording_studio.ab_tests.admin.section.title" => "A/B Tests",
+    "recording_studio.ab_tests.admin.screens.experiments.title" => "Experiments",
+    "recording_studio.ab_tests.admin.widgets.running.title" => "Running experiments",
     "recording_studio.ab_tests.experiments.results.columns.value_per_exposed" => "Value / exposed"
   }.freeze
 
@@ -156,6 +186,20 @@ class LocalesTest < Minitest::Test
     refute_includes engine_source, "app.config.i18n.load_path"
   end
 
+  def test_lib_sources_do_not_append_i18n_load_path
+    lib_root = File.expand_path("../lib", __dir__)
+    ruby_files = Dir[File.join(lib_root, "**", "*.rb")]
+
+    refute_empty ruby_files, "expected lib/**/*.rb files to scan"
+
+    ruby_files.each do |path|
+      source = File.read(path)
+
+      refute_includes source, "i18n.load_path", "#{path} must not touch i18n.load_path"
+      refute_includes source, "I18n.load_path", "#{path} must not touch I18n.load_path"
+    end
+  end
+
   def test_english_ab_tests_keys_resolve_without_missing_translations
     I18n.with_locale(:en) do
       EXPECTED_LEAVES.each do |full_key, english|
@@ -175,6 +219,11 @@ class LocalesTest < Minitest::Test
     assert tree.key?("layout")
     assert tree.key?("common")
     assert tree.key?("experiments")
+    assert tree.key?("flashes")
+    assert tree.key?("errors")
+    assert tree.key?("admin")
+    assert tree["common"].key?("counting_policy")
+    assert_equal "Counting policy", tree.dig("common", "counting_policy")
     assert_equal "A/B Tests admin", tree.dig("layout", "title")
     assert_equal "New experiment", tree.dig("experiments", "new", "title")
   end
@@ -199,6 +248,11 @@ class LocalesTest < Minitest::Test
           lift_label: "not statistically tested"
         )
       )
+      assert_equal "Experiment pause.",
+                   I18n.t(
+                     "recording_studio.ab_tests.flashes.experiment_action",
+                     action: I18n.t("recording_studio.ab_tests.flashes.experiment_actions.pause")
+                   )
     end
   end
 

@@ -1,0 +1,12 @@
+# Host override for a rarely shown AB Tests chrome key (create-failure alert title)
+# and one validation error string. Kept out of the default happy-path UI so other
+# dummy tests still see gem English.
+en:
+  recording_studio:
+    ab_tests:
+      experiments:
+        new:
+          alert_title: "HOST Could not save"
+      errors:
+        frozen_after_start: "HOST cannot change after experiment has started"
+        primary_event_frozen: "HOST primary goal event is frozen after start"

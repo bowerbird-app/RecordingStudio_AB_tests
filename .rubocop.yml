@@ -116,3 +116,7 @@ Naming/VariableNumber:
 Lint/MissingSuper:
   Exclude:
     - 'test/services/**/*'
+
+# I18n default: strings use %{name} interpolation tokens.
+Style/FormatStringToken:
+  EnforcedStyle: template

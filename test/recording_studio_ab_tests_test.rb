@@ -4,7 +4,7 @@ require "test_helper"
 
 class RecordingStudioAbTestsTest < Minitest::Test
   def test_version_matches_release
-    assert_equal "0.4.1", ::RecordingStudioAbTests::VERSION
+    assert_equal "0.5.0", ::RecordingStudioAbTests::VERSION
   end
 
   def test_engine_exists
@@ -219,7 +219,8 @@ class RecordingStudioAbTestsTest < Minitest::Test
     refute_includes readme, "dummy GitHub tag `v0.1.196`"
     refute_includes readme, "v0.1.177"
     refute_includes readme, "v0.9.1"
-    refute_includes readme, "v0.5.0"
+    refute_includes readme, "dummy GitHub tag `v0.5.0`"
+    refute_includes readme, "dummy GitHub tag `v0.5.1`"
     refute_includes readme, "v0.1.133"
     refute_includes readme, "v3 declarations"
     refute_includes readme, "RecordingStudio v3"

@@ -30,7 +30,16 @@ module RecordingStudioAbTests
       changed = changes.keys - allowed
       return if changed.empty?
 
-      errors.add(:base, "assignments are immutable except linked_* columns (changed: #{changed.join(', ')})")
+      # ActiveModel 8.1 ignores message: when the type is a String, so the
+      # resolved Copy.t string is the type.
+      errors.add(
+        :base,
+        Copy.t(
+          "errors.assignment_immutable",
+          default: "assignments are immutable except linked_* columns (changed: %{changed})",
+          changed: changed.join(", ")
+        )
+      )
     end
   end
 end

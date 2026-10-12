@@ -18,9 +18,11 @@ module RecordingStudioAbTests
             ActiveSet.bump!
             true
           end
-          redirect_to admin_experiment_path(@experiment, tab: "goals"), notice: "Goal added."
+          redirect_to admin_experiment_path(@experiment, tab: "goals"),
+                      notice: Copy.t("flashes.goal_added", default: "Goal added.")
         rescue ActiveRecord::RecordInvalid => e
-          redirect_to admin_experiment_path(@experiment, tab: "goals"), alert: e.record.errors.full_messages.to_sentence
+          redirect_to admin_experiment_path(@experiment, tab: "goals"),
+                      alert: e.record.errors.full_messages.to_sentence
         end
       end
 
@@ -35,9 +37,11 @@ module RecordingStudioAbTests
             ActiveSet.bump!
             true
           end
-          redirect_to admin_experiment_path(@experiment, tab: "goals"), notice: "Goal updated."
+          redirect_to admin_experiment_path(@experiment, tab: "goals"),
+                      notice: Copy.t("flashes.goal_updated", default: "Goal updated.")
         rescue ActiveRecord::RecordInvalid => e
-          redirect_to admin_experiment_path(@experiment, tab: "goals"), alert: e.record.errors.full_messages.to_sentence
+          redirect_to admin_experiment_path(@experiment, tab: "goals"),
+                      alert: e.record.errors.full_messages.to_sentence
         end
       end
 
@@ -52,7 +56,8 @@ module RecordingStudioAbTests
             ActiveSet.bump!
             true
           end
-          redirect_to admin_experiment_path(@experiment, tab: "goals"), notice: "Goal removed."
+          redirect_to admin_experiment_path(@experiment, tab: "goals"),
+                      notice: Copy.t("flashes.goal_removed", default: "Goal removed.")
         rescue ActiveRecord::RecordNotDestroyed, ActiveRecord::DeleteRestrictionError => e
           redirect_to admin_experiment_path(@experiment, tab: "goals"), alert: e.message
         end

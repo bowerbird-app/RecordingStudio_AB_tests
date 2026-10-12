@@ -47,7 +47,9 @@
     <%= render FlatPack::Select::Component.new(
       name: "goal[counting_policy]",
       label: t("recording_studio.ab_tests.experiments.goals.counting_policy"),
-      options: RecordingStudioAbTests::Goal::COUNTING_POLICIES.map { |policy| [policy.humanize, policy] },
+      options: RecordingStudioAbTests::Goal::COUNTING_POLICIES.map { |policy|
+        [RecordingStudioAbTests::Copy.counting_policy_label(policy), policy]
+      },
       value: "once_per_participant"
     ) %>
     <%= render FlatPack::Checkbox::Component.new(name: "goal[is_primary]", value: "1", label: t("recording_studio.ab_tests.experiments.goals.primary_goal")) %>

@@ -19,7 +19,8 @@ module RecordingStudioAbTests
             ActiveSet.bump!
             true
           end
-          redirect_to admin_experiment_path(@experiment, tab: "variants"), notice: "Variant added."
+          redirect_to admin_experiment_path(@experiment, tab: "variants"),
+                      notice: Copy.t("flashes.variant_added", default: "Variant added.")
         rescue ActiveRecord::RecordInvalid => e
           redirect_to admin_experiment_path(@experiment, tab: "variants"),
                       alert: e.record.errors.full_messages.to_sentence
@@ -37,7 +38,8 @@ module RecordingStudioAbTests
             ActiveSet.bump!
             true
           end
-          redirect_to admin_experiment_path(@experiment, tab: "variants"), notice: "Variant updated."
+          redirect_to admin_experiment_path(@experiment, tab: "variants"),
+                      notice: Copy.t("flashes.variant_updated", default: "Variant updated.")
         rescue ActiveRecord::RecordInvalid => e
           redirect_to admin_experiment_path(@experiment, tab: "variants"),
                       alert: e.record.errors.full_messages.to_sentence
@@ -55,7 +57,8 @@ module RecordingStudioAbTests
             ActiveSet.bump!
             true
           end
-          redirect_to admin_experiment_path(@experiment, tab: "variants"), notice: "Variant removed."
+          redirect_to admin_experiment_path(@experiment, tab: "variants"),
+                      notice: Copy.t("flashes.variant_removed", default: "Variant removed.")
         rescue ActiveRecord::RecordNotDestroyed, ActiveRecord::DeleteRestrictionError => e
           redirect_to admin_experiment_path(@experiment, tab: "variants"), alert: e.message
         end
@@ -78,7 +81,11 @@ module RecordingStudioAbTests
       def require_draft!
         return if @experiment&.draft?
 
-        redirect_to admin_experiment_path(@experiment), alert: "Variants can only change while draft."
+        redirect_to admin_experiment_path(@experiment),
+                    alert: Copy.t(
+                      "flashes.variants_draft_only",
+                      default: "Variants can only change while draft."
+                    )
       end
 
       def variant_params
