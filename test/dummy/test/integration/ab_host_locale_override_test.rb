@@ -6,6 +6,7 @@ class AbHostLocaleOverrideTest < ActionDispatch::IntegrationTest
   include Devise::Test::IntegrationHelpers
 
   HOST_ALERT_TITLE = "HOST Could not save"
+  HOST_PRIMARY_EVENT_FROZEN = "HOST primary goal event is frozen after start"
   OVERRIDE_KEY = "recording_studio.ab_tests.experiments.new.alert_title"
   HOST_LOCALE = Rails.root.join("test/locales/ab_tests_host_override.en.yml")
 
@@ -77,6 +78,56 @@ class AbHostLocaleOverrideTest < ActionDispatch::IntegrationTest
     assert_includes response.body, HOST_ALERT_TITLE
     assert_includes response.body, "New experiment"
     refute_includes response.body, "HOST New experiment"
+  ensure
+    I18n.load_path = @load_path_before
+    I18n.backend = @backend_before
+  end
+
+  test "host locale override for validation error renders on goal update" do
+    assert File.exist?(HOST_LOCALE), "expected test-only host override fixture at #{HOST_LOCALE}"
+    assert_includes File.read(HOST_LOCALE), HOST_PRIMARY_EVENT_FROZEN
+
+    I18n.backend = I18n::Backend::Simple.new
+    I18n.load_path = @load_path_before + [HOST_LOCALE.to_s]
+    I18n.backend.load_translations
+
+    experiment = RecordingStudioAbTests::Experiment.find_or_initialize_by(key: "host_frozen_demo")
+    if experiment.new_record?
+      experiment.assign_attributes(
+        name: "Host frozen demo",
+        target_key: "pricing_page",
+        assignment_scope: "visitor",
+        traffic_percentage: 100,
+        status: "draft",
+        allocation_version: "sha256-v1",
+        allocation_seed: SecureRandom.hex(8),
+        created_by: @user
+      )
+      experiment.save!
+      experiment.variants.create!(key: "control", name: "Control", implementation_key: "control",
+                                  is_control: true, weight: 1, position: 0)
+      experiment.variants.create!(key: "b", name: "B", implementation_key: "b",
+                                  is_control: false, weight: 1, position: 1)
+      experiment.goals.create!(key: "primary", name: "Primary", event_key: "demo_signup",
+                               is_primary: true)
+    end
+    experiment.update_columns(status: "running", started_at: Time.current) if experiment.draft?
+    primary = experiment.goals.find_by!(is_primary: true)
+
+    patch "/ab_tests/admin/experiments/#{experiment.id}/goals/#{primary.id}",
+          params: {
+            goal: {
+              name: primary.name,
+              event_key: "other_event",
+              counting_policy: primary.counting_policy,
+              attribution_window_hours: primary.attribution_window_hours
+            }
+          }
+
+    assert_response :redirect
+    follow_redirect!
+    assert_includes response.body, HOST_PRIMARY_EVENT_FROZEN
+    refute_includes response.body, "Event key primary goal event is frozen after start"
   ensure
     I18n.load_path = @load_path_before
     I18n.backend = @backend_before

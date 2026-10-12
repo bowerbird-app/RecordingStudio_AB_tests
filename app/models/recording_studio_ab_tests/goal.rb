@@ -31,11 +31,11 @@ module RecordingStudioAbTests
       return unless is_primary?
       return unless will_save_change_to_event_key?
 
-      primary_event_frozen = "primary goal event is frozen after start"
+      # ActiveModel 8.1 ignores message: when the type is a String, so the
+      # resolved Copy.t string is the type (English stays byte-identical to main).
       errors.add(
         :event_key,
-        primary_event_frozen,
-        message: Copy.t("errors.primary_event_frozen", default: primary_event_frozen)
+        Copy.t("errors.primary_event_frozen", default: "primary goal event is frozen after start")
       )
     end
 

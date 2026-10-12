@@ -26,11 +26,11 @@ module RecordingStudioAbTests
       bytes = metadata.to_json.bytesize
       return if bytes <= MAX_METADATA_BYTES
 
-      metadata_too_large = "exceeds #{MAX_METADATA_BYTES} bytes"
+      # ActiveModel 8.1 ignores message: when the type is a String, so the
+      # resolved Copy.t string is the type (English stays byte-identical to main).
       errors.add(
         :metadata,
-        metadata_too_large,
-        message: Copy.t("errors.metadata_too_large", default: "exceeds %{max} bytes", max: MAX_METADATA_BYTES)
+        Copy.t("errors.metadata_too_large", default: "exceeds %{max} bytes", max: MAX_METADATA_BYTES)
       )
     end
   end

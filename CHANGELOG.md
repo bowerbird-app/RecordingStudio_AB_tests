@@ -25,9 +25,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Removed unused locale key `common.counting_policy`. Deduped shared English
   strings in `en.yml` with YAML anchors while keeping host-overridable key
   names (`form.weight`, `variants.add` / `add_heading`, and related keys).
-- Validation `errors.add` keeps the original English string as the error type
-  and passes the locale string via `message:`, so `errors.details`, `added?`,
-  and `of_kind?` match pre-i18n behavior.
+- Validation `errors.add` for former English-string types passes
+  `Copy.t(..., default: <main English>)` as the type (ActiveModel 8.1 ignores
+  `message:` for String types). In non-English locales `errors.details`
+  carries the translated string; English remains byte-identical to main.
 
 ### Upgrade notes
 - No migration or host code change is required for English.

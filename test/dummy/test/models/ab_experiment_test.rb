@@ -54,7 +54,7 @@ class AbExperimentTest < ActiveSupport::TestCase
     assert experiment.reload.archived?
   end
 
-  test "custom validation errors.details match main English string types" do
+  test "custom validation errors.details match main English under the default locale" do
     experiment = create_running_experiment!(key: "err_types", target_key: "pricing_page")
     control = experiment.variants.find_by!(is_control: true)
     primary = experiment.goals.find_by!(is_primary: true)
@@ -134,9 +134,9 @@ class AbExperimentTest < ActiveSupport::TestCase
     assert conversion.errors.of_kind?(:metadata, metadata_too_large)
   end
 
-  test "errors.details English string types stay identical under a non-English locale" do
+  test "French locale puts the translated validation string in full_messages and details" do
     experiment = create_running_experiment!(key: "err_locale", target_key: "pricing_page")
-    frozen_after_start = "cannot change after experiment has started"
+    french = "impossible de modifier après le démarrage"
     previous_locale = I18n.locale
     previous_available = I18n.available_locales.dup
     previous_backend = I18n.backend
@@ -148,7 +148,7 @@ class AbExperimentTest < ActiveSupport::TestCase
       recording_studio: {
         ab_tests: {
           errors: {
-            frozen_after_start: "impossible de modifier après le démarrage"
+            frozen_after_start: french
           }
         }
       }
@@ -156,9 +156,9 @@ class AbExperimentTest < ActiveSupport::TestCase
     I18n.locale = :fr
 
     refute experiment.update(key: "renamed")
-    assert_equal [{ error: frozen_after_start }], experiment.errors.details[:key]
-    assert experiment.errors.of_kind?(:key, frozen_after_start)
-    assert experiment.errors.added?(:key, frozen_after_start)
+    assert_equal [{ error: french }], experiment.errors.details[:key]
+    assert_includes experiment.errors.full_messages, "Key #{french}"
+    assert experiment.errors.of_kind?(:key, french)
   ensure
     I18n.locale = previous_locale if previous_locale
     I18n.available_locales = previous_available if previous_available

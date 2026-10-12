@@ -30,11 +30,11 @@ module RecordingStudioAbTests
         return
       end
 
-      variant_identity_frozen = "variant identity is frozen after start"
+      # ActiveModel 8.1 ignores message: when the type is a String, so the
+      # resolved Copy.t string is the type (English stays byte-identical to main).
       errors.add(
         :base,
-        variant_identity_frozen,
-        message: Copy.t("errors.variant_identity_frozen", default: variant_identity_frozen)
+        Copy.t("errors.variant_identity_frozen", default: "variant identity is frozen after start")
       )
     end
 
@@ -42,11 +42,9 @@ module RecordingStudioAbTests
       return unless experiment
       return if experiment.draft?
 
-      cannot_add_variants_after_start = "cannot add variants after start"
       errors.add(
         :base,
-        cannot_add_variants_after_start,
-        message: Copy.t("errors.cannot_add_variants_after_start", default: cannot_add_variants_after_start)
+        Copy.t("errors.cannot_add_variants_after_start", default: "cannot add variants after start")
       )
     end
 
