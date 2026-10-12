@@ -290,28 +290,31 @@ class AbAdminTest < ActionDispatch::IntegrationTest
 
   test "scope and counting policy labels resolve non-english locale overrides at render time" do
     previous = I18n.load_path.dup
-    fixture = Rails.root.join("tmp/ab_tests_enum_override.xx.yml")
+    previous_locales = I18n.available_locales
+    fixture = Rails.root.join("tmp/ab_tests_enum_override.fr.yml")
     File.write(
       fixture,
       <<~YAML
-        xx:
+        fr:
           recording_studio:
             ab_tests:
               scopes:
-                visitor: "XX Visitor"
+                visitor: "FR Visitor"
               counting_policies:
-                once_per_participant: "XX Once"
+                once_per_participant: "FR Once"
       YAML
     )
+    I18n.available_locales = previous_locales | [:fr]
     I18n.load_path = previous + [fixture.to_s]
     I18n.reload!
-    I18n.locale = :xx
+    I18n.locale = :fr
     get "/ab_tests/admin/experiments/new"
     assert_response :success
-    assert_includes response.body, "XX Visitor"
-    assert_includes response.body, "XX Once"
+    assert_includes response.body, "FR Visitor"
+    assert_includes response.body, "FR Once"
   ensure
     I18n.locale = :en
+    I18n.available_locales = previous_locales if defined?(previous_locales) && previous_locales
     I18n.load_path = previous
     I18n.reload!
     File.delete(fixture) if defined?(fixture) && fixture && File.exist?(fixture)

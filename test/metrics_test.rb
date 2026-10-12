@@ -66,12 +66,14 @@ class MetricsTest < Minitest::Test
     assert_equal "not statistically tested", RecordingStudioAbTests::Metrics::LIFT_LABEL
     assert_equal "not statistically tested", RecordingStudioAbTests::Copy.lift_label
 
+    previous_locales = I18n.available_locales
+    I18n.available_locales = previous_locales | %i[fr de]
     I18n.backend.store_translations(
-      :xx,
-      recording_studio: { ab_tests: { metrics: { lift_label: "XX lift note" } } }
+      :fr,
+      recording_studio: { ab_tests: { metrics: { lift_label: "FR lift note" } } }
     )
-    I18n.with_locale(:xx) do
-      assert_equal "XX lift note", RecordingStudioAbTests::Copy.lift_label
+    I18n.with_locale(:fr) do
+      assert_equal "FR lift note", RecordingStudioAbTests::Copy.lift_label
       assert_equal "not statistically tested", RecordingStudioAbTests::Metrics::LIFT_LABEL
 
       control = VariantStub.new(id: "c", key: "control", name: "Control", is_control: true, position: 0)
@@ -86,12 +88,14 @@ class MetricsTest < Minitest::Test
           total_values: { "c" => 0, "b" => 0 }
         }
       )
-      assert_equal "XX lift note", rows.first.lift_label
+      assert_equal "FR lift note", rows.first.lift_label
     end
 
-    I18n.with_locale(:zz) do
+    I18n.with_locale(:de) do
       assert_equal "not statistically tested", RecordingStudioAbTests::Copy.lift_label
     end
+  ensure
+    I18n.available_locales = previous_locales if defined?(previous_locales) && previous_locales
   end
 
   # Reporting -100% with a non-zero overall rate is accurate when treatment has
