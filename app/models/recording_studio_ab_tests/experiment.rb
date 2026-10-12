@@ -78,7 +78,7 @@ module RecordingStudioAbTests
         next unless will_save_change_to_attribute?(attr)
 
         # ActiveModel 8.1 ignores message: when the type is a String, so the
-        # resolved Copy.t string is the type (English stays byte-identical to main).
+        # resolved Copy.t string is the type.
         errors.add(
           attr,
           Copy.t("errors.frozen_after_start", default: "cannot change after experiment has started")

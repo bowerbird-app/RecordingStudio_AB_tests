@@ -27,8 +27,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   and related keys).
 - Validation `errors.add` for former English-string types passes
   `Copy.t(..., default: <main English>)` as the type (ActiveModel 8.1 ignores
-  `message:` for String types). In non-English locales `errors.details`
-  carries the translated string; English remains byte-identical to main.
+  `message:` for String types). Under the English gem defaults, messages and
+  `errors.details` match main — including the frozen-after-start check on the
+  five `Lifecycle::FROZEN_AFTER_START` attributes (`key`, `target_key`,
+  `assignment_scope`, `allocation_seed`, `allocation_version`). In non-English
+  locales or with a host override, `errors.details` carries the translated
+  string as the type.
 - Lifecycle flash `Experiment %{action}.` translates the `%{action}` word via
   `flashes.experiment_actions.*` (English defaults unchanged).
 

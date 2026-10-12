@@ -32,7 +32,7 @@
   <% end %>
   <% if RecordingStudioAbTests::Admin.transition_allowed?(@experiment, :resume) %>
     <%= form_with url: resume_admin_experiment_path(@experiment), method: :post, class: "inline" do %>
-      <%= render FlatPack::Button::Component.new(text: t("recording_studio.ab_tests.experiments.show.resume"), style: :secondary, type: "submit", size: :sm, data: { turbo_confirm: t("recording_studio.ab_tests.experiments.show.resume_confirm") }) %>
+      <%= render FlatPack::Button::Component.new(text: t("recording_studio.ab_tests.experiments.show.resume"), style: :secondary, type: "submit", size: :sm) %>
     <% end %>
   <% end %>
   <% if RecordingStudioAbTests::Admin.transition_allowed?(@experiment, :complete) %>
@@ -42,11 +42,11 @@
   <% end %>
   <% if RecordingStudioAbTests::Admin.transition_allowed?(@experiment, :archive) %>
     <%= form_with url: archive_admin_experiment_path(@experiment), method: :post, class: "inline" do %>
-      <%= render FlatPack::Button::Component.new(text: t("recording_studio.ab_tests.experiments.show.archive"), style: :secondary, type: "submit", size: :sm, data: { turbo_confirm: t("recording_studio.ab_tests.experiments.show.archive_confirm") }) %>
+      <%= render FlatPack::Button::Component.new(text: t("recording_studio.ab_tests.experiments.show.archive"), style: :secondary, type: "submit", size: :sm) %>
     <% end %>
   <% end %>
   <%= form_with url: duplicate_admin_experiment_path(@experiment), method: :post, class: "inline" do %>
-    <%= render FlatPack::Button::Component.new(text: t("recording_studio.ab_tests.experiments.show.duplicate"), style: :secondary, type: "submit", size: :sm, data: { turbo_confirm: t("recording_studio.ab_tests.experiments.show.duplicate_confirm") }) %>
+    <%= render FlatPack::Button::Component.new(text: t("recording_studio.ab_tests.experiments.show.duplicate"), style: :secondary, type: "submit", size: :sm) %>
   <% end %>
   <%= render FlatPack::Button::Component.new(text: t("recording_studio.ab_tests.experiments.show.edit"), style: :secondary, href: edit_admin_experiment_path(@experiment), size: :sm) %>
 </div>
