@@ -388,7 +388,7 @@ module RecordingStudioAbTests
         action :start,
                text: ->(_row, _ctx) { Copy.t("admin.actions.start", default: "Start") },
                method: :post,
-               confirm: ->(_row, _ctx) {
+               confirm: lambda { |_row, _ctx|
                  Copy.t(
                    "admin.confirms.start",
                    default: "Start this experiment? Allocation fields will freeze."
@@ -399,7 +399,7 @@ module RecordingStudioAbTests
         action :pause,
                text: ->(_row, _ctx) { Copy.t("admin.actions.pause", default: "Pause") },
                method: :post,
-               confirm: ->(_row, _ctx) {
+               confirm: lambda { |_row, _ctx|
                  Copy.t("admin.confirms.pause", default: "Pause this experiment?")
                },
                visible_if: ->(row, _ctx) { RecordingStudioAbTests::Admin.transition_allowed?(row, :pause) },
@@ -407,7 +407,7 @@ module RecordingStudioAbTests
         action :resume,
                text: ->(_row, _ctx) { Copy.t("admin.actions.resume", default: "Resume") },
                method: :post,
-               confirm: ->(_row, _ctx) {
+               confirm: lambda { |_row, _ctx|
                  Copy.t("admin.confirms.resume", default: "Resume this experiment?")
                },
                visible_if: ->(row, _ctx) { RecordingStudioAbTests::Admin.transition_allowed?(row, :resume) },
@@ -415,7 +415,7 @@ module RecordingStudioAbTests
         action :complete,
                text: ->(_row, _ctx) { Copy.t("admin.actions.complete", default: "Complete") },
                method: :post,
-               confirm: ->(_row, _ctx) {
+               confirm: lambda { |_row, _ctx|
                  Copy.t("admin.confirms.complete", default: "Complete this experiment?")
                },
                visible_if: ->(row, _ctx) { RecordingStudioAbTests::Admin.transition_allowed?(row, :complete) },
@@ -423,7 +423,7 @@ module RecordingStudioAbTests
         action :archive,
                text: ->(_row, _ctx) { Copy.t("admin.actions.archive", default: "Archive") },
                method: :post,
-               confirm: ->(_row, _ctx) {
+               confirm: lambda { |_row, _ctx|
                  Copy.t("admin.confirms.archive", default: "Archive this experiment?")
                },
                visible_if: ->(row, _ctx) { RecordingStudioAbTests::Admin.transition_allowed?(row, :archive) },
@@ -431,7 +431,7 @@ module RecordingStudioAbTests
         action :duplicate,
                text: ->(_row, _ctx) { Copy.t("admin.actions.duplicate", default: "Duplicate") },
                method: :post,
-               confirm: ->(_row, _ctx) {
+               confirm: lambda { |_row, _ctx|
                  Copy.t(
                    "admin.confirms.duplicate",
                    default: "Duplicate this experiment as a new draft?"
@@ -737,7 +737,7 @@ module RecordingStudioAbTests
              text: ->(_row, _ctx) { Copy.t("admin.actions.start", default: "Start") },
              method: :post,
              required_role: :admin,
-             confirm: ->(_row, _ctx) {
+             confirm: lambda { |_row, _ctx|
                Copy.t("admin.confirms.start_short", default: "Start this experiment?")
              },
              visible_if: ->(row, _ctx) { RecordingStudioAbTests::Admin.transition_allowed?(row, :start) },
@@ -746,7 +746,7 @@ module RecordingStudioAbTests
              text: ->(_row, _ctx) { Copy.t("admin.actions.pause", default: "Pause") },
              method: :post,
              required_role: :admin,
-             confirm: ->(_row, _ctx) {
+             confirm: lambda { |_row, _ctx|
                Copy.t("admin.confirms.pause", default: "Pause this experiment?")
              },
              visible_if: ->(row, _ctx) { RecordingStudioAbTests::Admin.transition_allowed?(row, :pause) },
@@ -755,7 +755,7 @@ module RecordingStudioAbTests
              text: ->(_row, _ctx) { Copy.t("admin.actions.resume", default: "Resume") },
              method: :post,
              required_role: :admin,
-             confirm: ->(_row, _ctx) {
+             confirm: lambda { |_row, _ctx|
                Copy.t("admin.confirms.resume", default: "Resume this experiment?")
              },
              visible_if: ->(row, _ctx) { RecordingStudioAbTests::Admin.transition_allowed?(row, :resume) },
@@ -764,7 +764,7 @@ module RecordingStudioAbTests
              text: ->(_row, _ctx) { Copy.t("admin.actions.complete", default: "Complete") },
              method: :post,
              required_role: :admin,
-             confirm: ->(_row, _ctx) {
+             confirm: lambda { |_row, _ctx|
                Copy.t("admin.confirms.complete", default: "Complete this experiment?")
              },
              visible_if: ->(row, _ctx) { RecordingStudioAbTests::Admin.transition_allowed?(row, :complete) },
@@ -773,7 +773,7 @@ module RecordingStudioAbTests
              text: ->(_row, _ctx) { Copy.t("admin.actions.archive", default: "Archive") },
              method: :post,
              required_role: :admin,
-             confirm: ->(_row, _ctx) {
+             confirm: lambda { |_row, _ctx|
                Copy.t("admin.confirms.archive", default: "Archive this experiment?")
              },
              visible_if: ->(row, _ctx) { RecordingStudioAbTests::Admin.transition_allowed?(row, :archive) },
@@ -782,7 +782,7 @@ module RecordingStudioAbTests
              text: ->(_row, _ctx) { Copy.t("admin.actions.duplicate", default: "Duplicate") },
              method: :post,
              required_role: :admin,
-             confirm: ->(_row, _ctx) {
+             confirm: lambda { |_row, _ctx|
                Copy.t("admin.confirms.duplicate_short", default: "Duplicate this experiment?")
              },
              url: ->(row, _ctx) { RecordingStudioAbTests::Admin.duplicate_admin_experiment_path(row) }

@@ -116,13 +116,13 @@ module RecordingStudioAbTests
       end
 
       variants.each do |variant|
-        unless target.implementation_keys.include?(variant.implementation_key)
-          raise LifecycleError, Copy.t(
-            "errors.unknown_implementation",
-            default: "unknown implementation_key %{key}",
-            key: variant.implementation_key
-          )
-        end
+        next if target.implementation_keys.include?(variant.implementation_key)
+
+        raise LifecycleError, Copy.t(
+          "errors.unknown_implementation",
+          default: "unknown implementation_key %{key}",
+          key: variant.implementation_key
+        )
       end
 
       goals = experiment.goals.to_a
@@ -134,13 +134,13 @@ module RecordingStudioAbTests
       end
 
       goals.each do |goal|
-        unless RecordingStudioAbTests.registry.event(goal.event_key)
-          raise LifecycleError, Copy.t(
-            "errors.unknown_event",
-            default: "unknown event_key %{key}",
-            key: goal.event_key
-          )
-        end
+        next if RecordingStudioAbTests.registry.event(goal.event_key)
+
+        raise LifecycleError, Copy.t(
+          "errors.unknown_event",
+          default: "unknown event_key %{key}",
+          key: goal.event_key
+        )
       end
 
       validate_implementations_resolve!(target, variants)

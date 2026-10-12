@@ -5,8 +5,6 @@ require "yaml"
 require "i18n"
 
 class LocalesTest < Minitest::Test
-  # I18n interpolation uses %{name} tokens; RuboCop FormatStringToken does not apply.
-  # rubocop:disable-next Style/FormatStringToken
   EXPECTED_LEAVES = {
     "recording_studio.ab_tests.layout.title" => "A/B Tests admin",
     "recording_studio.ab_tests.common.cancel" => "Cancel",
