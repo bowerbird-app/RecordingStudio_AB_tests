@@ -44,8 +44,8 @@ class RecordingStudioAbTestsTest < Minitest::Test
   def test_dummy_gemfile_pins_verified_4x_github_tags
     gemfile = File.read(File.expand_path("dummy/Gemfile", __dir__))
 
-    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio", tag: "v4.4.0"'
-    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_accessible", tag: "v0.13.0"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio", tag: "v4.5.0"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_accessible", tag: "v0.15.0"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_root_switchable", tag: "v0.8.0"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_metrics", tag: "v0.2.0"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_users", tag: "v0.16.0"'
@@ -92,6 +92,24 @@ class RecordingStudioAbTestsTest < Minitest::Test
       )
     )
     assert_includes invitation_migration, "create_table :recording_studio_access_invitations"
+    assert_includes schema, 'create_table "recording_studio_access_constraints"'
+    assert_includes schema, 'create_table "recording_studio_access_rules"'
+    assert_includes schema, "index_recording_studio_access_constraints_on_action"
+    assert_includes schema, "index_recording_studio_access_rules_on_action"
+    constraints_migration = File.read(
+      File.expand_path(
+        "dummy/db/migrate/20261012044034_create_recording_studio_access_constraints.rb",
+        __dir__
+      )
+    )
+    rules_migration = File.read(
+      File.expand_path(
+        "dummy/db/migrate/20261012044035_create_recording_studio_access_rules.rb",
+        __dir__
+      )
+    )
+    assert_includes constraints_migration, "create_table :recording_studio_access_constraints"
+    assert_includes rules_migration, "create_table :recording_studio_access_rules"
   end
 
   def test_dummy_schema_includes_attachable_libraries_and_placements
@@ -202,8 +220,9 @@ class RecordingStudioAbTestsTest < Minitest::Test
     readme = File.read(File.expand_path("../README.md", __dir__))
 
     assert_includes readme, "RecordingStudio"
-    assert_includes readme, "dummy GitHub tag `v4.4.0`"
+    assert_includes readme, "dummy GitHub tag `v4.5.0`"
     assert_includes readme, "dummy GitHub tag `v0.1.213`"
+    assert_includes readme, "dummy GitHub tag `v0.15.0`"
     assert_includes readme, "dummy GitHub tag `v0.13.0`"
     assert_includes readme, "dummy GitHub tag `v0.16.0`"
     assert_includes readme, "dummy GitHub tag `v0.8.0`"
