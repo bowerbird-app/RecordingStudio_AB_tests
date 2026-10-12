@@ -4,7 +4,7 @@
 
 - Ruby 3.3 or newer
 - Rails 8.1 or newer
-- Recording Studio 4.x (`~> 4.2` in the gemspec; dummy GitHub tag `v4.4.0`)
+- Recording Studio 4.x (`~> 4.2` in the gemspec; dummy GitHub tag `v4.5.0`)
 - Accessible dummy tag `v0.13.0` (i18n release; no host migration from 0.11.x)
 - Root Switchable dummy tag `v0.8.0` (i18n wave 2: translatable page_copy; rendered English unchanged; no host migration). Pins Metrics `v0.2.0` (Root Switchable 0.7+ gemspec `~> 0.2`; GitHub-only)
 - FlatPack dummy tag `v0.1.213` (Attachable 0.12+ requires `>= 0.1.213`)
