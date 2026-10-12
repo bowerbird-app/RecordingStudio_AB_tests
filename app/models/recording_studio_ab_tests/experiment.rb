@@ -79,7 +79,8 @@ module RecordingStudioAbTests
 
         errors.add(
           attr,
-          Copy.t("errors.frozen_after_start", default: "cannot change after experiment has started")
+          :frozen_after_start,
+          message: Copy.t("errors.frozen_after_start", default: "cannot change after experiment has started")
         )
       end
     end

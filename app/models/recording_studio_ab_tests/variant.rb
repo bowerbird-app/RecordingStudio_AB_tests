@@ -32,7 +32,8 @@ module RecordingStudioAbTests
 
       errors.add(
         :base,
-        Copy.t("errors.variant_identity_frozen", default: "variant identity is frozen after start")
+        :variant_identity_frozen,
+        message: Copy.t("errors.variant_identity_frozen", default: "variant identity is frozen after start")
       )
     end
 
@@ -42,7 +43,8 @@ module RecordingStudioAbTests
 
       errors.add(
         :base,
-        Copy.t("errors.cannot_add_variants_after_start", default: "cannot add variants after start")
+        :cannot_add_variants_after_start,
+        message: Copy.t("errors.cannot_add_variants_after_start", default: "cannot add variants after start")
       )
     end
 

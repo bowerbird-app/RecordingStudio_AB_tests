@@ -11,6 +11,7 @@ class AbHostLocaleOverrideTest < ActionDispatch::IntegrationTest
 
   setup do
     @load_path_before = I18n.load_path.dup
+    @backend_before = I18n.backend
     @user = User.find_or_create_by!(email: "admin@admin.com") do |u|
       u.password = "Password"
       u.password_confirmation = "Password"
@@ -31,7 +32,7 @@ class AbHostLocaleOverrideTest < ActionDispatch::IntegrationTest
   teardown do
     Current.actor = nil
     I18n.load_path = @load_path_before
-    I18n.reload!
+    I18n.backend = @backend_before
   end
 
   def switch_to_admin_root!
@@ -54,8 +55,9 @@ class AbHostLocaleOverrideTest < ActionDispatch::IntegrationTest
     assert File.exist?(HOST_LOCALE), "expected test-only host override fixture at #{HOST_LOCALE}"
     assert_includes File.read(HOST_LOCALE), HOST_ALERT_TITLE
 
-    I18n.load_path = I18n.load_path + [HOST_LOCALE.to_s]
-    I18n.reload!
+    I18n.backend = I18n::Backend::Simple.new
+    I18n.load_path = @load_path_before + [HOST_LOCALE.to_s]
+    I18n.backend.load_translations
 
     assert_equal HOST_ALERT_TITLE, I18n.t(OVERRIDE_KEY)
 
@@ -77,6 +79,6 @@ class AbHostLocaleOverrideTest < ActionDispatch::IntegrationTest
     refute_includes response.body, "HOST New experiment"
   ensure
     I18n.load_path = @load_path_before
-    I18n.reload!
+    I18n.backend = @backend_before
   end
 end

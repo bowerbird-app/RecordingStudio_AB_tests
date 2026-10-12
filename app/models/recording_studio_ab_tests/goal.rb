@@ -33,7 +33,8 @@ module RecordingStudioAbTests
 
       errors.add(
         :event_key,
-        Copy.t("errors.primary_event_frozen", default: "primary goal event is frozen after start")
+        :primary_event_frozen,
+        message: Copy.t("errors.primary_event_frozen", default: "primary goal event is frozen after start")
       )
     end
 

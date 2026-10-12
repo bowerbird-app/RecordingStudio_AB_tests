@@ -35,6 +35,8 @@ class AbExperimentTest < ActiveSupport::TestCase
 
     refute experiment.update(key: "other_key")
     assert_includes experiment.errors[:key], "cannot change after experiment has started"
+    assert experiment.errors.of_kind?(:key, :frozen_after_start)
+    assert_equal [{ error: :frozen_after_start }], experiment.errors.details[:key]
     experiment.reload
 
     assert RecordingStudioAbTests::Lifecycle.pause!(experiment)
@@ -48,6 +50,84 @@ class AbExperimentTest < ActiveSupport::TestCase
 
     assert RecordingStudioAbTests::Lifecycle.archive!(experiment)
     assert experiment.reload.archived?
+  end
+
+  test "custom validation errors keep symbol types in errors.details" do
+    experiment = create_running_experiment!(key: "err_types", target_key: "pricing_page")
+    control = experiment.variants.find_by!(is_control: true)
+    primary = experiment.goals.find_by!(is_primary: true)
+
+    refute experiment.update(key: "renamed")
+    assert_equal [{ error: :frozen_after_start }], experiment.errors.details[:key]
+    assert experiment.errors.of_kind?(:key, :frozen_after_start)
+    assert experiment.errors.added?(:key, :frozen_after_start)
+    assert_includes experiment.errors[:key], "cannot change after experiment has started"
+    experiment.reload
+
+    refute primary.update(event_key: "other_event")
+    assert_equal [{ error: :primary_event_frozen }], primary.errors.details[:event_key]
+    assert primary.errors.of_kind?(:event_key, :primary_event_frozen)
+    assert_includes primary.errors[:event_key], "primary goal event is frozen after start"
+
+    refute control.update(key: "renamed_control")
+    assert_equal [{ error: :variant_identity_frozen }], control.errors.details[:base]
+    assert control.errors.of_kind?(:base, :variant_identity_frozen)
+    assert_includes control.errors[:base], "variant identity is frozen after start"
+
+    extra = experiment.variants.build(
+      key: "late",
+      name: "Late",
+      implementation_key: "late",
+      is_control: false,
+      weight: 1,
+      position: 9
+    )
+    refute extra.valid?
+    assert_equal [{ error: :cannot_add_variants_after_start }], extra.errors.details[:base]
+    assert extra.errors.of_kind?(:base, :cannot_add_variants_after_start)
+    assert_includes extra.errors[:base], "cannot add variants after start"
+
+    assignment = experiment.assignments.create!(
+      variant: control,
+      subject_type: "visitor",
+      subject_identifier: "err-types-visitor",
+      allocation_version: experiment.allocation_version,
+      bucket: 1,
+      assigned_at: Time.current
+    )
+    refute assignment.update(subject_identifier: "mutated")
+    assert_equal [{ error: :assignment_immutable }], assignment.errors.details[:base]
+    assert assignment.errors.of_kind?(:base, :assignment_immutable)
+    assert_match(/assignments are immutable/, assignment.errors[:base].first)
+
+    huge = { "pad" => "x" * (RecordingStudioAbTests::Exposure::MAX_METADATA_BYTES + 64) }
+    exposure = experiment.exposures.build(
+      variant: control,
+      assignment: assignment,
+      target_key: experiment.target_key,
+      first_exposed_at: Time.current,
+      last_exposed_at: Time.current,
+      exposure_count: 1,
+      metadata: huge
+    )
+    refute exposure.valid?
+    assert_equal [{ error: :metadata_too_large }], exposure.errors.details[:metadata]
+    assert exposure.errors.of_kind?(:metadata, :metadata_too_large)
+    assert_includes exposure.errors[:metadata], "exceeds #{RecordingStudioAbTests::Exposure::MAX_METADATA_BYTES} bytes"
+
+    conversion = experiment.conversions.build(
+      variant: control,
+      assignment: assignment,
+      goal: primary,
+      source_event_key: primary.event_key,
+      idempotency_key: "err-types-conversion",
+      occurred_at: Time.current,
+      metadata: huge
+    )
+    refute conversion.valid?
+    assert_equal [{ error: :metadata_too_large }], conversion.errors.details[:metadata]
+    assert conversion.errors.of_kind?(:metadata, :metadata_too_large)
+    assert_includes conversion.errors[:metadata], "exceeds #{RecordingStudioAbTests::Conversion::MAX_METADATA_BYTES} bytes"
   end
 
   test "duplicate copies variants goals with new key and seed" do

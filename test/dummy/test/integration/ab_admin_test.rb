@@ -289,7 +289,8 @@ class AbAdminTest < ActionDispatch::IntegrationTest
 
 
   test "scope and counting policy labels use host overrides at render time" do
-    previous = I18n.load_path.dup
+    previous_load_path = I18n.load_path.dup
+    previous_backend = I18n.backend
     fixture = Rails.root.join("tmp/ab_tests_enum_override.en.yml")
     File.write(
       fixture,
@@ -303,15 +304,16 @@ class AbAdminTest < ActionDispatch::IntegrationTest
                 once_per_participant: "HOST Once"
       YAML
     )
-    I18n.load_path = previous + [fixture.to_s]
-    I18n.reload!
+    I18n.backend = I18n::Backend::Simple.new
+    I18n.load_path = previous_load_path + [fixture.to_s]
+    I18n.backend.load_translations
     get "/ab_tests/admin/experiments/new"
     assert_response :success
     assert_includes response.body, "HOST Visitor"
     assert_includes response.body, "HOST Once"
   ensure
-    I18n.load_path = previous
-    I18n.reload!
+    I18n.load_path = previous_load_path if defined?(previous_load_path) && previous_load_path
+    I18n.backend = previous_backend if defined?(previous_backend) && previous_backend
     File.delete(fixture) if defined?(fixture) && fixture && File.exist?(fixture)
   end
 

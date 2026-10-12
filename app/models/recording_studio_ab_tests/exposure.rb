@@ -29,7 +29,8 @@ module RecordingStudioAbTests
 
       errors.add(
         :metadata,
-        Copy.t("errors.metadata_too_large", default: "exceeds %{max} bytes", max: MAX_METADATA_BYTES)
+        :metadata_too_large,
+        message: Copy.t("errors.metadata_too_large", default: "exceeds %{max} bytes", max: MAX_METADATA_BYTES)
       )
     end
   end

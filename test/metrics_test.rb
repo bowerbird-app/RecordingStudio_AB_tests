@@ -67,6 +67,8 @@ class MetricsTest < Minitest::Test
     assert_equal "not statistically tested", RecordingStudioAbTests::Copy.lift_label
 
     previous_locales = I18n.available_locales
+    previous_backend = I18n.backend
+    I18n.backend = I18n::Backend::Simple.new
     I18n.available_locales = previous_locales | %i[fr de]
     I18n.backend.store_translations(
       :fr,
@@ -95,6 +97,7 @@ class MetricsTest < Minitest::Test
       assert_equal "not statistically tested", RecordingStudioAbTests::Copy.lift_label
     end
   ensure
+    I18n.backend = previous_backend if defined?(previous_backend) && previous_backend
     I18n.available_locales = previous_locales if defined?(previous_locales) && previous_locales
   end
 
