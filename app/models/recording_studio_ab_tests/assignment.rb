@@ -31,7 +31,7 @@ module RecordingStudioAbTests
       return if changed.empty?
 
       # ActiveModel 8.1 ignores message: when the type is a String, so the
-      # resolved Copy.t string is the type (English stays byte-identical to main).
+      # resolved Copy.t string is the type.
       errors.add(
         :base,
         Copy.t(

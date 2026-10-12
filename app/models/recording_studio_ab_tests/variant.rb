@@ -31,7 +31,7 @@ module RecordingStudioAbTests
       end
 
       # ActiveModel 8.1 ignores message: when the type is a String, so the
-      # resolved Copy.t string is the type (English stays byte-identical to main).
+      # resolved Copy.t string is the type.
       errors.add(
         :base,
         Copy.t("errors.variant_identity_frozen", default: "variant identity is frozen after start")

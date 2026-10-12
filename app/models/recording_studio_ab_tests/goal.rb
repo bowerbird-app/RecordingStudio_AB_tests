@@ -32,7 +32,7 @@ module RecordingStudioAbTests
       return unless will_save_change_to_event_key?
 
       # ActiveModel 8.1 ignores message: when the type is a String, so the
-      # resolved Copy.t string is the type (English stays byte-identical to main).
+      # resolved Copy.t string is the type.
       errors.add(
         :event_key,
         Copy.t("errors.primary_event_frozen", default: "primary goal event is frozen after start")

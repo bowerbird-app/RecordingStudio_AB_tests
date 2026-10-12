@@ -90,7 +90,8 @@ class MetricsTest < Minitest::Test
           total_values: { "c" => 0, "b" => 0 }
         }
       )
-      assert_equal "FR lift note", rows.first.lift_label
+      # Metrics rows stay on the English constant; screens use Copy.lift_label.
+      assert_equal RecordingStudioAbTests::Metrics::LIFT_LABEL, rows.first.lift_label
     end
 
     I18n.with_locale(:de) do

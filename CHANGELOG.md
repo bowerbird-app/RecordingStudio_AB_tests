@@ -18,7 +18,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   series names). Keys live under `recording_studio.ab_tests` with English
   `default:` on every lookup.
 - `RecordingStudioAbTests::Copy` helper for those lookups. `Metrics::LIFT_LABEL`
-  stays the public English constant; display uses `Copy.lift_label` at call time.
+  stays the public English constant and remains what `Metrics.build_rows` stores;
+  screens resolve `Copy.lift_label` at render time.
 
 ### Changed
 - Version `0.4.1` → `0.5.0`.
@@ -47,7 +48,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Hosts that override `recording_studio.ab_tests` keys continue to win. New
   keys cover flashes, errors, scopes, counting policies, metrics lift label,
   and Admin DSL chrome; Admin table column headers remain English literals.
-- `Metrics::LIFT_LABEL` is unchanged. Prefer `Copy.lift_label` (or
+- `Metrics::LIFT_LABEL` and `Metrics.build_rows` lift labels stay English.
+  Prefer `Copy.lift_label` (or
   `t("recording_studio.ab_tests.metrics.lift_label", default: Metrics::LIFT_LABEL)`)
   when rendering so a host locale can translate it.
 - There is still no dependency on `recording_studio_internationalization`.

@@ -27,7 +27,7 @@ module RecordingStudioAbTests
       return if bytes <= MAX_METADATA_BYTES
 
       # ActiveModel 8.1 ignores message: when the type is a String, so the
-      # resolved Copy.t string is the type (English stays byte-identical to main).
+      # resolved Copy.t string is the type.
       errors.add(
         :metadata,
         Copy.t("errors.metadata_too_large", default: "exceeds %{max} bytes", max: MAX_METADATA_BYTES)
