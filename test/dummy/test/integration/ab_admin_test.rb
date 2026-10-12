@@ -346,12 +346,16 @@ class AbAdminTest < ActionDispatch::IntegrationTest
     before = AdminAuditLog.count
     post "/ab_tests/admin/experiments/#{experiment.id}/pause"
     assert_response :redirect
+    follow_redirect!
+    assert_includes response.body, "Experiment pause."
     experiment.reload
     assert_equal "paused", experiment.status
     assert_operator AdminAuditLog.count, :>=, before
 
     post "/ab_tests/admin/experiments/#{experiment.id}/resume"
     assert_response :redirect
+    follow_redirect!
+    assert_includes response.body, "Experiment resume."
     experiment.reload
     assert_equal "running", experiment.status
   end

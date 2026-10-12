@@ -165,11 +165,15 @@ module RecordingStudioAbTests
             "ab_tests_experiments", action_key, @experiment, audit_action: action_key,
                                                              metadata: { from: @experiment.status }, &
           )
+          action_word = Copy.t(
+            "flashes.experiment_actions.#{action_key}",
+            default: action_key.to_s
+          )
           redirect_to admin_experiment_path(@experiment),
                       notice: Copy.t(
                         "flashes.experiment_action",
                         default: "Experiment %{action}.",
-                        action: action_key
+                        action: action_word
                       )
         rescue LifecycleError => e
           redirect_to admin_experiment_path(@experiment), alert: e.message

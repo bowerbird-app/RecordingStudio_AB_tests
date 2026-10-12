@@ -12,6 +12,8 @@ en:
         name: &name "Name"
         weight: &weight "Weight"
         event: &event "Event"
+        # Deprecated: prefer experiments.form.counting_policy / experiments.goals.counting_policy.
+        counting_policy: &counting_policy "Counting policy"
       scopes:
         visitor: "Visitor"
         user: "User"
@@ -27,6 +29,12 @@ en:
         experiment_duplicated: "Experiment duplicated as draft."
         winner_selected: "Winner selected."
         experiment_action: "Experiment %{action}."
+        experiment_actions:
+          start: "start"
+          pause: "pause"
+          resume: "resume"
+          complete: "complete"
+          archive: "archive"
         variant_added: "Variant added."
         variant_updated: "Variant updated."
         variant_removed: "Variant removed."
@@ -82,11 +90,9 @@ en:
           archive_confirm: &archive_confirm "Archive this experiment?"
           duplicate: &duplicate "Duplicate"
           duplicate_confirm: &duplicate_confirm "Duplicate this experiment as a new draft?"
-          duplicate_confirm_short: &duplicate_confirm_short "Duplicate this experiment?"
           edit: &edit "Edit"
           select_winner: &select_winner "Select winner"
           set_winner: "Set winner"
-          view: &view "View"
           tabs:
             configuration: "Configuration"
             variants: "Variants"
@@ -118,7 +124,7 @@ en:
           weight: *weight
           primary_goal_event: "Primary goal event"
           attribution_window_hours: "Attribution window (hours)"
-          counting_policy: &counting_policy "Counting policy"
+          counting_policy: *counting_policy
         variants:
           columns:
             key: *key
@@ -203,7 +209,7 @@ en:
           conversions: *conversions
           registry_entries: "Registry entries"
         actions:
-          view: *view
+          view: "View"
           edit: *edit
           start: *start
           pause: *pause
@@ -220,7 +226,7 @@ en:
           complete: *complete_confirm
           archive: *archive_confirm
           duplicate: *duplicate_confirm
-          duplicate_short: *duplicate_confirm_short
+          duplicate_short: "Duplicate this experiment?"
         screens:
           experiments:
             title: *experiments

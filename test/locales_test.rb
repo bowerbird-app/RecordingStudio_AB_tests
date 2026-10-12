@@ -15,6 +15,7 @@ class LocalesTest < Minitest::Test
     "recording_studio.ab_tests.common.name" => "Name",
     "recording_studio.ab_tests.common.weight" => "Weight",
     "recording_studio.ab_tests.common.event" => "Event",
+    "recording_studio.ab_tests.common.counting_policy" => "Counting policy",
     "recording_studio.ab_tests.experiments.new.title" => "New experiment",
     "recording_studio.ab_tests.experiments.new.subtitle" => "Save as draft, then start when ready",
     "recording_studio.ab_tests.experiments.new.save" => "Save draft",
@@ -35,10 +36,14 @@ class LocalesTest < Minitest::Test
     "recording_studio.ab_tests.experiments.show.pause" => "Pause",
     "recording_studio.ab_tests.experiments.show.pause_confirm" => "Pause this experiment?",
     "recording_studio.ab_tests.experiments.show.resume" => "Resume",
+    "recording_studio.ab_tests.experiments.show.resume_confirm" => "Resume this experiment?",
     "recording_studio.ab_tests.experiments.show.complete" => "Complete",
     "recording_studio.ab_tests.experiments.show.complete_confirm" => "Complete this experiment?",
     "recording_studio.ab_tests.experiments.show.archive" => "Archive",
+    "recording_studio.ab_tests.experiments.show.archive_confirm" => "Archive this experiment?",
     "recording_studio.ab_tests.experiments.show.duplicate" => "Duplicate",
+    "recording_studio.ab_tests.experiments.show.duplicate_confirm" =>
+      "Duplicate this experiment as a new draft?",
     "recording_studio.ab_tests.experiments.show.edit" => "Edit",
     "recording_studio.ab_tests.experiments.show.select_winner" => "Select winner",
     "recording_studio.ab_tests.experiments.show.set_winner" => "Set winner",
@@ -126,6 +131,11 @@ class LocalesTest < Minitest::Test
     "recording_studio.ab_tests.flashes.experiment_duplicated" => "Experiment duplicated as draft.",
     "recording_studio.ab_tests.flashes.winner_selected" => "Winner selected.",
     "recording_studio.ab_tests.flashes.experiment_action" => "Experiment %{action}.",
+    "recording_studio.ab_tests.flashes.experiment_actions.start" => "start",
+    "recording_studio.ab_tests.flashes.experiment_actions.pause" => "pause",
+    "recording_studio.ab_tests.flashes.experiment_actions.resume" => "resume",
+    "recording_studio.ab_tests.flashes.experiment_actions.complete" => "complete",
+    "recording_studio.ab_tests.flashes.experiment_actions.archive" => "archive",
     "recording_studio.ab_tests.flashes.variant_added" => "Variant added.",
     "recording_studio.ab_tests.flashes.variant_updated" => "Variant updated.",
     "recording_studio.ab_tests.flashes.variant_removed" => "Variant removed.",
@@ -212,7 +222,8 @@ class LocalesTest < Minitest::Test
     assert tree.key?("flashes")
     assert tree.key?("errors")
     assert tree.key?("admin")
-    refute tree["common"].key?("counting_policy")
+    assert tree["common"].key?("counting_policy")
+    assert_equal "Counting policy", tree.dig("common", "counting_policy")
     assert_equal "A/B Tests admin", tree.dig("layout", "title")
     assert_equal "New experiment", tree.dig("experiments", "new", "title")
   end
@@ -237,6 +248,11 @@ class LocalesTest < Minitest::Test
           lift_label: "not statistically tested"
         )
       )
+      assert_equal "Experiment pause.",
+                   I18n.t(
+                     "recording_studio.ab_tests.flashes.experiment_action",
+                     action: I18n.t("recording_studio.ab_tests.flashes.experiment_actions.pause")
+                   )
     end
   end
 

@@ -22,13 +22,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Version `0.4.1` → `0.5.0`.
-- Removed unused locale key `common.counting_policy`. Deduped shared English
-  strings in `en.yml` with YAML anchors while keeping host-overridable key
-  names (`form.weight`, `variants.add` / `add_heading`, and related keys).
+- Deduped shared English strings in `en.yml` with YAML anchors while keeping
+  host-overridable key names (`form.weight`, `variants.add` / `add_heading`,
+  and related keys).
 - Validation `errors.add` for former English-string types passes
   `Copy.t(..., default: <main English>)` as the type (ActiveModel 8.1 ignores
   `message:` for String types). In non-English locales `errors.details`
   carries the translated string; English remains byte-identical to main.
+- Lifecycle flash `Experiment %{action}.` translates the `%{action}` word via
+  `flashes.experiment_actions.*` (English defaults unchanged).
+
+### Deprecated
+- Locale key `common.counting_policy` (same English as
+  `experiments.form.counting_policy` / `experiments.goals.counting_policy`).
+  Prefer the form/goals keys; the common key remains for hosts that already
+  override it.
 
 ### Upgrade notes
 - No migration or host code change is required for English.
