@@ -6,7 +6,7 @@ gem "recording_studio_ab_tests", path: "../.."
 # RecordingStudio engine
 gem "recording_studio", github: "bowerbird-app/RecordingStudio", tag: "v4.5.0"
 # Accessible ~> 0.11 required by recording_studio_user; role column is string.
-gem "recording_studio_accessible", github: "bowerbird-app/RecordingStudio_accessible", tag: "v0.15.0"
+gem "recording_studio_accessible", github: "bowerbird-app/RecordingStudio_accessible", tag: "v0.17.0"
 
 # Root switcher for the top nav (v0.7+ needs Metrics for Selection last-used ops metrics)
 gem "recording_studio_root_switchable", github: "bowerbird-app/RecordingStudio_root_switchable", tag: "v0.9.0"
@@ -15,7 +15,7 @@ gem "recording_studio_metrics", github: "bowerbird-app/RecordingStudio_metrics",
 # Users gem (PR2): People/Profile + registration.completed events. Soft deps pinned here.
 gem "recording_studio_user", github: "bowerbird-app/RecordingStudio_users", tag: "v0.21.0"
 gem "recording_studio_admin", github: "bowerbird-app/RecordingStudio_admin", tag: "v2.3.0"
-# Admin 2.3+ needs Trashable query helpers (and Metrics for Bundler resolution).
+# Admin 2.3+ / Accessible 0.17+ need Trashable query helpers (Metrics for Bundler).
 # Metrics is already pinned above for Root Switchable; Trashable stays require: false.
 gem "recording_studio_trashable", github: "bowerbird-app/RecordingStudio_trashable", tag: "v0.10.0", require: false
 gem "recording_studio_attachable", github: "bowerbird-app/RecordingStudio_attachable", tag: "v0.15.0"
