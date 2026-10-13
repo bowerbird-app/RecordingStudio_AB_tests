@@ -9,7 +9,7 @@
 - Root Switchable dummy tag `v0.8.0` (i18n wave 2: translatable page_copy; rendered English unchanged; no host migration). Pins Metrics `v0.2.0` (Root Switchable 0.7+ gemspec `~> 0.2`; GitHub-only)
 - FlatPack dummy tag `v0.1.213` (Attachable 0.12+ requires `>= 0.1.213`)
 - Users dummy tag `v0.16.0` (PR4; host overrides win on `/users/sign_up`)
-- Admin dummy tag `v2.2.0` (i18n wave 2: sections search / date-preset labels; rendered English unchanged; no host migration) and Attachable `v0.15.0` (i18n wave 2: non-view copy; rendered English unchanged; no host migration; Users gemspec soft deps, pinned in dummy only)
+- Admin dummy tag `v2.3.0` (Trashable query-only kept lookups; pins Trashable `v0.10.0` `require: false`; Metrics already `v0.2.0`). Attachable `v0.15.0` (i18n wave 2: non-view copy; rendered English unchanged; no host migration; Users gemspec soft deps, pinned in dummy only)
 - Public RubyGems and GitHub access for dependency installation
 
 ## Accessible 0.11 role migration (PR2)
