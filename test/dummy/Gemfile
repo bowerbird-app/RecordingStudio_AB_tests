@@ -14,7 +14,10 @@ gem "recording_studio_metrics", github: "bowerbird-app/RecordingStudio_metrics",
 
 # Users gem (PR2): People/Profile + registration.completed events. Soft deps pinned here.
 gem "recording_studio_user", github: "bowerbird-app/RecordingStudio_users", tag: "v0.21.0"
-gem "recording_studio_admin", github: "bowerbird-app/RecordingStudio_admin", tag: "v2.2.0"
+gem "recording_studio_admin", github: "bowerbird-app/RecordingStudio_admin", tag: "v2.3.0"
+# Admin 2.3+ needs Trashable query helpers (and Metrics for Bundler resolution).
+# Metrics is already pinned above for Root Switchable; Trashable stays require: false.
+gem "recording_studio_trashable", github: "bowerbird-app/RecordingStudio_trashable", tag: "v0.10.0", require: false
 gem "recording_studio_attachable", github: "bowerbird-app/RecordingStudio_attachable", tag: "v0.15.0"
 
 # Cache gem (PR4): variant-aware fragment caching via vary:. Public repo — no GitHub token.
