@@ -4,7 +4,7 @@ Server-side A/B testing for Recording Studio hosts. Sticky assignment, exposures
 event-driven conversions, Admin screens, service targets, and variant-aware
 fragment caching.
 
-Built on RecordingStudio (dummy GitHub tag `v4.5.0`), FlatPack (dummy GitHub tag `v0.1.213`), Accessible (dummy GitHub tag `v0.15.0`), Users (dummy GitHub tag `v0.16.0`), Admin (dummy GitHub tag `v2.2.0`), Attachable (dummy GitHub tag `v0.15.0`), Root Switchable (dummy GitHub tag `v0.8.0`), Metrics (dummy GitHub tag `v0.2.0`, required by Root Switchable 0.7+), and optionally RecordingStudioCache (dummy GitHub tag `v0.4.0`, public).
+Built on RecordingStudio (dummy GitHub tag `v4.5.0`), FlatPack (dummy GitHub tag `v0.1.213`), Accessible (dummy GitHub tag `v0.15.0`), Users (dummy GitHub tag `v0.21.0`), Admin (dummy GitHub tag `v2.2.0`), Attachable (dummy GitHub tag `v0.15.0`), Root Switchable (dummy GitHub tag `v0.9.0`), Metrics (dummy GitHub tag `v0.2.0`, required by Root Switchable 0.7+), and optionally RecordingStudioCache (dummy GitHub tag `v0.5.0`, public).
 
 **Version:** `0.5.0`
 
@@ -14,7 +14,7 @@ Built on RecordingStudio (dummy GitHub tag `v4.5.0`), FlatPack (dummy GitHub tag
 # Host Gemfile
 gem "recording_studio_ab_tests", github: "bowerbird-app/RecordingStudio_AB_tests", tag: "v0.5.0"
 # Optional — enables RecordingStudioCache-backed render_ab cache:
-gem "recording_studio_cache", github: "bowerbird-app/RecordingStudio_cache", tag: "v0.4.0"
+gem "recording_studio_cache", github: "bowerbird-app/RecordingStudio_cache", tag: "v0.5.0"
 ```
 
 ```bash
@@ -89,7 +89,7 @@ app/views/ab/signup/_body.html+ab_signup_b.erb
 Pin `source_template: { engine:, path:, digest: }` and run
 `bin/rails recording_studio_ab_tests:verify_overrides` to catch gem-template drift.
 
-Users **v0.16.0** prefers host `app/views` on auth screens, so the real
+Users **v0.21.0** prefers host `app/views` on auth screens, so the real
 `/users/sign_up` surface can carry `<%= render_ab :signup_page %>`. Conversions
 subscribe to `registration.completed.recording_studio_user` (password / OAuth /
 OTP).
