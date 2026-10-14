@@ -40,7 +40,6 @@ Metrics/ModuleLength:
     - 'lib/recording_studio_ab_tests/event_subscriptions.rb'
     - 'lib/recording_studio_ab_tests/admin.rb'
     - 'lib/recording_studio_ab_tests/metrics.rb'
-    - 'lib/recording_studio_ab_tests/translation.rb'
 
 Metrics/BlockLength:
   Exclude:

@@ -11,49 +11,42 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - English fallback for shipped `recording_studio.ab_tests.*` keys when the
-  active locale has no translation: `RecordingStudioAbTests.t` /
-  `RecordingStudioAbTests::Translation.t` (and `Copy.t`) resolve the loaded
-  `:en` translation via `locale: :en` (host English overrides included), then
-  the caller's `default:`, then an eager-loaded, deep-frozen copy of the gem's
-  own `config/locales/en.yml` (reset on Rails code reload)
-- Admin experiment views look up copy through `RecordingStudioAbTests.t` so
-  fallback English comes from the loaded `:en` backend or the gem-shipped
-  table (no hand-copied Ruby string defaults that can drift)
+  active locale has no translation: call sites use `RecordingStudio.t` (and
+  `Copy.t` for relative keys). The engine registers this gem's
+  `config/locales/en.yml` with
+  `RecordingStudio::Translation.register_shipped_english` at boot so fallback
+  comes from the loaded English, host overrides included, then the caller's
+  `default:`, then the merged shipped English table
 - Behavioral coverage: a locale with no translations renders loaded English on
-  the new-experiment page; a deleted loaded English key still renders the
-  gem-shipped English (not "Translation missing", not a 500) with
-  raise-on-missing on and off; a boot-loaded host English override wins on a
-  real create-failure page via the missing-locale fallback path
+  the new-experiment page; a deleted loaded English key still renders this
+  gem's English (not "Translation missing", not a 500) with raise-on-missing
+  on and off in `en` and `fr`; a boot-loaded host English override wins on a
+  real create-failure page; drift guard and registration assertion for this
+  gem's `en.yml` path
 
 ### Changed
 - Version `0.5.0` → `0.6.0`.
-- `Copy.t` routes through `RecordingStudioAbTests.t`. Hand-copied English
-  `default:` strings were removed from controllers, models, lifecycle, and
-  views. Admin DSL call sites keep their existing `Copy.t(..., default:)`
-  form from 0.5.0. Dynamic defaults remain for unknown scope / counting-policy
-  labels (`name.humanize`) and unknown lifecycle action words
-  (`action_key.to_s`).
+- Gemspec / pins: RecordingStudio `>= 4.7.0` (dummy GitHub tag `v4.7.0`).
+- Views, controllers, models, lifecycle, and `Copy.t` look up copy through
+  `RecordingStudio.t`. Hand-copied English `default:` strings were removed
+  outside Admin DSL. Admin DSL call sites keep their existing
+  `Copy.t(..., default:)` form from 0.5.0. Dynamic defaults remain for
+  unknown scope / counting-policy labels (`name.humanize`) and unknown
+  lifecycle action words (`action_key.to_s`).
 
 ### Upgrade notes
-- No migration or host code change is required for English.
+- Hosts must run RecordingStudio `>= 4.7.0` so
+  `register_shipped_english` is available.
+- No migration or host code change is required for English beyond that pin.
 - Hosts that enable raise-on-missing translations no longer raise for
   gem-shipped `recording_studio.ab_tests.*` keys looked up through
-  `RecordingStudioAbTests.t` / `Copy.t` (or the view call sites above) when
-  loaded `:en` or the gem-shipped table has the key. Host overrides in the
-  active locale still win; host `:en` overrides win on the loaded-English
-  fallback step.
-- Partial pluralization in a non-English locale (for example French with only
-  `one`) still raises `I18n::InvalidPluralizationData` — the English fallback
-  does not fill missing plural keys.
-- A missing `_html` key with a non-interpolating caller `default:` stays
-  unsafe like view `t`. An interpolating caller `default:` escapes args and
-  returns `html_safe` (stricter than view `t`).
-- `en.yml` is unchanged. Prefer `RecordingStudioAbTests.t` (or `Copy.t` for
-  relative keys) when adding new call sites so missing locales keep the same
-  fallback.
+  `RecordingStudio.t` / `Copy.t` when loaded `:en` or the merged shipped table
+  has the key. Host overrides in the active locale still win; host `:en`
+  overrides win on the loaded-English fallback step.
+- `en.yml` is unchanged. Prefer `RecordingStudio.t` (or `Copy.t` for relative
+  keys) when adding new call sites so missing locales keep the same fallback.
 - Admin DSL chrome is unchanged from 0.5.0 (still `Copy.t` with English
-  `default:`). Translatable Admin copy without defaults remains a separate
-  behavior-change decision.
+  `default:`).
 
 ## [0.5.0] - 2026-10-12
 

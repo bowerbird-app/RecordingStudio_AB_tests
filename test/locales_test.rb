@@ -265,12 +265,12 @@ class LocalesTest < Minitest::Test
       next unless english.is_a?(String)
 
       I18n.with_locale(:en) do
-        assert_equal english, RecordingStudioAbTests.t(full_key)
+        assert_equal english, RecordingStudio.t(full_key)
       end
 
       I18n.with_locale(:de) do
         refute I18n.exists?(full_key, :de)
-        assert_equal english, RecordingStudioAbTests.t(full_key),
+        assert_equal english, RecordingStudio.t(full_key),
                      "#{full_key}: missing-locale fallback must match en.yml"
       end
     end
@@ -355,7 +355,7 @@ class LocalesTest < Minitest::Test
     end
 
     assert_empty unknown_keys,
-                 "RecordingStudioAbTests.t keys must exist in en.yml; unknown: #{unknown_keys.join(', ')}"
+                 "RecordingStudio.t keys must exist in en.yml; unknown: #{unknown_keys.join(', ')}"
     assert_empty offenders,
                  "gem recording_studio.ab_tests lookups must not pass hand-copied English default:; found: #{offenders.join(', ')}"
   end
@@ -363,13 +363,13 @@ class LocalesTest < Minitest::Test
   def test_scanner_catches_single_quoted_multi_line_i18n_translate_array_and_paren_less_defaults
     samples = {
       lift_label: <<~RUBY,
-        RecordingStudioAbTests.t("recording_studio.ab_tests.metrics.lift_label", default: Metrics::LIFT_LABEL)
+        RecordingStudio.t("recording_studio.ab_tests.metrics.lift_label", default: Metrics::LIFT_LABEL)
       RUBY
       single_quoted: <<~RUBY,
-        RecordingStudioAbTests.t('recording_studio.ab_tests.common.cancel', default: 'Cancel')
+        RecordingStudio.t('recording_studio.ab_tests.common.cancel', default: 'Cancel')
       RUBY
       multi_line: <<~RUBY,
-        RecordingStudioAbTests.t(
+        RecordingStudio.t(
           "recording_studio.ab_tests.experiments.new.title",
           default: "New experiment"
         )
@@ -384,7 +384,7 @@ class LocalesTest < Minitest::Test
         t("recording_studio.ab_tests.common.cancel", default: "Cancel")
       RUBY
       paren_less: <<~RUBY,
-        RecordingStudioAbTests.t "recording_studio.ab_tests.common.cancel", default: "Cancel"
+        RecordingStudio.t "recording_studio.ab_tests.common.cancel", default: "Cancel"
       RUBY
       copy_t: <<~RUBY
         Copy.t("common.cancel", default: "Cancel")
@@ -430,7 +430,7 @@ class LocalesTest < Minitest::Test
 
   def each_translation_call_args(source)
     pattern = /
-      (?:RecordingStudioAbTests(?:::Translation)?\.t|Copy\.t|I18n\.(?:t|translate)|(?<![\w.:])t)
+      (?:RecordingStudio(?:::Translation)?\.t|Copy\.t|I18n\.(?:t|translate)|(?<![\w.:])t)
       (?:
         \s*\(
         |

@@ -55,13 +55,11 @@ module RecordingStudioAbTests
       end
     end
 
-    config.to_prepare do
-      RecordingStudioAbTests::Translation.reset_shipped_english!
-      RecordingStudioAbTests::Translation.shipped_english
-    end
-
-    initializer "recording_studio_ab_tests.load_shipped_english" do
-      RecordingStudioAbTests::Translation.shipped_english
+    initializer "recording_studio_ab_tests.register_shipped_english",
+                before: "recording_studio.load_shipped_english" do
+      RecordingStudio::Translation.register_shipped_english(
+        root.join("config/locales/en.yml")
+      )
     end
 
     initializer "recording_studio_ab_tests.middleware" do |app|

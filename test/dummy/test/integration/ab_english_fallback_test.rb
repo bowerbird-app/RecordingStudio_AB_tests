@@ -2,13 +2,13 @@
 
 require "test_helper"
 
-# Behavioral renders: a locale without translations shows loaded / shipped
-# English for gem call sites. Uses :de so boot-loaded host :en overrides can
-# still win on the English fallback path.
+# Behavioral renders through RecordingStudio.t after this gem registers its
+# config/locales/en.yml via register_shipped_english.
 class AbEnglishFallbackTest < ActionDispatch::IntegrationTest
   include Devise::Test::IntegrationHelpers
 
   BOOT_HOST_LOCALE = Rails.root.join("config/locales/recording_studio_ab_tests_host.en.yml")
+  GEM_EN_YML = RecordingStudioAbTests::Engine.root.join("config/locales/en.yml")
   HOST_ALERT_TITLE = "HOST Could not save"
   ALERT_KEY = "recording_studio.ab_tests.experiments.new.alert_title"
   TITLE_KEY = "recording_studio.ab_tests.experiments.new.title"
@@ -59,26 +59,12 @@ class AbEnglishFallbackTest < ActionDispatch::IntegrationTest
     follow_redirect!
   end
 
-  test "shipped english table is present after boot before any helper call" do
-    table = RecordingStudioAbTests::Translation.instance_variable_get(:@shipped_english)
-    refute_nil table, "engine initializer must eager-load shipped english before first call"
-    refute_empty table
-    assert_equal "Cancel", table.fetch(CANCEL_KEY)
-  end
+  test "this gem en.yml path is registered for shipped english at boot" do
+    path = File.expand_path(GEM_EN_YML)
+    registered = RecordingStudio::Translation.send(:registered_shipped_english_paths)
 
-  test "rails reloader resets shipped english to a new object" do
-    before = RecordingStudioAbTests::Translation.shipped_english
-    begin
-      Rails.application.reloader.reload!
-    rescue StandardError
-      # Dummy host initializers re-register resources on full reload; the
-      # engine to_prepare still resets shipped english before that noise.
-    end
-    after = RecordingStudioAbTests::Translation.shipped_english
-
-    refute_same before, after
-    assert_equal before, after
-    assert_predicate after, :frozen?
+    assert_includes registered, path
+    assert_equal "Cancel", RecordingStudio::Translation.shipped_english.fetch(CANCEL_KEY)
   end
 
   test "missing locale without translations renders gem english on new experiment page" do
@@ -136,7 +122,6 @@ class AbEnglishFallbackTest < ActionDispatch::IntegrationTest
   test "boot-loaded host english override wins on real page via missing-locale fallback" do
     assert File.exist?(BOOT_HOST_LOCALE), "expected boot-loaded host override at #{BOOT_HOST_LOCALE}"
     assert_includes File.read(BOOT_HOST_LOCALE), HOST_ALERT_TITLE
-    # Force I18n to initialize before relying on store/lookup order.
     I18n.t(ALERT_KEY)
     assert_equal HOST_ALERT_TITLE, I18n.t(ALERT_KEY)
     assert_equal @load_path_before, I18n.load_path,
@@ -146,7 +131,7 @@ class AbEnglishFallbackTest < ActionDispatch::IntegrationTest
 
     I18n.with_locale(:de) do
       refute I18n.exists?(ALERT_KEY, :de)
-      assert_equal HOST_ALERT_TITLE, RecordingStudioAbTests.t(ALERT_KEY),
+      assert_equal HOST_ALERT_TITLE, RecordingStudio.t(ALERT_KEY),
                    "fallback comes from the loaded English, host overrides included"
 
       post "/ab_tests/admin/experiments",
