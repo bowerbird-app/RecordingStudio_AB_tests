@@ -119,7 +119,7 @@ PATH
   specs:
     recording_studio_ab_tests (0.6.0)
       rails (~> 8.1.0)
-      recording_studio (>= 4.7.0)
+      recording_studio (~> 4.7)
 
 GEM
   remote: https://rubygems.org/

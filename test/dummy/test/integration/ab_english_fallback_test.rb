@@ -59,6 +59,8 @@ class AbEnglishFallbackTest < ActionDispatch::IntegrationTest
     follow_redirect!
   end
 
+  # Fails if the engine initializer never registers this gem's en.yml.
+  # Does not call register_shipped_english or the initializer block.
   test "this gem en.yml path is registered for shipped english at boot" do
     path = File.expand_path(GEM_EN_YML)
     registered = RecordingStudio::Translation.send(:registered_shipped_english_paths)

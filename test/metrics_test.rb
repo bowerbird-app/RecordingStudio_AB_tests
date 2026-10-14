@@ -63,10 +63,8 @@ class MetricsTest < Minitest::Test
   end
 
   def test_lift_label_constant_stays_english_and_copy_resolves_at_call_time
-    # Gem suite does not boot the engine; register this gem's en.yml so
-    # RecordingStudio.t can fall back when loaded :en is empty.
-    gem_en_yml = File.expand_path("../config/locales/en.yml", __dir__)
-    RecordingStudio::Translation.register_shipped_english(gem_en_yml)
+    # test_helper registers this gem's en.yml so RecordingStudio.t can fall
+    # back when loaded :en is empty (engine does not boot in the gem suite).
     RecordingStudio::Translation.reset_shipped_english!
     RecordingStudio::Translation.shipped_english
 

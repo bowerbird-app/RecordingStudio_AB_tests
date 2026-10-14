@@ -5,7 +5,8 @@ require "yaml"
 require "i18n"
 
 # Gem-level proofs that RecordingStudio.t falls back to this gem's English once
-# the engine registers config/locales/en.yml via register_shipped_english.
+# config/locales/en.yml is registered (test_helper mirrors boot registration;
+# dummy AbEnglishFallbackTest asserts the real engine boot path).
 class TranslationTest < Minitest::Test
   GEM_EN_YML = File.expand_path("../config/locales/en.yml", __dir__)
   GEM_KEYS = {
@@ -27,7 +28,7 @@ class TranslationTest < Minitest::Test
     I18n.backend.load_translations
     I18n.available_locales = (@previous_locales + %i[en fr de xx]).uniq
     I18n.locale = :en
-    register_this_gem_shipped_english!
+    RecordingStudio::Translation.reset_shipped_english!
   end
 
   def teardown
@@ -38,6 +39,8 @@ class TranslationTest < Minitest::Test
     RecordingStudio::Translation.reset_shipped_english!
   end
 
+  # Must fail if registration is dropped from test_helper / boot. Does not call
+  # register_shipped_english or the engine initializer block.
   def test_this_gem_en_yml_path_is_registered_for_shipped_english
     path = File.expand_path(GEM_EN_YML)
     registered = RecordingStudio::Translation.send(:registered_shipped_english_paths)
@@ -90,12 +93,6 @@ class TranslationTest < Minitest::Test
   end
 
   private
-
-  def register_this_gem_shipped_english!
-    RecordingStudio::Translation.register_shipped_english(GEM_EN_YML)
-    RecordingStudio::Translation.reset_shipped_english!
-    RecordingStudio::Translation.shipped_english
-  end
 
   def delete_loaded_translation!(locale, full_key)
     mutate_loaded_translation!(locale, full_key) { |node, leaf| node.delete(leaf) }

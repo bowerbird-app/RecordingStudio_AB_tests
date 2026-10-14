@@ -360,6 +360,33 @@ class LocalesTest < Minitest::Test
                  "gem recording_studio.ab_tests lookups must not pass hand-copied English default:; found: #{offenders.join(', ')}"
   end
 
+  def test_recording_studio_t_call_sites_only_use_ab_tests_keys
+    roots = [
+      File.expand_path("../app", __dir__),
+      File.expand_path("../lib", __dir__)
+    ]
+    offenders = []
+    copy_path = File.expand_path("../lib/recording_studio_ab_tests/copy.rb", __dir__)
+
+    roots.flat_map { |root| Dir[File.join(root, "**", "*.{rb,erb}")] }.each do |path|
+      # Copy.t builds "recording_studio.ab_tests.#{key}" — not a foreign namespace.
+      next if File.expand_path(path) == copy_path
+
+      File.read(path).scan(/RecordingStudio\.t\s*\(?\s*["']([^"']+)["']/) do |match|
+        key = match[0]
+        # Skip interpolated key fragments (e.g. "recording_studio.ab_tests.#{x}").
+        next if key.include?("\#{") || key.include?("{")
+        next if key.start_with?("recording_studio.ab_tests.")
+
+        offenders << "#{path}: RecordingStudio.t(#{key.inspect})"
+      end
+    end
+
+    assert_empty offenders,
+                 "only recording_studio.ab_tests.* keys may use RecordingStudio.t; " \
+                 "host/other-namespace keys stay on I18n.t: #{offenders.join(', ')}"
+  end
+
   def test_scanner_catches_single_quoted_multi_line_i18n_translate_array_and_paren_less_defaults
     samples = {
       lift_label: <<~RUBY,

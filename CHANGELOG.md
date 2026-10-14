@@ -26,25 +26,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Version `0.5.0` → `0.6.0`.
-- Gemspec / pins: RecordingStudio `>= 4.7.0` (dummy GitHub tag `v4.7.0`).
-- Views, controllers, models, lifecycle, and `Copy.t` look up copy through
-  `RecordingStudio.t`. Hand-copied English `default:` strings were removed
-  outside Admin DSL. Admin DSL call sites keep their existing
-  `Copy.t(..., default:)` form from 0.5.0. Dynamic defaults remain for
-  unknown scope / counting-policy labels (`name.humanize`) and unknown
-  lifecycle action words (`action_key.to_s`).
+- Gemspec / pins: RecordingStudio `~> 4.7` (dummy GitHub tag `v4.7.0`).
+- Views, controllers, models, lifecycle, and `Copy.t` look up this gem's
+  `recording_studio.ab_tests.*` keys through `RecordingStudio.t`. Host or
+  other-namespace keys stay on `I18n.t` with main's `default:`. Hand-copied
+  English `default:` strings were removed outside Admin DSL. Admin DSL call
+  sites keep their existing `Copy.t(..., default:)` form from 0.5.0. Dynamic
+  defaults remain for unknown scope / counting-policy labels (`name.humanize`)
+  and unknown lifecycle action words (`action_key.to_s`).
 
 ### Upgrade notes
-- Hosts must run RecordingStudio `>= 4.7.0` so
-  `register_shipped_english` is available.
+- Hosts must run RecordingStudio `~> 4.7` so `register_shipped_english` is
+  available.
 - No migration or host code change is required for English beyond that pin.
 - Hosts that enable raise-on-missing translations no longer raise for
   gem-shipped `recording_studio.ab_tests.*` keys looked up through
   `RecordingStudio.t` / `Copy.t` when loaded `:en` or the merged shipped table
   has the key. Host overrides in the active locale still win; host `:en`
   overrides win on the loaded-English fallback step.
+- A missing `_html` key with a non-interpolating caller `default:` stays
+  unsafe like view `t`; an interpolating caller `default:` on a missing
+  `_html` key is stricter (args escaped, result html_safe).
 - `en.yml` is unchanged. Prefer `RecordingStudio.t` (or `Copy.t` for relative
-  keys) when adding new call sites so missing locales keep the same fallback.
+  keys) for this gem's keys so missing locales keep the same fallback.
 - Admin DSL chrome is unchanged from 0.5.0 (still `Copy.t` with English
   `default:`).
 

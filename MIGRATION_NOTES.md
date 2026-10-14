@@ -4,7 +4,7 @@
 
 - Ruby 3.3 or newer
 - Rails 8.1 or newer
-- Recording Studio 4.x (`>= 4.7.0` in the gemspec; dummy GitHub tag `v4.7.0`)
+- Recording Studio 4.x (`~> 4.7` in the gemspec; dummy GitHub tag `v4.7.0`)
 - Accessible dummy tag `v0.18.0` (ControllerAuth concern for sibling engines; Trashable query-only kept filters; no host migration). Dummy also carries Accessible 0.14 audience tables (`access_constraints` / `access_rules`) from intervening minors.
 - Root Switchable dummy tag `v0.8.0` (i18n wave 2: translatable page_copy; rendered English unchanged; no host migration). Pins Metrics `v0.2.0` (Root Switchable 0.7+ gemspec `~> 0.2`; GitHub-only)
 - FlatPack dummy tag `v0.1.213` (Attachable 0.12+ requires `>= 0.1.213`)

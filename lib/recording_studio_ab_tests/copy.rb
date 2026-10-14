@@ -1,11 +1,12 @@
 # frozen_string_literal: true
 
 module RecordingStudioAbTests
-  # Locale lookups for AB Tests user-facing copy. Relative keys resolve under
-  # `recording_studio.ab_tests` through {RecordingStudio.t} so a missing
-  # active-locale value falls back to loaded English (host overrides included),
-  # then the caller's `default:`, then the merged shipped English table
-  # (this gem registers its `config/locales/en.yml` at boot).
+  # Locale lookups for this gem's `recording_studio.ab_tests.*` copy only.
+  # Relative keys resolve through {RecordingStudio.t}. Host or other-namespace
+  # keys stay on `I18n.t` with their existing `default:`. Missing active-locale
+  # values fall back to loaded English (host overrides included), then the
+  # caller's `default:`, then the merged shipped English table (this gem
+  # registers its `config/locales/en.yml` at boot).
   module Copy
     PREFIX = "recording_studio.ab_tests"
 
