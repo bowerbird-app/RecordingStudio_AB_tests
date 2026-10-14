@@ -63,6 +63,11 @@ class MetricsTest < Minitest::Test
   end
 
   def test_lift_label_constant_stays_english_and_copy_resolves_at_call_time
+    # test_helper registers this gem's en.yml so RecordingStudio.t can fall
+    # back when loaded :en is empty (engine does not boot in the gem suite).
+    RecordingStudio::Translation.reset_shipped_english!
+    RecordingStudio::Translation.shipped_english
+
     assert_equal "not statistically tested", RecordingStudioAbTests::Metrics::LIFT_LABEL
     assert_equal "not statistically tested", RecordingStudioAbTests::Copy.lift_label
 
@@ -100,6 +105,7 @@ class MetricsTest < Minitest::Test
   ensure
     I18n.backend = previous_backend if defined?(previous_backend) && previous_backend
     I18n.available_locales = previous_locales if defined?(previous_locales) && previous_locales
+    RecordingStudio::Translation.reset_shipped_english!
   end
 
   # Reporting -100% with a non-zero overall rate is accurate when treatment has

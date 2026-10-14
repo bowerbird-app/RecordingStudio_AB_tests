@@ -4,7 +4,7 @@ Server-side A/B testing for Recording Studio hosts. Sticky assignment, exposures
 event-driven conversions, Admin screens, service targets, and variant-aware
 fragment caching.
 
-Built on RecordingStudio (dummy GitHub tag `v4.6.0`), FlatPack (dummy GitHub tag `v0.1.213`), Accessible (dummy GitHub tag `v0.18.0`), Users (dummy GitHub tag `v0.21.0`), Admin (dummy GitHub tag `v2.3.0`), Trashable (dummy GitHub tag `v0.10.0`, `require: false` for Admin / Accessible query helpers), Attachable (dummy GitHub tag `v0.15.0`), Root Switchable (dummy GitHub tag `v0.9.0`), Metrics (dummy GitHub tag `v0.2.0`, required by Root Switchable 0.7+ / Admin 2.3+ Bundler), and optionally RecordingStudioCache (dummy GitHub tag `v0.5.0`, public).
+Built on RecordingStudio (dummy GitHub tag `v4.7.0`), FlatPack (dummy GitHub tag `v0.1.213`), Accessible (dummy GitHub tag `v0.18.0`), Users (dummy GitHub tag `v0.21.0`), Admin (dummy GitHub tag `v2.3.0`), Trashable (dummy GitHub tag `v0.10.0`, `require: false` for Admin / Accessible query helpers), Attachable (dummy GitHub tag `v0.15.0`), Root Switchable (dummy GitHub tag `v0.9.0`), Metrics (dummy GitHub tag `v0.2.0`, required by Root Switchable 0.7+ / Admin 2.3+ Bundler), and optionally RecordingStudioCache (dummy GitHub tag `v0.5.0`, public).
 
 **Version:** `0.5.0`
 
@@ -125,10 +125,19 @@ include `section :ab_tests`. See Admin docs / dummy `AdminRoot` for the pattern.
 User-facing copy in the gem (admin experiment views, controller flashes,
 validation and lifecycle errors, enum option labels, and Admin DSL chrome)
 uses Rails I18n keys under `recording_studio.ab_tests` in `config/locales/en.yml`
-(English only). Lookups go through `RecordingStudioAbTests::Copy` (or `t(...)`)
-with English `default:` so a host locale without a fallback never shows
-"translation missing". Hosts override or add languages in their own
-`config/locales`. There is no dependency on `recording_studio_internationalization`.
+(English only). Only those keys go through `RecordingStudio.t` (and `Copy.t`
+for relative keys); host or other-namespace keys stay on `I18n.t` with their
+existing `default:`. The engine registers this gem's `en.yml` with
+`RecordingStudio::Translation.register_shipped_english` at boot so missing
+active-locale values fall back to loaded English (host overrides included),
+then the caller's `default:`, then the merged shipped English table. A missing
+`_html` key with a non-interpolating caller `default:` stays unsafe like view
+`t` — a plain default with no interpolation is returned as a plain
+(non-html_safe) String, so views will escape it. An interpolating caller
+`default:` on a missing `_html` key is stricter (args escaped, result
+html_safe). Hosts override or add languages in their own `config/locales`.
+Requires `recording_studio ~> 4.7`. There is no dependency on
+`recording_studio_internationalization`.
 
 Admin table column headers stay English. Stored/user data (experiment names,
 variant names, event labels hosts register), developer `ArgumentError`s, logs,

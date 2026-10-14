@@ -14,3 +14,12 @@ require "rails"
 require "active_support/time"
 Time.zone ||= "UTC"
 require "recording_studio_ab_tests"
+
+# Gem-suite unit tests do not boot the engine. Mirror the boot-time
+# register_shipped_english so RecordingStudio.t can fall back to this gem's
+# English when keys are deleted from the loaded backend. Do not call the
+# engine initializer block from tests — dummy integration asserts registration
+# from a real boot.
+RecordingStudio::Translation.register_shipped_english(
+  File.expand_path("../config/locales/en.yml", __dir__)
+)

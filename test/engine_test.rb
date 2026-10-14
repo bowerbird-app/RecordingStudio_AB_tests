@@ -27,6 +27,19 @@ class EngineTest < Minitest::Test
     assert after_called
   end
 
+  # Wiring only — does not call the initializer block. Boot registration is
+  # asserted in AbEnglishFallbackTest without invoking the block either.
+  def test_register_shipped_english_initializer_runs_before_recording_studio_load
+    initializer = find_initializer("recording_studio_ab_tests.register_shipped_english")
+
+    refute_nil initializer
+    assert_equal "recording_studio.load_shipped_english", initializer.before
+    assert_includes File.read(File.expand_path("../lib/recording_studio_ab_tests/engine.rb", __dir__)),
+                    "register_shipped_english"
+    assert_includes File.read(File.expand_path("../lib/recording_studio_ab_tests/engine.rb", __dir__)),
+                    'root.join("config/locales/en.yml")'
+  end
+
   def test_load_config_merges_config_sources_and_runs_on_configuration_hook
     hook_called = false
     hook_payload = nil

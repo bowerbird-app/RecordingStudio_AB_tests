@@ -4,7 +4,7 @@
          key: goal.key,
          name: goal.name,
          event_key: goal.event_key,
-         primary: goal.is_primary? ? t("recording_studio.ab_tests.common.yes") : t("recording_studio.ab_tests.common.empty"),
+         primary: goal.is_primary? ? RecordingStudio.t("recording_studio.ab_tests.common.yes") : RecordingStudio.t("recording_studio.ab_tests.common.empty"),
          window: goal.attribution_window_hours,
          counting: goal.counting_policy,
          id: goal.id
@@ -13,46 +13,46 @@
 
   <% if goal_rows.any? %>
     <%= render FlatPack::Table::Component.new(data: goal_rows, class: "text-sm") do |table| %>
-      <% table.column(title: t("recording_studio.ab_tests.experiments.goals.columns.key")) { |row| row[:key] } %>
-      <% table.column(title: t("recording_studio.ab_tests.experiments.goals.columns.name")) { |row| row[:name] } %>
-      <% table.column(title: t("recording_studio.ab_tests.experiments.goals.columns.event")) { |row| row[:event_key] } %>
-      <% table.column(title: t("recording_studio.ab_tests.experiments.goals.columns.primary")) { |row| row[:primary] } %>
-      <% table.column(title: t("recording_studio.ab_tests.experiments.goals.columns.window_h")) { |row| row[:window] } %>
-      <% table.column(title: t("recording_studio.ab_tests.experiments.goals.columns.counting")) { |row| row[:counting] } %>
+      <% table.column(title: RecordingStudio.t("recording_studio.ab_tests.experiments.goals.columns.key")) { |row| row[:key] } %>
+      <% table.column(title: RecordingStudio.t("recording_studio.ab_tests.experiments.goals.columns.name")) { |row| row[:name] } %>
+      <% table.column(title: RecordingStudio.t("recording_studio.ab_tests.experiments.goals.columns.event")) { |row| row[:event_key] } %>
+      <% table.column(title: RecordingStudio.t("recording_studio.ab_tests.experiments.goals.columns.primary")) { |row| row[:primary] } %>
+      <% table.column(title: RecordingStudio.t("recording_studio.ab_tests.experiments.goals.columns.window_h")) { |row| row[:window] } %>
+      <% table.column(title: RecordingStudio.t("recording_studio.ab_tests.experiments.goals.columns.counting")) { |row| row[:counting] } %>
       <% table.column(title: "") do |row| %>
         <%= form_with url: admin_experiment_goal_path(experiment, row[:id]), method: :delete, class: "inline" do %>
-          <%= render FlatPack::Button::Component.new(text: t("recording_studio.ab_tests.common.remove"), style: :danger, type: "submit", size: :sm) %>
+          <%= render FlatPack::Button::Component.new(text: RecordingStudio.t("recording_studio.ab_tests.common.remove"), style: :danger, type: "submit", size: :sm) %>
         <% end %>
       <% end %>
     <% end %>
   <% else %>
     <%= render FlatPack::EmptyState::Component.new(
-      title: t("recording_studio.ab_tests.experiments.goals.empty_title"),
-      description: t("recording_studio.ab_tests.experiments.goals.empty_description")
+      title: RecordingStudio.t("recording_studio.ab_tests.experiments.goals.empty_title"),
+      description: RecordingStudio.t("recording_studio.ab_tests.experiments.goals.empty_description")
     ) %>
   <% end %>
 
   <%= form_with url: admin_experiment_goals_path(experiment), method: :post, class: "space-y-3 border-t border-[var(--surface-border-color)] pt-4" do %>
-    <p class="text-sm font-medium"><%= t("recording_studio.ab_tests.experiments.goals.add_heading") %></p>
-    <%= render FlatPack::TextInput::Component.new(name: "goal[key]", label: t("recording_studio.ab_tests.common.key"), required: true) %>
-    <%= render FlatPack::TextInput::Component.new(name: "goal[name]", label: t("recording_studio.ab_tests.common.name"), required: true) %>
+    <p class="text-sm font-medium"><%= RecordingStudio.t("recording_studio.ab_tests.experiments.goals.add_heading") %></p>
+    <%= render FlatPack::TextInput::Component.new(name: "goal[key]", label: RecordingStudio.t("recording_studio.ab_tests.common.key"), required: true) %>
+    <%= render FlatPack::TextInput::Component.new(name: "goal[name]", label: RecordingStudio.t("recording_studio.ab_tests.common.name"), required: true) %>
     <%= render FlatPack::Select::Component.new(
       name: "goal[event_key]",
-      label: t("recording_studio.ab_tests.common.event"),
+      label: RecordingStudio.t("recording_studio.ab_tests.common.event"),
       options: RecordingStudioAbTests.registry.events.values.map { |event| [event.label.to_s, event.key.to_s] },
       required: true,
       searchable: true
     ) %>
-    <%= render FlatPack::NumberInput::Component.new(name: "goal[attribution_window_hours]", label: t("recording_studio.ab_tests.experiments.goals.window_hours"), value: 168, min: 1, max: 2160) %>
+    <%= render FlatPack::NumberInput::Component.new(name: "goal[attribution_window_hours]", label: RecordingStudio.t("recording_studio.ab_tests.experiments.goals.window_hours"), value: 168, min: 1, max: 2160) %>
     <%= render FlatPack::Select::Component.new(
       name: "goal[counting_policy]",
-      label: t("recording_studio.ab_tests.experiments.goals.counting_policy"),
+      label: RecordingStudio.t("recording_studio.ab_tests.experiments.goals.counting_policy"),
       options: RecordingStudioAbTests::Goal::COUNTING_POLICIES.map { |policy|
         [RecordingStudioAbTests::Copy.counting_policy_label(policy), policy]
       },
       value: "once_per_participant"
     ) %>
-    <%= render FlatPack::Checkbox::Component.new(name: "goal[is_primary]", value: "1", label: t("recording_studio.ab_tests.experiments.goals.primary_goal")) %>
-    <%= render FlatPack::Button::Component.new(text: t("recording_studio.ab_tests.experiments.goals.add"), style: :secondary, type: "submit", size: :sm) %>
+    <%= render FlatPack::Checkbox::Component.new(name: "goal[is_primary]", value: "1", label: RecordingStudio.t("recording_studio.ab_tests.experiments.goals.primary_goal")) %>
+    <%= render FlatPack::Button::Component.new(text: RecordingStudio.t("recording_studio.ab_tests.experiments.goals.add"), style: :secondary, type: "submit", size: :sm) %>
   <% end %>
 </div>

@@ -55,6 +55,13 @@ module RecordingStudioAbTests
       end
     end
 
+    initializer "recording_studio_ab_tests.register_shipped_english",
+                before: "recording_studio.load_shipped_english" do
+      RecordingStudio::Translation.register_shipped_english(
+        root.join("config/locales/en.yml")
+      )
+    end
+
     initializer "recording_studio_ab_tests.middleware" do |app|
       app.middleware.use RecordingStudioAbTests::RequestContext
     end

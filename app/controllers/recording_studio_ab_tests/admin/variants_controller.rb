@@ -20,7 +20,7 @@ module RecordingStudioAbTests
             true
           end
           redirect_to admin_experiment_path(@experiment, tab: "variants"),
-                      notice: Copy.t("flashes.variant_added", default: "Variant added.")
+                      notice: Copy.t("flashes.variant_added")
         rescue ActiveRecord::RecordInvalid => e
           redirect_to admin_experiment_path(@experiment, tab: "variants"),
                       alert: e.record.errors.full_messages.to_sentence
@@ -39,7 +39,7 @@ module RecordingStudioAbTests
             true
           end
           redirect_to admin_experiment_path(@experiment, tab: "variants"),
-                      notice: Copy.t("flashes.variant_updated", default: "Variant updated.")
+                      notice: Copy.t("flashes.variant_updated")
         rescue ActiveRecord::RecordInvalid => e
           redirect_to admin_experiment_path(@experiment, tab: "variants"),
                       alert: e.record.errors.full_messages.to_sentence
@@ -58,7 +58,7 @@ module RecordingStudioAbTests
             true
           end
           redirect_to admin_experiment_path(@experiment, tab: "variants"),
-                      notice: Copy.t("flashes.variant_removed", default: "Variant removed.")
+                      notice: Copy.t("flashes.variant_removed")
         rescue ActiveRecord::RecordNotDestroyed, ActiveRecord::DeleteRestrictionError => e
           redirect_to admin_experiment_path(@experiment, tab: "variants"), alert: e.message
         end
@@ -83,8 +83,7 @@ module RecordingStudioAbTests
 
         redirect_to admin_experiment_path(@experiment),
                     alert: Copy.t(
-                      "flashes.variants_draft_only",
-                      default: "Variants can only change while draft."
+                      "flashes.variants_draft_only"
                     )
       end
 

@@ -7,6 +7,53 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-10-14
+
+### Added
+- English fallback for shipped `recording_studio.ab_tests.*` keys when the
+  active locale has no translation: call sites use `RecordingStudio.t` (and
+  `Copy.t` for relative keys). The engine registers this gem's
+  `config/locales/en.yml` with
+  `RecordingStudio::Translation.register_shipped_english` at boot so fallback
+  comes from the loaded English, host overrides included, then the caller's
+  `default:`, then the merged shipped English table
+- Behavioral coverage: a locale with no translations renders loaded English on
+  the new-experiment page; a deleted loaded English key still renders this
+  gem's English (not "Translation missing", not a 500) with raise-on-missing
+  on and off in `en` and `fr`; a boot-loaded host English override wins on a
+  real create-failure page; drift guard and registration assertion for this
+  gem's `en.yml` path
+
+### Changed
+- Version `0.5.0` → `0.6.0`.
+- Gemspec / pins: `recording_studio ~> 4.7` (dummy GitHub tag `v4.7.0`).
+- Views, controllers, models, lifecycle, and `Copy.t` look up this gem's
+  `recording_studio.ab_tests.*` keys through `RecordingStudio.t`. Host or
+  other-namespace keys stay on `I18n.t` with main's `default:`. Hand-copied
+  English `default:` strings were removed outside Admin DSL. Admin DSL call
+  sites keep their existing `Copy.t(..., default:)` form from 0.5.0. Dynamic
+  defaults remain for unknown scope / counting-policy labels (`name.humanize`)
+  and unknown lifecycle action words (`action_key.to_s`).
+
+### Upgrade notes
+- Hosts must run `recording_studio ~> 4.7` so `register_shipped_english` is
+  available.
+- No migration or host code change is required for English beyond that pin.
+- Hosts that enable raise-on-missing translations no longer raise for
+  gem-shipped `recording_studio.ab_tests.*` keys looked up through
+  `RecordingStudio.t` / `Copy.t` when loaded `:en` or the merged shipped table
+  has the key. Host overrides in the active locale still win; host `:en`
+  overrides win on the loaded-English fallback step.
+- A missing `_html` key with a non-interpolating caller `default:` stays
+  unsafe like view `t` — a plain default with no interpolation is returned
+  as a plain (non-html_safe) String, so views will escape it. An
+  interpolating caller `default:` on a missing `_html` key is stricter
+  (args escaped, result html_safe).
+- `en.yml` is unchanged. Prefer `RecordingStudio.t` (or `Copy.t` for relative
+  keys) for this gem's keys so missing locales keep the same fallback.
+- Admin DSL chrome is unchanged from 0.5.0 (still `Copy.t` with English
+  `default:`).
+
 ## [0.5.0] - 2026-10-12
 
 ### Added
@@ -216,14 +263,15 @@ New addons copied from this template are born on Recording Studio 4.x.
 - Basic test suite with Minitest
 
 [Unreleased]: https://github.com/bowerbird-app/recording_studio_ab_tests/compare/v0.5.0...HEAD
-[0.5.0]: https://github.com/bowerbird-app/recording_studio_ab_tests/releases/tag/v0.5.0
-[0.4.1]: https://github.com/bowerbird-app/recording_studio_ab_tests/releases/tag/v0.4.1
-[0.4.0]: https://github.com/bowerbird-app/recording_studio_ab_tests/releases/tag/v0.4.0
-[0.3.0]: https://github.com/bowerbird-app/recording_studio_ab_tests/releases/tag/v0.3.0
-[0.2.3]: https://github.com/bowerbird-app/recording_studio_ab_tests/releases/tag/v0.2.3
-[0.2.2]: https://github.com/bowerbird-app/recording_studio_ab_tests/releases/tag/v0.2.2
-[0.2.1]: https://github.com/bowerbird-app/recording_studio_ab_tests/releases/tag/v0.2.1
-[0.2.0]: https://github.com/bowerbird-app/recording_studio_ab_tests/releases/tag/v0.2.0
-[0.1.2]: https://github.com/bowerbird-app/recording_studio_ab_tests/releases/tag/v0.1.2
-[0.1.1]: https://github.com/bowerbird-app/recording_studio_ab_tests/releases/tag/v0.1.1
+[0.6.0]: https://github.com/bowerbird-app/recording_studio_ab_tests/compare/v0.5.0...v0.6.0
+[0.5.0]: https://github.com/bowerbird-app/recording_studio_ab_tests/compare/v0.4.1...v0.5.0
+[0.4.1]: https://github.com/bowerbird-app/recording_studio_ab_tests/compare/v0.4.0...v0.4.1
+[0.4.0]: https://github.com/bowerbird-app/recording_studio_ab_tests/compare/v0.3.0...v0.4.0
+[0.3.0]: https://github.com/bowerbird-app/recording_studio_ab_tests/compare/v0.2.3...v0.3.0
+[0.2.3]: https://github.com/bowerbird-app/recording_studio_ab_tests/compare/v0.2.2...v0.2.3
+[0.2.2]: https://github.com/bowerbird-app/recording_studio_ab_tests/compare/v0.2.1...v0.2.2
+[0.2.1]: https://github.com/bowerbird-app/recording_studio_ab_tests/compare/v0.2.0...v0.2.1
+[0.2.0]: https://github.com/bowerbird-app/recording_studio_ab_tests/compare/v0.1.2...v0.2.0
+[0.1.2]: https://github.com/bowerbird-app/recording_studio_ab_tests/compare/v0.1.1...v0.1.2
+[0.1.1]: https://github.com/bowerbird-app/recording_studio_ab_tests/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/bowerbird-app/recording_studio_ab_tests/releases/tag/v0.1.0
