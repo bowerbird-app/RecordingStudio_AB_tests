@@ -50,9 +50,7 @@ module RecordingStudioAbTests
 
     def select_winner!(experiment, variant:, actor: nil)
       _ = actor
-      unless experiment.variants.exists?(id: variant.id)
-        raise LifecycleError, Copy.t("errors.winner_must_belong")
-      end
+      raise LifecycleError, Copy.t("errors.winner_must_belong") unless experiment.variants.exists?(id: variant.id)
 
       experiment.update!(winner_variant_id: variant.id)
       ActiveSet.bump!
@@ -107,12 +105,8 @@ module RecordingStudioAbTests
       end
 
       variants = experiment.variants.to_a
-      unless variants.one?(&:is_control)
-        raise LifecycleError, Copy.t("errors.exactly_one_control")
-      end
-      unless variants.sum(&:weight).positive?
-        raise LifecycleError, Copy.t("errors.weight_sum_positive")
-      end
+      raise LifecycleError, Copy.t("errors.exactly_one_control") unless variants.one?(&:is_control)
+      raise LifecycleError, Copy.t("errors.weight_sum_positive") unless variants.sum(&:weight).positive?
 
       variants.each do |variant|
         next if target.implementation_keys.include?(variant.implementation_key)

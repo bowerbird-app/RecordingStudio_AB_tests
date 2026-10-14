@@ -19,6 +19,8 @@ Layout/LineLength:
     - 'db/migrate/**/*'
     - 'lib/generators/**/*'
     - 'test/install_generator_test.rb'
+    - 'test/locales_test.rb'
+    - 'test/translation_test.rb'
 
 # Relax metrics for test files, generators, migrations, and dense AB runtime modules
 Metrics/ClassLength:
@@ -38,6 +40,7 @@ Metrics/ModuleLength:
     - 'lib/recording_studio_ab_tests/event_subscriptions.rb'
     - 'lib/recording_studio_ab_tests/admin.rb'
     - 'lib/recording_studio_ab_tests/metrics.rb'
+    - 'lib/recording_studio_ab_tests/translation.rb'
 
 Metrics/BlockLength:
   Exclude:
@@ -46,6 +49,8 @@ Metrics/BlockLength:
     - 'lib/recording_studio_ab_tests/admin.rb'
     - 'lib/generators/**/*'
     - 'lib/tasks/**/*'
+    - 'test/translation_test.rb'
+    - 'test/locales_test.rb'
 
 Naming/PredicateMethod:
   Exclude:
@@ -84,6 +89,8 @@ Metrics/CyclomaticComplexity:
 
 Metrics/PerceivedComplexity:
   Exclude:
+    - 'test/locales_test.rb'
+    - 'test/translation_test.rb'
     - 'lib/recording_studio_ab_tests/**/*'
     - 'db/migrate/**/*'
     - 'app/controllers/recording_studio_ab_tests/admin/**/*'

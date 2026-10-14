@@ -172,7 +172,7 @@ module RecordingStudioAbTests
       default = options[:default]
       candidates = case default
                    when String then [default]
-                   when Array then default.select { |entry| entry.is_a?(String) }
+                   when Array then default.grep(String)
                    else return false
                    end
       return false unless candidates.any? { |entry| entry == value && !entry.match?(/%\{/) }

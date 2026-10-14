@@ -249,9 +249,7 @@ class TranslationTest < Minitest::Test
         assert_equal "CALLER", RecordingStudioAbTests.t(key, default: "CALLER"),
                      "caller default: must come before the gem-shipped table in #{locale}"
       end
-    end
 
-    %i[en fr de].each do |locale|
       I18n.with_locale(locale) do
         assert_equal "Cancel", RecordingStudioAbTests.t(key),
                      "gem table is used last and matches en.yml in #{locale}"
@@ -324,18 +322,16 @@ class TranslationTest < Minitest::Test
   end
 
   def test_nil_key_does_not_raise_inside_gem_key_check
-    begin
-      expected = I18n.t(nil)
-      actual = RecordingStudioAbTests.t(nil)
-      if expected.nil?
-        assert_nil actual
-      else
-        assert_equal expected, actual
-      end
-    rescue StandardError => e
-      error = assert_raises(e.class) { RecordingStudioAbTests.t(nil) }
-      assert_equal e.message, error.message
+    expected = I18n.t(nil)
+    actual = RecordingStudioAbTests.t(nil)
+    if expected.nil?
+      assert_nil actual
+    else
+      assert_equal expected, actual
     end
+  rescue StandardError => e
+    error = assert_raises(e.class) { RecordingStudioAbTests.t(nil) }
+    assert_equal e.message, error.message
   end
 
   def test_missing_en_yml_yields_empty_shipped_english_table

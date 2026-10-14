@@ -3,7 +3,6 @@
 require "test_helper"
 require "yaml"
 require "i18n"
-require "set"
 
 class LocalesTest < Minitest::Test
   EXPECTED_LEAVES = {
