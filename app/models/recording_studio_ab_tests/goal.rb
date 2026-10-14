@@ -35,7 +35,7 @@ module RecordingStudioAbTests
       # resolved Copy.t string is the type.
       errors.add(
         :event_key,
-        Copy.t("errors.primary_event_frozen", default: "primary goal event is frozen after start")
+        Copy.t("errors.primary_event_frozen")
       )
     end
 

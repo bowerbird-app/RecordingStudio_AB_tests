@@ -81,7 +81,7 @@ module RecordingStudioAbTests
         # resolved Copy.t string is the type.
         errors.add(
           attr,
-          Copy.t("errors.frozen_after_start", default: "cannot change after experiment has started")
+          Copy.t("errors.frozen_after_start")
         )
       end
     end

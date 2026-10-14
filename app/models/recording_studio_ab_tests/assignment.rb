@@ -36,7 +36,6 @@ module RecordingStudioAbTests
         :base,
         Copy.t(
           "errors.assignment_immutable",
-          default: "assignments are immutable except linked_* columns (changed: %{changed})",
           changed: changed.join(", ")
         )
       )

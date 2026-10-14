@@ -51,7 +51,7 @@ module RecordingStudioAbTests
     def select_winner!(experiment, variant:, actor: nil)
       _ = actor
       unless experiment.variants.exists?(id: variant.id)
-        raise LifecycleError, Copy.t("errors.winner_must_belong", default: "winner must belong to the experiment")
+        raise LifecycleError, Copy.t("errors.winner_must_belong")
       end
 
       experiment.update!(winner_variant_id: variant.id)
@@ -98,21 +98,20 @@ module RecordingStudioAbTests
 
     def validate_start!(experiment)
       target = RecordingStudioAbTests.registry.target(experiment.target_key)
-      raise LifecycleError, Copy.t("errors.target_not_registered", default: "target is not registered") unless target
+      raise LifecycleError, Copy.t("errors.target_not_registered") unless target
       unless target.valid?
         raise LifecycleError, Copy.t(
           "errors.target_invalid",
-          default: "target is invalid: %{message}",
           message: target.error_message
         )
       end
 
       variants = experiment.variants.to_a
       unless variants.one?(&:is_control)
-        raise LifecycleError, Copy.t("errors.exactly_one_control", default: "exactly one control is required")
+        raise LifecycleError, Copy.t("errors.exactly_one_control")
       end
       unless variants.sum(&:weight).positive?
-        raise LifecycleError, Copy.t("errors.weight_sum_positive", default: "weight sum must be > 0")
+        raise LifecycleError, Copy.t("errors.weight_sum_positive")
       end
 
       variants.each do |variant|
@@ -120,7 +119,6 @@ module RecordingStudioAbTests
 
         raise LifecycleError, Copy.t(
           "errors.unknown_implementation",
-          default: "unknown implementation_key %{key}",
           key: variant.implementation_key
         )
       end
@@ -128,8 +126,7 @@ module RecordingStudioAbTests
       goals = experiment.goals.to_a
       unless goals.one?(&:is_primary)
         raise LifecycleError, Copy.t(
-          "errors.exactly_one_primary_goal",
-          default: "exactly one primary goal is required"
+          "errors.exactly_one_primary_goal"
         )
       end
 
@@ -138,7 +135,6 @@ module RecordingStudioAbTests
 
         raise LifecycleError, Copy.t(
           "errors.unknown_event",
-          default: "unknown event_key %{key}",
           key: goal.event_key
         )
       end
@@ -165,7 +161,6 @@ module RecordingStudioAbTests
           unless constant
             raise LifecycleError, Copy.t(
               "errors.missing_constant",
-              default: "missing constant %{name}",
               name: class_name
             )
           end
@@ -173,7 +168,6 @@ module RecordingStudioAbTests
           if target.type == :service && !constant.respond_to?(:call)
             raise LifecycleError, Copy.t(
               "errors.service_must_call",
-              default: "%{name} must respond to .call",
               name: class_name
             )
           end
@@ -187,7 +181,6 @@ module RecordingStudioAbTests
       unless allowed.include?(to)
         raise LifecycleError, Copy.t(
           "errors.cannot_transition",
-          default: "cannot transition from %{from} to %{to}",
           from: from,
           to: to
         )

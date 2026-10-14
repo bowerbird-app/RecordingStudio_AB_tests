@@ -2,8 +2,7 @@
 
 <%= render FlatPack::PageHeader::Component.new(
   title: @experiment.name,
-  subtitle: t(
-    "recording_studio.ab_tests.experiments.show.subtitle",
+  subtitle: RecordingStudioAbTests.t("recording_studio.ab_tests.experiments.show.subtitle",
     key: @experiment.key,
     status: @experiment.status,
     target: @experiment.target_key
@@ -14,7 +13,7 @@
   <%= render FlatPack::Alert::Component.new(title: flash[:notice], style: :success) %>
 <% end %>
 <% if flash[:alert].present? %>
-  <%= render FlatPack::Alert::Component.new(title: t("recording_studio.ab_tests.experiments.show.action_failed"), description: flash[:alert], style: :danger) %>
+  <%= render FlatPack::Alert::Component.new(title: RecordingStudioAbTests.t("recording_studio.ab_tests.experiments.show.action_failed"), description: flash[:alert], style: :danger) %>
 <% end %>
 
 <div class="mb-6 flex flex-wrap gap-2" data-testid="ab-lifecycle-actions">
@@ -22,65 +21,65 @@
 
   <% if RecordingStudioAbTests::Admin.transition_allowed?(@experiment, :start) %>
     <%= form_with url: start_admin_experiment_path(@experiment), method: :post, class: "inline" do %>
-      <%= render FlatPack::Button::Component.new(text: t("recording_studio.ab_tests.experiments.show.start"), style: :primary, type: "submit", size: :sm, data: { turbo_confirm: t("recording_studio.ab_tests.experiments.show.start_confirm") }) %>
+      <%= render FlatPack::Button::Component.new(text: RecordingStudioAbTests.t("recording_studio.ab_tests.experiments.show.start"), style: :primary, type: "submit", size: :sm, data: { turbo_confirm: RecordingStudioAbTests.t("recording_studio.ab_tests.experiments.show.start_confirm") }) %>
     <% end %>
   <% end %>
   <% if RecordingStudioAbTests::Admin.transition_allowed?(@experiment, :pause) %>
     <%= form_with url: pause_admin_experiment_path(@experiment), method: :post, class: "inline" do %>
-      <%= render FlatPack::Button::Component.new(text: t("recording_studio.ab_tests.experiments.show.pause"), style: :secondary, type: "submit", size: :sm, data: { turbo_confirm: t("recording_studio.ab_tests.experiments.show.pause_confirm") }) %>
+      <%= render FlatPack::Button::Component.new(text: RecordingStudioAbTests.t("recording_studio.ab_tests.experiments.show.pause"), style: :secondary, type: "submit", size: :sm, data: { turbo_confirm: RecordingStudioAbTests.t("recording_studio.ab_tests.experiments.show.pause_confirm") }) %>
     <% end %>
   <% end %>
   <% if RecordingStudioAbTests::Admin.transition_allowed?(@experiment, :resume) %>
     <%= form_with url: resume_admin_experiment_path(@experiment), method: :post, class: "inline" do %>
-      <%= render FlatPack::Button::Component.new(text: t("recording_studio.ab_tests.experiments.show.resume"), style: :secondary, type: "submit", size: :sm) %>
+      <%= render FlatPack::Button::Component.new(text: RecordingStudioAbTests.t("recording_studio.ab_tests.experiments.show.resume"), style: :secondary, type: "submit", size: :sm) %>
     <% end %>
   <% end %>
   <% if RecordingStudioAbTests::Admin.transition_allowed?(@experiment, :complete) %>
     <%= form_with url: complete_admin_experiment_path(@experiment), method: :post, class: "inline" do %>
-      <%= render FlatPack::Button::Component.new(text: t("recording_studio.ab_tests.experiments.show.complete"), style: :secondary, type: "submit", size: :sm, data: { turbo_confirm: t("recording_studio.ab_tests.experiments.show.complete_confirm") }) %>
+      <%= render FlatPack::Button::Component.new(text: RecordingStudioAbTests.t("recording_studio.ab_tests.experiments.show.complete"), style: :secondary, type: "submit", size: :sm, data: { turbo_confirm: RecordingStudioAbTests.t("recording_studio.ab_tests.experiments.show.complete_confirm") }) %>
     <% end %>
   <% end %>
   <% if RecordingStudioAbTests::Admin.transition_allowed?(@experiment, :archive) %>
     <%= form_with url: archive_admin_experiment_path(@experiment), method: :post, class: "inline" do %>
-      <%= render FlatPack::Button::Component.new(text: t("recording_studio.ab_tests.experiments.show.archive"), style: :secondary, type: "submit", size: :sm) %>
+      <%= render FlatPack::Button::Component.new(text: RecordingStudioAbTests.t("recording_studio.ab_tests.experiments.show.archive"), style: :secondary, type: "submit", size: :sm) %>
     <% end %>
   <% end %>
   <%= form_with url: duplicate_admin_experiment_path(@experiment), method: :post, class: "inline" do %>
-    <%= render FlatPack::Button::Component.new(text: t("recording_studio.ab_tests.experiments.show.duplicate"), style: :secondary, type: "submit", size: :sm) %>
+    <%= render FlatPack::Button::Component.new(text: RecordingStudioAbTests.t("recording_studio.ab_tests.experiments.show.duplicate"), style: :secondary, type: "submit", size: :sm) %>
   <% end %>
-  <%= render FlatPack::Button::Component.new(text: t("recording_studio.ab_tests.experiments.show.edit"), style: :secondary, href: edit_admin_experiment_path(@experiment), size: :sm) %>
+  <%= render FlatPack::Button::Component.new(text: RecordingStudioAbTests.t("recording_studio.ab_tests.experiments.show.edit"), style: :secondary, href: edit_admin_experiment_path(@experiment), size: :sm) %>
 </div>
 
 <% if RecordingStudioAbTests::Admin.transition_allowed?(@experiment, :select_winner) %>
   <%= form_with url: select_winner_admin_experiment_path(@experiment), method: :post, class: "mb-6 flex flex-wrap items-end gap-3" do %>
     <%= render FlatPack::Select::Component.new(
       name: "variant_id",
-      label: t("recording_studio.ab_tests.experiments.show.select_winner"),
+      label: RecordingStudioAbTests.t("recording_studio.ab_tests.experiments.show.select_winner"),
       options: @experiment.variants.order(:position).map { |v| [v.name, v.id] },
       value: @experiment.winner_variant_id
     ) %>
-    <%= render FlatPack::Button::Component.new(text: t("recording_studio.ab_tests.experiments.show.set_winner"), style: :primary, type: "submit", size: :sm) %>
+    <%= render FlatPack::Button::Component.new(text: RecordingStudioAbTests.t("recording_studio.ab_tests.experiments.show.set_winner"), style: :primary, type: "submit", size: :sm) %>
   <% end %>
 <% end %>
 
 <%= render FlatPack::Tabs::Component.new(default_tab: tab_index_for(@tab)) do |tabs| %>
-  <% tabs.tab(id: "configuration", label: t("recording_studio.ab_tests.experiments.show.tabs.configuration")) %>
-  <% tabs.tab(id: "variants", label: t("recording_studio.ab_tests.experiments.show.tabs.variants")) %>
-  <% tabs.tab(id: "goals", label: t("recording_studio.ab_tests.experiments.show.tabs.goals")) %>
-  <% tabs.tab(id: "results", label: t("recording_studio.ab_tests.experiments.show.tabs.results")) %>
+  <% tabs.tab(id: "configuration", label: RecordingStudioAbTests.t("recording_studio.ab_tests.experiments.show.tabs.configuration")) %>
+  <% tabs.tab(id: "variants", label: RecordingStudioAbTests.t("recording_studio.ab_tests.experiments.show.tabs.variants")) %>
+  <% tabs.tab(id: "goals", label: RecordingStudioAbTests.t("recording_studio.ab_tests.experiments.show.tabs.goals")) %>
+  <% tabs.tab(id: "results", label: RecordingStudioAbTests.t("recording_studio.ab_tests.experiments.show.tabs.results")) %>
 
   <% tabs.panel(id: "configuration") do %>
     <div class="mt-4 space-y-2 text-sm" data-testid="ab-configuration-panel">
-      <p><strong><%= t("recording_studio.ab_tests.experiments.show.fields.name") %></strong> <%= @experiment.name %></p>
-      <p><strong><%= t("recording_studio.ab_tests.experiments.show.fields.key") %></strong> <%= @experiment.key %></p>
-      <p><strong><%= t("recording_studio.ab_tests.experiments.show.fields.status") %></strong> <%= @experiment.status %></p>
-      <p><strong><%= t("recording_studio.ab_tests.experiments.show.fields.target") %></strong> <%= @experiment.target_key %></p>
-      <p><strong><%= t("recording_studio.ab_tests.experiments.show.fields.scope") %></strong> <%= @experiment.assignment_scope %></p>
-      <p><strong><%= t("recording_studio.ab_tests.experiments.show.fields.traffic") %></strong> <%= @experiment.traffic_percentage %>%</p>
-      <p><strong><%= t("recording_studio.ab_tests.experiments.show.fields.description") %></strong> <%= @experiment.description.presence || t("recording_studio.ab_tests.common.empty") %></p>
-      <p><strong><%= t("recording_studio.ab_tests.experiments.show.fields.started") %></strong> <%= @experiment.started_at || t("recording_studio.ab_tests.common.empty") %></p>
-      <p><strong><%= t("recording_studio.ab_tests.experiments.show.fields.completed") %></strong> <%= @experiment.completed_at || t("recording_studio.ab_tests.common.empty") %></p>
-      <p><strong><%= t("recording_studio.ab_tests.experiments.show.fields.winner") %></strong> <%= @experiment.winner_variant&.key || t("recording_studio.ab_tests.common.empty") %></p>
+      <p><strong><%= RecordingStudioAbTests.t("recording_studio.ab_tests.experiments.show.fields.name") %></strong> <%= @experiment.name %></p>
+      <p><strong><%= RecordingStudioAbTests.t("recording_studio.ab_tests.experiments.show.fields.key") %></strong> <%= @experiment.key %></p>
+      <p><strong><%= RecordingStudioAbTests.t("recording_studio.ab_tests.experiments.show.fields.status") %></strong> <%= @experiment.status %></p>
+      <p><strong><%= RecordingStudioAbTests.t("recording_studio.ab_tests.experiments.show.fields.target") %></strong> <%= @experiment.target_key %></p>
+      <p><strong><%= RecordingStudioAbTests.t("recording_studio.ab_tests.experiments.show.fields.scope") %></strong> <%= @experiment.assignment_scope %></p>
+      <p><strong><%= RecordingStudioAbTests.t("recording_studio.ab_tests.experiments.show.fields.traffic") %></strong> <%= @experiment.traffic_percentage %>%</p>
+      <p><strong><%= RecordingStudioAbTests.t("recording_studio.ab_tests.experiments.show.fields.description") %></strong> <%= @experiment.description.presence || RecordingStudioAbTests.t("recording_studio.ab_tests.common.empty") %></p>
+      <p><strong><%= RecordingStudioAbTests.t("recording_studio.ab_tests.experiments.show.fields.started") %></strong> <%= @experiment.started_at || RecordingStudioAbTests.t("recording_studio.ab_tests.common.empty") %></p>
+      <p><strong><%= RecordingStudioAbTests.t("recording_studio.ab_tests.experiments.show.fields.completed") %></strong> <%= @experiment.completed_at || RecordingStudioAbTests.t("recording_studio.ab_tests.common.empty") %></p>
+      <p><strong><%= RecordingStudioAbTests.t("recording_studio.ab_tests.experiments.show.fields.winner") %></strong> <%= @experiment.winner_variant&.key || RecordingStudioAbTests.t("recording_studio.ab_tests.common.empty") %></p>
     </div>
   <% end %>
 

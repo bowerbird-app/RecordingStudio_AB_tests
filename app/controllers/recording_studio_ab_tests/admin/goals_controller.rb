@@ -19,7 +19,7 @@ module RecordingStudioAbTests
             true
           end
           redirect_to admin_experiment_path(@experiment, tab: "goals"),
-                      notice: Copy.t("flashes.goal_added", default: "Goal added.")
+                      notice: Copy.t("flashes.goal_added")
         rescue ActiveRecord::RecordInvalid => e
           redirect_to admin_experiment_path(@experiment, tab: "goals"),
                       alert: e.record.errors.full_messages.to_sentence
@@ -38,7 +38,7 @@ module RecordingStudioAbTests
             true
           end
           redirect_to admin_experiment_path(@experiment, tab: "goals"),
-                      notice: Copy.t("flashes.goal_updated", default: "Goal updated.")
+                      notice: Copy.t("flashes.goal_updated")
         rescue ActiveRecord::RecordInvalid => e
           redirect_to admin_experiment_path(@experiment, tab: "goals"),
                       alert: e.record.errors.full_messages.to_sentence
@@ -57,7 +57,7 @@ module RecordingStudioAbTests
             true
           end
           redirect_to admin_experiment_path(@experiment, tab: "goals"),
-                      notice: Copy.t("flashes.goal_removed", default: "Goal removed.")
+                      notice: Copy.t("flashes.goal_removed")
         rescue ActiveRecord::RecordNotDestroyed, ActiveRecord::DeleteRestrictionError => e
           redirect_to admin_experiment_path(@experiment, tab: "goals"), alert: e.message
         end

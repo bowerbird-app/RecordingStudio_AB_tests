@@ -1,20 +1,19 @@
 <div class="space-y-4" data-testid="ab-results-panel">
   <p class="text-xs text-[var(--surface-muted-content-color)]">
-    <%= t(
-      "recording_studio.ab_tests.experiments.results.intro",
+    <%= RecordingStudioAbTests.t("recording_studio.ab_tests.experiments.results.intro",
       lift_label: RecordingStudioAbTests::Copy.lift_label
     ) %>
   </p>
 
   <% if metric_rows.blank? %>
     <%= render FlatPack::EmptyState::Component.new(
-      title: t("recording_studio.ab_tests.experiments.results.empty_title"),
-      description: t("recording_studio.ab_tests.experiments.results.empty_description")
+      title: RecordingStudioAbTests.t("recording_studio.ab_tests.experiments.results.empty_title"),
+      description: RecordingStudioAbTests.t("recording_studio.ab_tests.experiments.results.empty_description")
     ) %>
   <% else %>
     <% rows = metric_rows.map { |row|
          {
-           variant: "#{row.variant_key}#{t('recording_studio.ab_tests.experiments.results.control_suffix') if row.is_control}",
+           variant: "#{row.variant_key}#{RecordingStudioAbTests.t('recording_studio.ab_tests.experiments.results.control_suffix') if row.is_control}",
            assignments: row.assignments,
            unique_exposed: row.unique_exposed,
            raw_conversions: row.raw_conversions,
@@ -27,16 +26,16 @@
          }
        } %>
     <%= render FlatPack::Table::Component.new(data: rows, class: "text-sm") do |table| %>
-      <% table.column(title: t("recording_studio.ab_tests.experiments.results.columns.variant")) { |row| row[:variant] } %>
-      <% table.column(title: t("recording_studio.ab_tests.experiments.results.columns.assignments")) { |row| row[:assignments] } %>
-      <% table.column(title: t("recording_studio.ab_tests.experiments.results.columns.unique_exposed")) { |row| row[:unique_exposed] } %>
-      <% table.column(title: t("recording_studio.ab_tests.experiments.results.columns.raw_conversions")) { |row| row[:raw_conversions] } %>
-      <% table.column(title: t("recording_studio.ab_tests.experiments.results.columns.unique_converters")) { |row| row[:unique_converters] } %>
-      <% table.column(title: t("recording_studio.ab_tests.experiments.results.columns.conversion_rate")) { |row| row[:conversion_rate] } %>
-      <% table.column(title: t("recording_studio.ab_tests.experiments.results.columns.sample_size")) { |row| row[:sample_size] } %>
-      <% table.column(title: t("recording_studio.ab_tests.experiments.results.columns.relative_lift")) { |row| row[:relative_lift] } %>
-      <% table.column(title: t("recording_studio.ab_tests.experiments.results.columns.total_value")) { |row| row[:total_value] } %>
-      <% table.column(title: t("recording_studio.ab_tests.experiments.results.columns.value_per_exposed")) { |row| row[:value_per_exposed] } %>
+      <% table.column(title: RecordingStudioAbTests.t("recording_studio.ab_tests.experiments.results.columns.variant")) { |row| row[:variant] } %>
+      <% table.column(title: RecordingStudioAbTests.t("recording_studio.ab_tests.experiments.results.columns.assignments")) { |row| row[:assignments] } %>
+      <% table.column(title: RecordingStudioAbTests.t("recording_studio.ab_tests.experiments.results.columns.unique_exposed")) { |row| row[:unique_exposed] } %>
+      <% table.column(title: RecordingStudioAbTests.t("recording_studio.ab_tests.experiments.results.columns.raw_conversions")) { |row| row[:raw_conversions] } %>
+      <% table.column(title: RecordingStudioAbTests.t("recording_studio.ab_tests.experiments.results.columns.unique_converters")) { |row| row[:unique_converters] } %>
+      <% table.column(title: RecordingStudioAbTests.t("recording_studio.ab_tests.experiments.results.columns.conversion_rate")) { |row| row[:conversion_rate] } %>
+      <% table.column(title: RecordingStudioAbTests.t("recording_studio.ab_tests.experiments.results.columns.sample_size")) { |row| row[:sample_size] } %>
+      <% table.column(title: RecordingStudioAbTests.t("recording_studio.ab_tests.experiments.results.columns.relative_lift")) { |row| row[:relative_lift] } %>
+      <% table.column(title: RecordingStudioAbTests.t("recording_studio.ab_tests.experiments.results.columns.total_value")) { |row| row[:total_value] } %>
+      <% table.column(title: RecordingStudioAbTests.t("recording_studio.ab_tests.experiments.results.columns.value_per_exposed")) { |row| row[:value_per_exposed] } %>
     <% end %>
   <% end %>
 </div>

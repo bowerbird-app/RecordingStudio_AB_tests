@@ -3,6 +3,7 @@
 require "test_helper"
 require "yaml"
 require "i18n"
+require "set"
 
 class LocalesTest < Minitest::Test
   EXPECTED_LEAVES = {
@@ -256,6 +257,150 @@ class LocalesTest < Minitest::Test
     end
   end
 
+  def test_shipped_en_yml_keys_resolve_through_helper_in_en_and_missing_locales
+    shipped = shipped_english_keys
+    previous_locales = I18n.available_locales
+    I18n.available_locales = (previous_locales + %i[en de]).uniq
+
+    shipped.each do |full_key, english|
+      next unless english.is_a?(String)
+
+      I18n.with_locale(:en) do
+        assert_equal english, RecordingStudioAbTests.t(full_key)
+      end
+
+      I18n.with_locale(:de) do
+        refute I18n.exists?(full_key, :de)
+        assert_equal english, RecordingStudioAbTests.t(full_key),
+                     "#{full_key}: missing-locale fallback must match en.yml"
+      end
+    end
+  ensure
+    I18n.available_locales = previous_locales if previous_locales
+  end
+
+  def test_every_shipped_string_key_has_a_call_site_or_documented_dynamic_prefix
+    shipped = shipped_english_keys
+    roots = [
+      File.expand_path("../app", __dir__),
+      File.expand_path("../lib", __dir__)
+    ]
+    source = roots.flat_map { |root| Dir[File.join(root, "**", "*.{rb,erb}")] }
+                  .map { |path| File.read(path) }
+                  .join("\n")
+
+    dynamic_prefixes = %w[
+      recording_studio.ab_tests.scopes.
+      recording_studio.ab_tests.counting_policies.
+      recording_studio.ab_tests.flashes.experiment_actions.
+    ]
+    # Deprecated key kept for hosts; YAML-anchor sources for Admin confirms.
+    allowlisted = %w[
+      recording_studio.ab_tests.common.counting_policy
+      recording_studio.ab_tests.experiments.show.resume_confirm
+      recording_studio.ab_tests.experiments.show.archive_confirm
+      recording_studio.ab_tests.experiments.show.duplicate_confirm
+    ].to_set
+
+    missing = []
+    shipped.each do |full_key, english|
+      next unless english.is_a?(String)
+      next if allowlisted.include?(full_key)
+      next if dynamic_prefixes.any? { |prefix| full_key.start_with?(prefix) }
+
+      rel = full_key.delete_prefix("recording_studio.ab_tests.")
+      found = source.include?(full_key) ||
+              source.include?(%("#{rel}")) ||
+              source.include?(%('#{rel}'))
+      missing << full_key unless found
+    end
+
+    assert_empty missing,
+                 "reverting a translated string to a literal must leave its key unused; missing call sites: #{missing.join(', ')}"
+  end
+
+  def test_every_helper_call_site_key_exists_in_en_yml_and_has_no_hand_copied_english_default
+    shipped = shipped_english_keys
+    roots = [
+      File.expand_path("../app", __dir__),
+      File.expand_path("../lib", __dir__)
+    ]
+    files = roots.flat_map { |root| Dir[File.join(root, "**", "*.{rb,erb}")] }
+    refute_empty files
+
+    offenders = []
+    unknown_keys = []
+    admin_path = File.expand_path("../lib/recording_studio_ab_tests/admin.rb", __dir__)
+
+    files.each do |path|
+      next if File.expand_path(path) == admin_path
+
+      source = File.read(path)
+      each_translation_call_args(source) do |method_name, args|
+        keys = extract_ab_tests_keys(method_name, args)
+        next if keys.empty? && !args.match?(/recording_studio\.ab_tests/)
+
+        keys.each do |key|
+          # Interpolated / dynamic key fragments are not static en.yml leaves.
+          next if key.include?("\#{") || key.end_with?(".")
+
+          unknown_keys << "#{path}: #{key}" unless shipped.key?(key)
+        end
+
+        next unless args.match?(/\bdefault:\s*/)
+        # Dynamic defaults (humanize / to_s) are allowed; hand-copied English is not.
+        next if args.match?(/\bdefault:\s*(?:name\.humanize|policy\.humanize|action_key\.to_s)\b/)
+
+        offenders << "#{path}: #{method_name}(... default: ...) args=#{args.gsub(/\s+/, ' ').strip[0, 120]}"
+      end
+    end
+
+    assert_empty unknown_keys,
+                 "RecordingStudioAbTests.t keys must exist in en.yml; unknown: #{unknown_keys.join(', ')}"
+    assert_empty offenders,
+                 "gem recording_studio.ab_tests lookups must not pass hand-copied English default:; found: #{offenders.join(', ')}"
+  end
+
+  def test_scanner_catches_single_quoted_multi_line_i18n_translate_array_and_paren_less_defaults
+    samples = {
+      lift_label: <<~RUBY,
+        RecordingStudioAbTests.t("recording_studio.ab_tests.metrics.lift_label", default: Metrics::LIFT_LABEL)
+      RUBY
+      single_quoted: <<~RUBY,
+        RecordingStudioAbTests.t('recording_studio.ab_tests.common.cancel', default: 'Cancel')
+      RUBY
+      multi_line: <<~RUBY,
+        RecordingStudioAbTests.t(
+          "recording_studio.ab_tests.experiments.new.title",
+          default: "New experiment"
+        )
+      RUBY
+      i18n_translate: <<~RUBY,
+        I18n.translate("recording_studio.ab_tests.common.empty", default: "—")
+      RUBY
+      array_default: <<~RUBY,
+        I18n.t("recording_studio.ab_tests.common.cancel", default: ["Cancel", "Fallback"])
+      RUBY
+      bare_t: <<~RUBY,
+        t("recording_studio.ab_tests.common.cancel", default: "Cancel")
+      RUBY
+      paren_less: <<~RUBY,
+        RecordingStudioAbTests.t "recording_studio.ab_tests.common.cancel", default: "Cancel"
+      RUBY
+      copy_t: <<~RUBY
+        Copy.t("common.cancel", default: "Cancel")
+      RUBY
+    }
+
+    samples.each do |name, source|
+      found = false
+      each_translation_call_args(source) do |_method_name, args|
+        found = true if args.match?(/\bdefault:\s*/)
+      end
+      assert found, "scanner must catch #{name} default: form"
+    end
+  end
+
   private
 
   def engine_locales_dir
@@ -264,5 +409,116 @@ class LocalesTest < Minitest::Test
 
   def locale_tree(path, locale)
     YAML.safe_load_file(path, aliases: true).fetch(locale)
+  end
+
+  def shipped_english_keys
+    tree = locale_tree(File.join(engine_locales_dir, "en.yml"), "en")
+           .fetch("recording_studio")
+           .fetch("ab_tests")
+    flatten_locale_keys(tree, %w[recording_studio ab_tests])
+  end
+
+  def flatten_locale_keys(node, prefix)
+    case node
+    when Hash
+      node.each_with_object({}) do |(key, value), result|
+        result.merge!(flatten_locale_keys(value, prefix + [key.to_s]))
+      end
+    else
+      { prefix.join(".") => node }
+    end
+  end
+
+  def each_translation_call_args(source)
+    pattern = /
+      (?:RecordingStudioAbTests(?:::Translation)?\.t|Copy\.t|I18n\.(?:t|translate)|(?<![\w.:])t)
+      (?:
+        \s*\(
+        |
+        \s+(?=["'])
+      )
+    /mx
+    offset = 0
+    while (match = pattern.match(source, offset))
+      method_name = match[0].sub(/\s*[(]\z/, "").sub(/\s+\z/, "")
+      args_start = match.end(0)
+      if match[0].include?("(")
+        args, args_end = read_balanced_args(source, args_start)
+      else
+        args, args_end = read_paren_less_args(source, args_start)
+      end
+      yield method_name, args
+      offset = args_end
+    end
+  end
+
+  def read_paren_less_args(source, start_index)
+    index = start_index
+    in_single = false
+    in_double = false
+    escape = false
+
+    while index < source.length
+      char = source[index]
+      break if !in_single && !in_double && %W[\n ;].include?(char)
+
+      if escape
+        escape = false
+      elsif char == "\\" && (in_single || in_double)
+        escape = true
+      elsif char == "'" && !in_double
+        in_single = !in_single
+      elsif char == '"' && !in_single
+        in_double = !in_double
+      end
+      index += 1
+    end
+
+    [source[start_index...index], index]
+  end
+
+  def read_balanced_args(source, start_index)
+    depth = 1
+    index = start_index
+    in_single = false
+    in_double = false
+    escape = false
+
+    while index < source.length && depth.positive?
+      char = source[index]
+
+      if escape
+        escape = false
+      elsif char == "\\" && (in_single || in_double)
+        escape = true
+      elsif char == "'" && !in_double
+        in_single = !in_single
+      elsif char == '"' && !in_single
+        in_double = !in_double
+      elsif !in_single && !in_double
+        case char
+        when "(" then depth += 1
+        when ")" then depth -= 1
+        end
+      end
+
+      index += 1
+    end
+
+    [source[start_index...(index - 1)], index]
+  end
+
+  def extract_ab_tests_keys(method_name, args)
+    keys = []
+    args.scan(/["'](recording_studio\.ab_tests\.[^"']+)["']/) { |match| keys << match[0] }
+    if (match = args.match(/%w\[([^\]]+)\]/))
+      match[1].split.each do |token|
+        keys << token if token.start_with?("recording_studio.ab_tests.")
+      end
+    end
+    if method_name.include?("Copy.t") && (match = args.match(/\A\s*["']([a-z0-9_.]+)["']/i))
+      keys << "recording_studio.ab_tests.#{match[1]}"
+    end
+    keys
   end
 end

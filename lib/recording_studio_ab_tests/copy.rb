@@ -1,16 +1,17 @@
 # frozen_string_literal: true
 
 module RecordingStudioAbTests
-  # Rails I18n lookups for AB Tests user-facing copy. Every call passes
-  # `default:` English so a host locale without a fallback never shows
-  # "translation missing".
+  # Locale lookups for AB Tests user-facing copy. Relative keys resolve under
+  # `recording_studio.ab_tests` through {RecordingStudioAbTests.t} so a missing
+  # active-locale value falls back to loaded English (host overrides included),
+  # then the caller's `default:`, then the gem-shipped en.yml table.
   module Copy
     PREFIX = "recording_studio.ab_tests"
 
     module_function
 
     def t(key, **)
-      I18n.t("#{PREFIX}.#{key}", **)
+      RecordingStudioAbTests.t("#{PREFIX}.#{key}", **)
     end
 
     def scope_label(scope)
@@ -24,11 +25,11 @@ module RecordingStudioAbTests
     end
 
     def lift_label
-      t("metrics.lift_label", default: Metrics::LIFT_LABEL)
+      t("metrics.lift_label")
     end
 
     def empty
-      t("common.empty", default: "—")
+      t("common.empty")
     end
   end
 end
