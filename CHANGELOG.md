@@ -26,7 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Version `0.5.0` → `0.6.0`.
-- Gemspec / pins: RecordingStudio `~> 4.7` (dummy GitHub tag `v4.7.0`).
+- Gemspec / pins: `recording_studio ~> 4.7` (dummy GitHub tag `v4.7.0`).
 - Views, controllers, models, lifecycle, and `Copy.t` look up this gem's
   `recording_studio.ab_tests.*` keys through `RecordingStudio.t`. Host or
   other-namespace keys stay on `I18n.t` with main's `default:`. Hand-copied
@@ -36,7 +36,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   and unknown lifecycle action words (`action_key.to_s`).
 
 ### Upgrade notes
-- Hosts must run RecordingStudio `~> 4.7` so `register_shipped_english` is
+- Hosts must run `recording_studio ~> 4.7` so `register_shipped_english` is
   available.
 - No migration or host code change is required for English beyond that pin.
 - Hosts that enable raise-on-missing translations no longer raise for
@@ -45,8 +45,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   has the key. Host overrides in the active locale still win; host `:en`
   overrides win on the loaded-English fallback step.
 - A missing `_html` key with a non-interpolating caller `default:` stays
-  unsafe like view `t`; an interpolating caller `default:` on a missing
-  `_html` key is stricter (args escaped, result html_safe).
+  unsafe like view `t` — a plain default with no interpolation is returned
+  as a plain (non-html_safe) String, so views will escape it. An
+  interpolating caller `default:` on a missing `_html` key is stricter
+  (args escaped, result html_safe).
 - `en.yml` is unchanged. Prefer `RecordingStudio.t` (or `Copy.t` for relative
   keys) for this gem's keys so missing locales keep the same fallback.
 - Admin DSL chrome is unchanged from 0.5.0 (still `Copy.t` with English
@@ -260,16 +262,16 @@ New addons copied from this template are born on Recording Studio 4.x.
 - Comprehensive README and documentation
 - Basic test suite with Minitest
 
-[Unreleased]: https://github.com/bowerbird-app/recording_studio_ab_tests/compare/v0.6.0...HEAD
+[Unreleased]: https://github.com/bowerbird-app/recording_studio_ab_tests/compare/v0.5.0...HEAD
 [0.6.0]: https://github.com/bowerbird-app/recording_studio_ab_tests/compare/v0.5.0...v0.6.0
-[0.5.0]: https://github.com/bowerbird-app/recording_studio_ab_tests/releases/tag/v0.5.0
-[0.4.1]: https://github.com/bowerbird-app/recording_studio_ab_tests/releases/tag/v0.4.1
-[0.4.0]: https://github.com/bowerbird-app/recording_studio_ab_tests/releases/tag/v0.4.0
-[0.3.0]: https://github.com/bowerbird-app/recording_studio_ab_tests/releases/tag/v0.3.0
-[0.2.3]: https://github.com/bowerbird-app/recording_studio_ab_tests/releases/tag/v0.2.3
-[0.2.2]: https://github.com/bowerbird-app/recording_studio_ab_tests/releases/tag/v0.2.2
-[0.2.1]: https://github.com/bowerbird-app/recording_studio_ab_tests/releases/tag/v0.2.1
-[0.2.0]: https://github.com/bowerbird-app/recording_studio_ab_tests/releases/tag/v0.2.0
-[0.1.2]: https://github.com/bowerbird-app/recording_studio_ab_tests/releases/tag/v0.1.2
-[0.1.1]: https://github.com/bowerbird-app/recording_studio_ab_tests/releases/tag/v0.1.1
+[0.5.0]: https://github.com/bowerbird-app/recording_studio_ab_tests/compare/v0.4.1...v0.5.0
+[0.4.1]: https://github.com/bowerbird-app/recording_studio_ab_tests/compare/v0.4.0...v0.4.1
+[0.4.0]: https://github.com/bowerbird-app/recording_studio_ab_tests/compare/v0.3.0...v0.4.0
+[0.3.0]: https://github.com/bowerbird-app/recording_studio_ab_tests/compare/v0.2.3...v0.3.0
+[0.2.3]: https://github.com/bowerbird-app/recording_studio_ab_tests/compare/v0.2.2...v0.2.3
+[0.2.2]: https://github.com/bowerbird-app/recording_studio_ab_tests/compare/v0.2.1...v0.2.2
+[0.2.1]: https://github.com/bowerbird-app/recording_studio_ab_tests/compare/v0.2.0...v0.2.1
+[0.2.0]: https://github.com/bowerbird-app/recording_studio_ab_tests/compare/v0.1.2...v0.2.0
+[0.1.2]: https://github.com/bowerbird-app/recording_studio_ab_tests/compare/v0.1.1...v0.1.2
+[0.1.1]: https://github.com/bowerbird-app/recording_studio_ab_tests/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/bowerbird-app/recording_studio_ab_tests/releases/tag/v0.1.0

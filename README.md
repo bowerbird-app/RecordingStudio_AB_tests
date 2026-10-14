@@ -131,10 +131,12 @@ existing `default:`. The engine registers this gem's `en.yml` with
 `RecordingStudio::Translation.register_shipped_english` at boot so missing
 active-locale values fall back to loaded English (host overrides included),
 then the caller's `default:`, then the merged shipped English table. A missing
-`_html` key with an interpolating caller `default:` escapes args and marks
-html_safe (stricter than bare `I18n.t`). Hosts override or add languages in
-their own `config/locales`. Requires RecordingStudio `~> 4.7`. There is no
-dependency on `recording_studio_internationalization`.
+`_html` key with a plain (non-interpolating) caller `default:` is returned as a
+plain (non-html_safe) String, so views will escape it; an interpolating caller
+`default:` escapes args and marks html_safe (stricter than bare `I18n.t`).
+Hosts override or add languages in their own `config/locales`. Requires
+`recording_studio ~> 4.7`. There is no dependency on
+`recording_studio_internationalization`.
 
 Admin table column headers stay English. Stored/user data (experiment names,
 variant names, event labels hosts register), developer `ArgumentError`s, logs,

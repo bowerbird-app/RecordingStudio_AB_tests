@@ -76,7 +76,7 @@ class AbEnglishFallbackTest < ActionDispatch::IntegrationTest
       get "/ab_tests/admin/experiments/new"
 
       assert_response :success
-      assert_includes @response.body, "New experiment"
+      assert_select "h1", text: "New experiment"
       assert_includes @response.body, "Cancel"
       refute_ab_tests_translation_missing!(@response.body)
     end
@@ -86,7 +86,7 @@ class AbEnglishFallbackTest < ActionDispatch::IntegrationTest
     I18n.with_locale(:en) do
       get "/ab_tests/admin/experiments/new"
       assert_response :success
-      assert_includes @response.body, "New experiment"
+      assert_select "h1", text: "New experiment"
       assert_includes @response.body, "Save draft"
       assert_includes @response.body, "Cancel"
       refute_ab_tests_translation_missing!(@response.body)
@@ -111,7 +111,7 @@ class AbEnglishFallbackTest < ActionDispatch::IntegrationTest
           get "/ab_tests/admin/experiments/new"
 
           assert_response :success
-          assert_includes @response.body, "New experiment"
+          assert_select "h1", text: "New experiment"
           refute_ab_tests_translation_missing!(@response.body)
         end
       end
@@ -149,6 +149,7 @@ class AbEnglishFallbackTest < ActionDispatch::IntegrationTest
            }
 
       assert_response :unprocessable_entity
+      assert_select "h1", text: "New experiment"
       assert_includes response.body, HOST_ALERT_TITLE
       refute_match(/(?<!HOST )Could not save/, response.body)
       refute_ab_tests_translation_missing!(response.body)
