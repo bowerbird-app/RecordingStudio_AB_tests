@@ -50,7 +50,7 @@ class RecordingStudioAbTestsTest < Minitest::Test
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_metrics", tag: "v0.2.0"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_users", tag: "v0.21.0"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_admin", tag: "v2.3.0"'
-    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_trashable", tag: "v0.10.0"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_trashable", tag: "v0.11.0"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_attachable", tag: "v0.15.0"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_cache", tag: "v0.5.0"'
     assert_includes gemfile, 'github: "bowerbird-app/flatpack", tag: "v0.1.213"'
@@ -233,7 +233,7 @@ class RecordingStudioAbTestsTest < Minitest::Test
     assert_includes readme, "dummy GitHub tag `v0.15.0`"
     assert_includes readme, "dummy GitHub tag `v0.21.0`"
     assert_includes readme, "dummy GitHub tag `v2.3.0`"
-    assert_includes readme, "dummy GitHub tag `v0.10.0`"
+    assert_includes readme, "dummy GitHub tag `v0.11.0`"
     assert_includes readme, "dummy GitHub tag `v0.9.0`"
     assert_includes readme, "dummy GitHub tag `v0.5.0`"
     refute_includes readme, "dummy GitHub tag `v0.13.0`"
