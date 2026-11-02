@@ -306,9 +306,9 @@ class EngineTest < Minitest::Test
     parent.const_set(child_name, value)
     yield
   ensure
-    parent.class_eval { remove_const(child_name) } if parent.const_defined?(child_name, false)
+    parent.send(:remove_const, child_name) if parent.const_defined?(child_name, false)
     parent.const_set(child_name, previous_child) if child_defined
-    Object.class_eval { remove_const(parent_name) } unless parent_defined
+    Object.send(:remove_const, parent_name) unless parent_defined
   end
 
   def find_initializer(name)
