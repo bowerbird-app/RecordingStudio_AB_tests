@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.1] - 2026-11-02
+
+### Changed
+- Version `0.6.0` → `0.6.1`.
+- README version and install tag match `0.6.1`.
+- CHANGELOG records the missing `0.5.1` pin bump and fixes compare links.
+- Dummy home title is `AB Tests Demo`. Cloud Agent environment name is
+  `recording-studio-ab-tests`.
+- Configuration `to_h` reports hook counts through
+  `RecordingStudio::Hooks#registered_counts`.
+- Non-matrix GitHub `setup-ruby` steps use `ruby-version: '3.3'`.
+
+### Upgrade notes
+- No host behavior change. Visitor cookies, failure-policy rescues, and boot
+  config loading match 0.6.0.
+
 ## [0.6.0] - 2026-10-14
 
 ### Added
@@ -53,6 +69,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   keys) for this gem's keys so missing locales keep the same fallback.
 - Admin DSL chrome is unchanged from 0.5.0 (still `Copy.t` with English
   `default:`).
+
+## [0.5.1] - 2026-10-14
+
+### Changed
+- Dummy and root pins: Recording Studio `v4.6.0`, Accessible `v0.17.0`, Admin
+  `v2.3.0`, Cache / Users / Root Switchable bumps from the 0.5.x pin PRs, and
+  Attachable `v0.15.0`.
 
 ## [0.5.0] - 2026-10-12
 
@@ -262,8 +285,10 @@ New addons copied from this template are born on Recording Studio 4.x.
 - Comprehensive README and documentation
 - Basic test suite with Minitest
 
-[Unreleased]: https://github.com/bowerbird-app/recording_studio_ab_tests/compare/v0.5.0...HEAD
-[0.6.0]: https://github.com/bowerbird-app/recording_studio_ab_tests/compare/v0.5.0...v0.6.0
+[Unreleased]: https://github.com/bowerbird-app/recording_studio_ab_tests/compare/v0.6.1...HEAD
+[0.6.1]: https://github.com/bowerbird-app/recording_studio_ab_tests/compare/v0.6.0...v0.6.1
+[0.6.0]: https://github.com/bowerbird-app/recording_studio_ab_tests/compare/v0.5.1...v0.6.0
+[0.5.1]: https://github.com/bowerbird-app/recording_studio_ab_tests/compare/v0.5.0...v0.5.1
 [0.5.0]: https://github.com/bowerbird-app/recording_studio_ab_tests/compare/v0.4.1...v0.5.0
 [0.4.1]: https://github.com/bowerbird-app/recording_studio_ab_tests/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/bowerbird-app/recording_studio_ab_tests/compare/v0.3.0...v0.4.0

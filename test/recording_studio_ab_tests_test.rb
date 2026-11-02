@@ -4,7 +4,7 @@ require "test_helper"
 
 class RecordingStudioAbTestsTest < Minitest::Test
   def test_version_matches_release
-    assert_equal "0.6.0", ::RecordingStudioAbTests::VERSION
+    assert_equal "0.6.1", ::RecordingStudioAbTests::VERSION
   end
 
   def test_engine_exists
@@ -28,7 +28,7 @@ class RecordingStudioAbTestsTest < Minitest::Test
     path = File.expand_path("../.cursor/environment.json", __dir__)
     json = JSON.parse(File.read(path))
 
-    assert_equal "recording-studio-gem-template", json["name"]
+    assert_equal "recording-studio-ab-tests", json["name"]
     assert_equal ".cursor/install.sh", json["install"]
     assert_equal ".cursor/start.sh", json["start"]
     refute json.key?("snapshot"), "snapshot pins a Personal build and skips install"
@@ -265,8 +265,9 @@ class RecordingStudioAbTestsTest < Minitest::Test
     view_path = File.expand_path("dummy/app/views/home/index.html.erb", __dir__)
     view_source = File.read(view_path)
 
-    assert_includes view_source, 'title: "Template Demo"'
-    assert_includes view_source, 'subtitle: "This dummy app is the browser-facing demo surface for the template."'
+    assert_includes view_source, 'title: "AB Tests Demo"'
+    assert_includes view_source,
+                    'subtitle: "This dummy app is the browser-facing demo surface for Recording Studio AB tests."'
     assert_includes view_source, "FlatPack::Card::Component"
     assert_includes view_source, "dummy_page_nav"
     refute_includes view_source, 'title: "Demo"'

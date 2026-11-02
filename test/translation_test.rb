@@ -106,7 +106,7 @@ class TranslationTest < Minitest::Test
     I18n.exists?(full_key, locale)
     parts = full_key.split(".").map(&:to_sym)
     leaf = parts.pop
-    translations = I18n.backend.send(:translations)
+    translations = I18n.backend.translations
     locale_key = locale.to_sym
     translations[locale_key] = translations[locale_key].dup if translations[locale_key].frozen?
 

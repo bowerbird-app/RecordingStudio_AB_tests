@@ -57,7 +57,7 @@ module RecordingStudioAbTests
         visitor_cookie_ttl: visitor_cookie_ttl,
         allow_force_param: allow_force_param,
         mount_path: mount_path,
-        hooks_registered: hooks.instance_variable_get(:@registry).transform_values(&:size)
+        hooks_registered: hooks.registered_counts
       }
     end
 
