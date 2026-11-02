@@ -20,6 +20,7 @@ class AbEligibilityTest < ActionDispatch::IntegrationTest
     # assertions are not polluted by a prior assignment request.
     cookies.delete(:_rsab_vid)
     cookies.delete(:_rsab_a)
+    cookies.delete(device_key_cookie_name)
     sign_in User.find_by!(email: "admin@admin.com")
   end
 

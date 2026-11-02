@@ -7,6 +7,41 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-11-02
+
+### Changed
+- Version `0.6.0` → `0.7.0`. Minor bump because visitor identity now uses Root
+  Switchable's device key instead of this gem's `_rsab_vid` cookie.
+- Anonymous visitor ids read `RecordingStudio::RootSwitchable::Current.device_key`
+  and, when a request is present, `RecordingStudio::RootSwitchable::DeviceKey.fetch`.
+  Registration linking uses the same identity. This gem no longer writes `_rsab_vid`.
+- The assignment cookie `_rsab_a` still stores sticky variant entries. It no
+  longer stores a duplicate `vid`.
+- Configuration `to_h` reports hook counts through `RecordingStudio::Hooks#registered_counts`.
+- YAML / `config.x` load rescues missing-file and YAML format errors only.
+- Cookie and assignment-cookie decode rescues signature, encryptor, and JSON parse
+  errors only.
+- Assignment, conversion, exposure, and notification failure-policy rescues are
+  ActiveRecord (and Redis, when loaded) errors. `UnknownTarget` and `ArgumentError`
+  re-raise.
+- Event subscriptions resolve users through `configuration.user_class` (Users'
+  configured class when that gem is loaded).
+- Dummy home title and Cloud Agent environment name identify this gem, not the
+  template. README version and install tag match `0.7.0`.
+
+### Upgrade notes
+- Hosts that already run Root Switchable keep the same device-key cookie. Visitors
+  who only had `_rsab_vid` (and no Root Switchable device key) are treated as new
+  visitors and **re-bucketed** on first request after upgrade.
+- Stop reading or writing `_rsab_vid`. Pass `visitor_id:` into `link_identity`
+  when you already have a device key; otherwise in-request linking reads the
+  device key.
+- Assignment cookie payloads that still contain `vid` keep working. New writes
+  omit that key.
+- `Metrics` stays the internal report module (`Metrics::LIFT_LABEL` unchanged).
+- No new gemspec dependency. Root Switchable remains a host/dummy pin. Without
+  it, visitor ids are only available when `Current.visitor_id` is already set.
+
 ## [0.6.0] - 2026-10-14
 
 ### Added
@@ -53,6 +88,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   keys) for this gem's keys so missing locales keep the same fallback.
 - Admin DSL chrome is unchanged from 0.5.0 (still `Copy.t` with English
   `default:`).
+
+## [0.5.1] - 2026-10-14
+
+### Changed
+- Dummy and root pins: Recording Studio `v4.6.0`, Accessible `v0.17.0`, Admin
+  `v2.3.0`, Cache / Users / Root Switchable bumps from the 0.5.x pin PRs, and
+  Attachable `v0.15.0`.
 
 ## [0.5.0] - 2026-10-12
 
@@ -262,8 +304,10 @@ New addons copied from this template are born on Recording Studio 4.x.
 - Comprehensive README and documentation
 - Basic test suite with Minitest
 
-[Unreleased]: https://github.com/bowerbird-app/recording_studio_ab_tests/compare/v0.5.0...HEAD
-[0.6.0]: https://github.com/bowerbird-app/recording_studio_ab_tests/compare/v0.5.0...v0.6.0
+[Unreleased]: https://github.com/bowerbird-app/recording_studio_ab_tests/compare/v0.7.0...HEAD
+[0.7.0]: https://github.com/bowerbird-app/recording_studio_ab_tests/compare/v0.6.0...v0.7.0
+[0.6.0]: https://github.com/bowerbird-app/recording_studio_ab_tests/compare/v0.5.1...v0.6.0
+[0.5.1]: https://github.com/bowerbird-app/recording_studio_ab_tests/compare/v0.5.0...v0.5.1
 [0.5.0]: https://github.com/bowerbird-app/recording_studio_ab_tests/compare/v0.4.1...v0.5.0
 [0.4.1]: https://github.com/bowerbird-app/recording_studio_ab_tests/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/bowerbird-app/recording_studio_ab_tests/compare/v0.3.0...v0.4.0

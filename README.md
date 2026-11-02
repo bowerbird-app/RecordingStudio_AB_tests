@@ -6,13 +6,13 @@ fragment caching.
 
 Built on RecordingStudio (dummy GitHub tag `v4.7.0`), FlatPack (dummy GitHub tag `v0.1.213`), Accessible (dummy GitHub tag `v0.18.0`), Users (dummy GitHub tag `v0.21.0`), Admin (dummy GitHub tag `v2.3.0`), Trashable (dummy GitHub tag `v0.11.0`, `require: false` for Admin / Accessible query helpers), Attachable (dummy GitHub tag `v0.15.0`), Root Switchable (dummy GitHub tag `v0.9.0`), Metrics (dummy GitHub tag `v0.2.0`, required by Root Switchable 0.7+ / Admin 2.3+ Bundler), and optionally RecordingStudioCache (dummy GitHub tag `v0.5.0`, public).
 
-**Version:** `0.5.0`
+**Version:** `0.7.0`
 
 ## Install
 
 ```ruby
 # Host Gemfile
-gem "recording_studio_ab_tests", github: "bowerbird-app/RecordingStudio_AB_tests", tag: "v0.5.0"
+gem "recording_studio_ab_tests", github: "bowerbird-app/RecordingStudio_AB_tests", tag: "v0.7.0"
 # Optional — enables RecordingStudioCache-backed render_ab cache:
 gem "recording_studio_cache", github: "bowerbird-app/RecordingStudio_cache", tag: "v0.5.0"
 ```
@@ -96,8 +96,10 @@ OTP).
 
 ## Identity and linking
 
-- Scopes: `visitor` (signed cookie), `user`, `root_recording`.
-- Anonymous sticky via signed cookie; authenticated always DB (cross-device).
+- Scopes: `visitor` (Root Switchable device key), `user`, `root_recording`.
+- Anonymous visitor ids come from `RecordingStudio::RootSwitchable::DeviceKey.fetch` / `Current.device_key`. This gem does not mint `_rsab_vid`.
+- Assignment stickiness still uses the signed `_rsab_a` cookie. That cookie no longer stores a duplicate visitor id.
+- Authenticated assignments always go to the DB (cross-device).
 - `link_identity` / in-request linking promote visitor → user; user row wins.
 - **Jobs caveat:** job context gets **no** auto-link. Pass `subject:` (or
   `visitor_id:` where applicable) explicitly for out-of-request `execute` /

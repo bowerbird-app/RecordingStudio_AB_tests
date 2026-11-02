@@ -61,9 +61,9 @@ module RecordingStudioAbTests
 
         Current.assignments[memo_key] = resolution
         resolution
-      rescue UnknownTarget
+      rescue UnknownTarget, ArgumentError
         raise
-      rescue StandardError => e
+      rescue *FailurePolicy.rescued_errors => e
         handle_error(e)
       end
 
@@ -109,9 +109,8 @@ module RecordingStudioAbTests
         resolve_database(entry, target, subject, expose: expose, write_cookie: true)
       end
 
-      def cookie_hit?(payload, entry, subject)
+      def cookie_hit?(payload, entry, _subject)
         return false unless CookieCodec.fresh?(payload)
-        return false unless payload["vid"].to_s == subject[:subject_identifier].to_s
 
         entry_data = CookieCodec.entry_for(payload, entry[:id])
         return false unless entry_data.is_a?(Array) && entry_data[0].present?
@@ -218,8 +217,7 @@ module RecordingStudioAbTests
           payload,
           experiment_id: entry[:id],
           variant_key: resolution.variant_key,
-          target_key: entry[:target_key],
-          visitor_id: subject[:subject_identifier]
+          target_key: entry[:target_key]
         )
         active_ids = ActiveSet.current[:by_target].values.pluck(:id)
         payload = CookieCodec.evict!(payload, active_experiment_ids: active_ids)

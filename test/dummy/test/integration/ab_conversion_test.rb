@@ -77,7 +77,7 @@ class AbConversionTest < ActionDispatch::IntegrationTest
       )
       RecordingStudioAbTests::Current.reset
       request = ActionDispatch::TestRequest.create
-      request.cookie_jar.signed[:_rsab_vid] = visitor_id
+      set_request_device_key!(request, visitor_id)
       RecordingStudioAbTests::Current.request = request
 
       ActiveRecord::Base.transaction do

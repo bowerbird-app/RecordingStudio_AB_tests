@@ -16,8 +16,8 @@ module RecordingStudioAbTests
 
       response.cache_control[:private] = true
       response.cache_control[:no_store] = true
-    rescue StandardError
-      # Never break the host response over cache-control marking.
+    rescue JSON::ParserError, ActiveSupport::MessageVerifier::InvalidSignature,
+           ActiveSupport::MessageEncryptor::InvalidMessage
       nil
     end
 

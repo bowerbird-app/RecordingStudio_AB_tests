@@ -38,7 +38,9 @@ module RecordingStudioAbTests
       else
         RecordExposureJob.perform_later(**args)
       end
-    rescue StandardError => e
+    rescue UnknownTarget, ArgumentError
+      raise
+    rescue *FailurePolicy.rescued_errors => e
       ActiveSupport::Notifications.instrument(
         "exposure_failed.recording_studio_ab_tests",
         error: e,
@@ -69,8 +71,7 @@ module RecordingStudioAbTests
         payload,
         experiment_id: entry[:id],
         variant_key: resolution.variant_key,
-        target_key: target_key,
-        visitor_id: assignment.subject_identifier
+        target_key: target_key
       )
       active_ids = ActiveSet.current[:by_target].values.map { |e| e[:id] }
       payload = CookieCodec.evict!(payload, active_experiment_ids: active_ids)

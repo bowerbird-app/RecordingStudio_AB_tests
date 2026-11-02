@@ -10,11 +10,38 @@ module RecordingStudioAbTests
 
     class << self
       def apply_model_extensions(target)
+        return unless target
+
         apply_extensions(target, extensions_for(:model, extension_keys_for(target)))
       end
 
       def apply_controller_extensions(target)
+        return unless target
+
         apply_extensions(target, extensions_for(:controller, extension_keys_for(target)))
+      end
+
+      def yaml_configuration(app)
+        return unless app.respond_to?(:config_for)
+
+        app.config_for(:recording_studio_ab_tests)
+      rescue Errno::ENOENT, ActiveSupport::ConfigurationFile::FormatError
+        nil
+      rescue RuntimeError => e
+        raise unless missing_or_invalid_yaml_config?(e)
+
+        nil
+      end
+
+      def x_configuration(app)
+        return unless app.config.respond_to?(:x) && app.config.x.respond_to?(:recording_studio_ab_tests)
+
+        app.config.x.recording_studio_ab_tests
+      end
+
+      def missing_or_invalid_yaml_config?(error)
+        message = error.message.to_s
+        message.include?("No such file") || message.include?("YAML syntax error")
       end
 
       private
@@ -90,32 +117,16 @@ module RecordingStudioAbTests
     end
 
     initializer "recording_studio_ab_tests.load_config" do |app|
-      if app.respond_to?(:config_for)
-        begin
-          yaml = begin
-            app.config_for(:recording_studio_ab_tests)
-          rescue StandardError
-            nil
-          end
-          RecordingStudioAbTests.configuration.merge!(yaml) if yaml.respond_to?(:each)
-        rescue StandardError
-          # ignore load errors; host app can provide initializer overrides
-        end
-      end
+      yaml = RecordingStudioAbTests::Engine.yaml_configuration(app)
+      RecordingStudioAbTests.configuration.merge!(yaml) if yaml.respond_to?(:each)
 
-      if app.config.respond_to?(:x) && app.config.x.respond_to?(:recording_studio_ab_tests)
-        xcfg = app.config.x.recording_studio_ab_tests
-        if xcfg.respond_to?(:to_h)
-          RecordingStudioAbTests.configuration.merge!(xcfg.to_h)
-        else
-          begin
-            hash = {}
-            xcfg.each_pair { |k, v| hash[k] = v } if xcfg.respond_to?(:each_pair)
-            RecordingStudioAbTests.configuration.merge!(hash) if hash&.any?
-          rescue StandardError
-            # ignore
-          end
-        end
+      xcfg = RecordingStudioAbTests::Engine.x_configuration(app)
+      if xcfg.respond_to?(:to_h)
+        RecordingStudioAbTests.configuration.merge!(xcfg.to_h)
+      elsif xcfg.respond_to?(:each_pair)
+        hash = {}
+        xcfg.each_pair { |k, v| hash[k] = v }
+        RecordingStudioAbTests.configuration.merge!(hash) if hash.any?
       end
 
       RecordingStudioAbTests.configuration.hooks.run(:on_configuration, RecordingStudioAbTests.configuration)

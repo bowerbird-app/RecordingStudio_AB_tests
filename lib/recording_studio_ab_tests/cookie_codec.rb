@@ -4,6 +4,7 @@ module RecordingStudioAbTests
   module CookieCodec
     COOKIE_NAME = :_rsab_a
     VERSION = 1
+    COOKIE_READ_ERRORS = Identity::COOKIE_READ_ERRORS
 
     module_function
 
@@ -17,7 +18,7 @@ module RecordingStudioAbTests
       return empty_payload unless payload["v"].to_i == VERSION
 
       payload
-    rescue StandardError
+    rescue *COOKIE_READ_ERRORS
       empty_payload
     end
 
@@ -38,10 +39,10 @@ module RecordingStudioAbTests
       payload.dig("a", experiment_id.to_s)
     end
 
-    def put_entry(payload, experiment_id:, variant_key:, target_key:, visitor_id:)
+    def put_entry(payload, experiment_id:, variant_key:, target_key:)
       payload = payload.deep_dup
       payload["v"] = VERSION
-      payload["vid"] = visitor_id
+      payload.delete("vid")
       payload["ts"] = Time.current.to_i
       payload["a"] ||= {}
       existing = payload["a"][experiment_id.to_s]
@@ -57,7 +58,6 @@ module RecordingStudioAbTests
       return payload if assignments.size <= config.max_cookie_entries
 
       active = active_experiment_ids.map(&:to_s)
-      # Evict inactive first, then oldest by iterating insertion order
       inactive_keys = assignments.keys.reject { |k| active.include?(k) }
       inactive_keys.each do |key|
         assignments.delete(key)
@@ -79,7 +79,7 @@ module RecordingStudioAbTests
     end
 
     def empty_payload
-      { "v" => VERSION, "vid" => nil, "ts" => 0, "a" => {} }
+      { "v" => VERSION, "ts" => 0, "a" => {} }
     end
   end
 end

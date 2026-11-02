@@ -4,6 +4,7 @@ module RecordingStudioAbTests
   class Configuration
     attr_accessor :enabled,
                   :current_user_resolver,
+                  :user_class_name,
                   :user_identifier,
                   :current_root_recording_resolver,
                   :consent_resolver,
@@ -24,6 +25,7 @@ module RecordingStudioAbTests
     def initialize
       @enabled = true
       @current_user_resolver = ->(controller) { controller.try(:current_user) }
+      @user_class_name = "User"
       @user_identifier = ->(user) { user.id.to_s }
       @current_root_recording_resolver = ->(controller) { controller.try(:current_root_recording) }
       @consent_resolver = ->(_request) { true }
@@ -57,8 +59,18 @@ module RecordingStudioAbTests
         visitor_cookie_ttl: visitor_cookie_ttl,
         allow_force_param: allow_force_param,
         mount_path: mount_path,
-        hooks_registered: hooks.instance_variable_get(:@registry).transform_values(&:size)
+        hooks_registered: hooks.registered_counts
       }
+    end
+
+    def user_class
+      if defined?(RecordingStudioUser)
+        RecordingStudioUser.config.user_class
+      elsif user_class_name.present?
+        user_class_name.constantize
+      end
+    rescue NameError, ArgumentError
+      nil
     end
 
     def merge!(hash)
