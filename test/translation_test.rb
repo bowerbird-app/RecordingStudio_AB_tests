@@ -42,6 +42,10 @@ class TranslationTest < Minitest::Test
   # Must fail if registration is dropped from test_helper / boot. Does not call
   # register_shipped_english or the engine initializer block.
   def test_this_gem_en_yml_path_is_registered_for_shipped_english
+    path = File.expand_path(GEM_EN_YML)
+    registered = RecordingStudio::Translation.send(:registered_shipped_english_paths)
+
+    assert_includes registered, path
     assert_equal "Cancel", RecordingStudio::Translation.shipped_english.fetch(
       "recording_studio.ab_tests.common.cancel"
     )

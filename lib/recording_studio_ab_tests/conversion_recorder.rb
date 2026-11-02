@@ -65,9 +65,7 @@ module RecordingStudioAbTests
           subject_kind: subject_kind,
           subject_identifier: subject_identifier.to_s
         )
-      rescue UnknownTarget, ArgumentError
-        raise
-      rescue *FailurePolicy.rescued_errors => e
+      rescue StandardError => e
         ActiveSupport::Notifications.instrument(
           "conversion_failed.recording_studio_ab_tests",
           error: e,

@@ -3,7 +3,6 @@
 require "recording_studio"
 require "recording_studio_ab_tests/version"
 require "recording_studio_ab_tests/errors"
-require "recording_studio_ab_tests/failure_policy"
 require "recording_studio_ab_tests/configuration"
 require "recording_studio_ab_tests/current"
 require "recording_studio_ab_tests/request_context"

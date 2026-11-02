@@ -4,7 +4,7 @@ require "test_helper"
 
 class RecordingStudioAbTestsTest < Minitest::Test
   def test_version_matches_release
-    assert_equal "0.7.0", ::RecordingStudioAbTests::VERSION
+    assert_equal "0.6.1", ::RecordingStudioAbTests::VERSION
   end
 
   def test_engine_exists
@@ -68,6 +68,7 @@ class RecordingStudioAbTestsTest < Minitest::Test
     refute_includes gemfile, 'tag: "v0.16.0"'
     refute_includes gemfile, 'tag: "v0.4.0"'
     refute_includes gemfile, 'tag: "v2.0.5"'
+    refute_includes gemfile, 'tag: "v0.6.0"'
     refute_includes gemfile, 'tag: "v0.5.1"'
     refute_includes gemfile, 'tag: "v0.1.198"'
     refute_includes gemfile, 'tag: "v0.1.196"'
@@ -225,6 +226,35 @@ class RecordingStudioAbTestsTest < Minitest::Test
     readme = File.read(File.expand_path("../README.md", __dir__))
 
     assert_includes readme, "RecordingStudio"
+    assert_includes readme, "dummy GitHub tag `v4.7.0`"
+    assert_includes readme, "dummy GitHub tag `v0.1.213`"
+    assert_includes readme, "dummy GitHub tag `v0.18.0`"
+    refute_includes readme, "dummy GitHub tag `v0.17.0`"
+    assert_includes readme, "dummy GitHub tag `v0.15.0`"
+    assert_includes readme, "dummy GitHub tag `v0.21.0`"
+    assert_includes readme, "dummy GitHub tag `v2.3.0`"
+    assert_includes readme, "dummy GitHub tag `v0.11.0`"
+    assert_includes readme, "dummy GitHub tag `v0.9.0`"
+    assert_includes readme, "dummy GitHub tag `v0.5.0`"
+    refute_includes readme, "dummy GitHub tag `v0.13.0`"
+    refute_includes readme, "dummy GitHub tag `v2.2.0`"
+    refute_includes readme, "dummy GitHub tag `v2.1.0`"
+    refute_includes readme, "dummy GitHub tag `v0.16.0`"
+    refute_includes readme, "dummy GitHub tag `v0.8.0`"
+    refute_includes readme, "dummy GitHub tag `v0.4.0`"
+    assert_includes readme, "dummy GitHub tag `v0.2.0`"
+    refute_includes readme, "dummy GitHub tag `v4.2.2`"
+    refute_includes readme, "dummy GitHub tag `v4.2.1`"
+    refute_includes readme, "dummy GitHub tag `v4.2.0`"
+    refute_includes readme, "dummy GitHub tag `v0.11.2`"
+    refute_includes readme, "dummy GitHub tag `v0.10.1`"
+    refute_includes readme, "dummy GitHub tag `v0.6.0`"
+    refute_includes readme, "dummy GitHub tag `v0.5.1`"
+    refute_includes readme, "dummy GitHub tag `v0.1.198`"
+    refute_includes readme, "dummy GitHub tag `v0.1.196`"
+    refute_includes readme, "v0.1.177"
+    refute_includes readme, "v0.9.1"
+    refute_includes readme, "v0.1.133"
     refute_includes readme, "v3 declarations"
     refute_includes readme, "RecordingStudio v3"
     refute_includes readme, "ExampleService"

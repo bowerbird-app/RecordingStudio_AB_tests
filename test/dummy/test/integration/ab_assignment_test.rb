@@ -117,19 +117,4 @@ class AbAssignmentTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_equal original_variant_id, assignment.reload.variant_id
   end
-
-  test "visitor identity uses the root switchable device key and assignment cookie has no vid" do
-    create_running_experiment!(key: "pricing_run", target_key: "pricing_page")
-
-    get demo_pricing_path, headers: BROWSER_UA
-    assert_response :success
-
-    refute cookies[:_rsab_vid].present?
-    assert cookies[device_key_cookie_name].present?
-
-    assignment = RecordingStudioAbTests::Assignment.first
-    assert assignment
-    assert_equal "visitor", assignment.subject_type
-    assert_predicate assignment.subject_identifier, :present?
-  end
 end

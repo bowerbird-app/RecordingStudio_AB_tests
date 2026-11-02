@@ -77,7 +77,7 @@ class EngineTest < Minitest::Test
 
     app = Struct.new(:config) do
       def config_for(_name)
-        raise "Could not load configuration. No such file - config/recording_studio_ab_tests.yml"
+        raise "missing file"
       end
     end.new(app_config)
 
@@ -86,7 +86,7 @@ class EngineTest < Minitest::Test
     assert_equal 15, RecordingStudioAbTests.configuration.max_cookie_entries
   end
 
-  def test_load_config_each_pair_errors_propagate
+  def test_load_config_swallow_each_pair_errors
     bad_pair_config = Class.new do
       def each_pair
         raise "bad pair"
@@ -101,10 +101,10 @@ class EngineTest < Minitest::Test
       end
     end.new(app_config)
 
-    error = assert_raises(RuntimeError) do
-      find_initializer("recording_studio_ab_tests.load_config").block.call(app)
-    end
-    assert_equal "bad pair", error.message
+    # Should not raise even if xcfg.each_pair fails.
+    find_initializer("recording_studio_ab_tests.load_config").block.call(app)
+
+    assert_equal false, RecordingStudioAbTests.configuration.enabled
   end
 
   def test_load_config_is_noop_without_config_sources
@@ -117,7 +117,7 @@ class EngineTest < Minitest::Test
     assert_equal :async, RecordingStudioAbTests.configuration.exposure_mode
   end
 
-  def test_load_config_yaml_each_errors_propagate
+  def test_load_config_ignores_non_enumerable_yaml_and_merge_errors
     yaml = Class.new do
       def each
         raise "bad yaml"
@@ -135,10 +135,9 @@ class EngineTest < Minitest::Test
     end.new(app_config)
     app.yaml = yaml
 
-    error = assert_raises(RuntimeError) do
-      find_initializer("recording_studio_ab_tests.load_config").block.call(app)
-    end
-    assert_equal "bad yaml", error.message
+    find_initializer("recording_studio_ab_tests.load_config").block.call(app)
+
+    assert_equal 22, RecordingStudioAbTests.configuration.max_cookie_entries
   end
 
   def test_apply_extension_initializers_register_active_support_on_load_callbacks
@@ -255,26 +254,45 @@ class EngineTest < Minitest::Test
     assert_equal :applied, instance.template_controller_extension
   end
 
-  def test_apply_model_extensions_returns_without_target
-    assert_nil RecordingStudioAbTests::Engine.apply_model_extensions(nil)
+  def test_apply_extensions_flattens_compacts_and_tracks_identity
+    target = Class.new
+    extension = proc do
+      def generated_method
+        :generated
+      end
+    end
+
+    RecordingStudioAbTests::Engine.send(:apply_extensions, target, [nil, [extension, extension]])
+
+    assert_equal :generated, target.new.generated_method
+    assert_equal true, target.instance_variable_get(:@recording_studio_ab_tests_applied_extensions).compare_by_identity?
   end
 
-  def test_demodulized_controller_name_receives_extension
-    controller_class = Class.new do
+  def test_apply_extensions_returns_without_target
+    assert_nil RecordingStudioAbTests::Engine.send(:apply_extensions, nil, [])
+  end
+
+  def test_extension_keys_for_includes_demodulized_name
+    namespaced = Class.new do
       def self.name
         "Admin::ReportsController"
       end
     end
 
-    RecordingStudioAbTests.configuration.hooks.extend_controller(:ReportsController) do
-      def demodulized_extension
-        :applied
+    expected_keys = [:"Admin::ReportsController"]
+    expected_keys << :ReportsController
+
+    assert_equal expected_keys, RecordingStudioAbTests::Engine.send(:extension_keys_for, namespaced)
+  end
+
+  def test_extension_keys_for_removes_duplicate_names
+    plain = Class.new do
+      def self.name
+        "ReportsController"
       end
     end
 
-    RecordingStudioAbTests::Engine.apply_controller_extensions(controller_class)
-
-    assert_equal :applied, controller_class.new.demodulized_extension
+    assert_equal [:ReportsController], RecordingStudioAbTests::Engine.send(:extension_keys_for, plain)
   end
 
   private

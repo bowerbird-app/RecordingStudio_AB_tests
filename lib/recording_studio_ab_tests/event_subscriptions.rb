@@ -77,9 +77,7 @@ module RecordingStudioAbTests
             metadata: mapped[:metadata] || mapped["metadata"] || {}
           )
         end
-      rescue UnknownTarget, ArgumentError
-        raise
-      rescue *FailurePolicy.rescued_errors => e
+      rescue StandardError => e
         ActiveSupport::Notifications.instrument(
           "conversion_failed.recording_studio_ab_tests",
           error: e,
@@ -93,7 +91,7 @@ module RecordingStudioAbTests
         return unless event.key == :user_registered
         return unless notification_in_request?
 
-        visitor_id = Identity.visitor_id(create: false)
+        visitor_id = Current.request.cookie_jar.signed[Identity::VISITOR_COOKIE]
         return if visitor_id.blank?
 
         user = find_user(payload[:user_id] || subject_identifier)
@@ -112,18 +110,15 @@ module RecordingStudioAbTests
 
       def find_user(user_id)
         return if user_id.blank?
+        return unless defined?(User)
 
-        klass = RecordingStudioAbTests.configuration.user_class
-        return unless klass
-
-        klass.find_by(id: user_id)
+        User.find_by(id: user_id)
       end
 
       def subject_for(kind, identifier)
         case kind.to_sym
         when :user
-          user = find_user(identifier)
-          return user if user
+          return User.find_by(id: identifier) if defined?(User)
 
           Struct.new(:id).new(identifier)
         when :visitor

@@ -51,15 +51,6 @@ module AbTestsHelper
     ActiveSupport::Notifications.unsubscribe(subscriber) if subscriber
   end
 
-  def device_key_cookie_name
-    RecordingStudioRootSwitchable.configuration.device_key_cookie_name
-  end
-
-  def set_request_device_key!(request, visitor_id)
-    request.cookie_jar.encrypted[device_key_cookie_name] = visitor_id
-    RecordingStudio::RootSwitchable::Current.device_key = visitor_id
-  end
-
   def with_ab_config(**attrs)
     config = RecordingStudioAbTests.configuration
     originals = attrs.keys.index_with { |k| config.public_send(k) }

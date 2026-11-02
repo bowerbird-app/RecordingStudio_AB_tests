@@ -59,16 +59,6 @@ class ConfigurationTest < Minitest::Test
     assert_equal 1, result.fetch(:hooks_registered).fetch(:after_service)
   end
 
-  def test_user_class_constantizes_configured_name
-    klass = Class.new
-    Object.const_set(:AbTestsUserProbe, klass)
-    @configuration.user_class_name = "AbTestsUserProbe"
-
-    assert_equal klass, @configuration.user_class
-  ensure
-    Object.class_eval { remove_const(:AbTestsUserProbe) } if Object.const_defined?(:AbTestsUserProbe, false)
-  end
-
   def test_configure_without_block_is_safe
     RecordingStudioAbTests.configure
 

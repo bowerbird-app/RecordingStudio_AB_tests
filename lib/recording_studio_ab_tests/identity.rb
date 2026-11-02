@@ -2,11 +2,7 @@
 
 module RecordingStudioAbTests
   module Identity
-    COOKIE_READ_ERRORS = [
-      JSON::ParserError,
-      ActiveSupport::MessageVerifier::InvalidSignature,
-      ActiveSupport::MessageEncryptor::InvalidMessage
-    ].freeze
+    VISITOR_COOKIE = :_rsab_vid
 
     module_function
 
@@ -40,7 +36,11 @@ module RecordingStudioAbTests
     def visitor_id(create: true)
       return Current.visitor_id if Current.visitor_id.present?
 
-      existing = existing_device_key
+      request = Current.request
+      return nil unless request
+
+      jar = request.cookie_jar.signed
+      existing = jar[VISITOR_COOKIE]
       if existing.present?
         Current.visitor_id = existing.to_s
         return Current.visitor_id
@@ -48,13 +48,32 @@ module RecordingStudioAbTests
 
       return nil unless create
 
-      fetched = fetch_device_key
-      return nil if fetched.blank?
+      id = SecureRandom.uuid
+      write_visitor_cookie!(id)
+      Current.visitor_id = id
+      id
+    rescue StandardError
+      # Tampered/invalid cookie → treat as absent
+      return nil unless create
 
-      Current.visitor_id = fetched.to_s
-      Current.visitor_id
-    rescue *COOKIE_READ_ERRORS
-      nil
+      id = SecureRandom.uuid
+      write_visitor_cookie!(id)
+      Current.visitor_id = id
+      id
+    end
+
+    def write_visitor_cookie!(id)
+      request = Current.request
+      return unless request
+
+      config = RecordingStudioAbTests.configuration
+      request.cookie_jar.signed[VISITOR_COOKIE] = {
+        value: id,
+        httponly: true,
+        same_site: :lax,
+        secure: defined?(Rails) && Rails.env.production?,
+        expires: config.visitor_cookie_ttl.from_now
+      }
     end
 
     def resolve_user_identifier
@@ -81,36 +100,6 @@ module RecordingStudioAbTests
       Current.controller = controller
       Current.user_identifier ||= resolve_user_identifier
       Current.root_recording_id ||= resolve_root_recording_id&.to_s
-    end
-
-    def existing_device_key
-      if defined?(RecordingStudio::RootSwitchable::Current)
-        present = RecordingStudio::RootSwitchable::Current.device_key
-        return present.to_s if present.present?
-      end
-
-      read_device_key_cookie
-    end
-
-    def fetch_device_key
-      return unless defined?(RecordingStudio::RootSwitchable::DeviceKey)
-
-      RecordingStudio::RootSwitchable::DeviceKey.fetch(
-        controller: Current.controller,
-        cookies: Current.request&.cookie_jar
-      )
-    rescue RecordingStudio::RootSwitchable::DeviceKey::Unavailable
-      nil
-    end
-
-    def read_device_key_cookie
-      return unless defined?(RecordingStudioRootSwitchable)
-      return unless Current.request
-
-      cookie_name = RecordingStudioRootSwitchable.configuration.device_key_cookie_name
-      jar = Current.request.cookie_jar
-      encrypted_jar = jar.respond_to?(:encrypted) ? jar.encrypted : jar
-      encrypted_jar[cookie_name].presence
     end
   end
 end
