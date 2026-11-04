@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (`recording_studio_layout` with `RecordingStudio::Layout.accept`). The
   extra admin layout wrapper is gone.
 - Removed leftover gem-template docs, Copilot agents, and pin-update notes.
+- Dummy lockfile: `net-ssh` 7.3.8 (`rack` remains 3.2.8) so bundler-audit is clean.
 
 ### Upgrade notes
 - Pin Recording Studio `v6.3.0` (`>= 6.3.0`). A `~> 4.7` cap will not resolve.
