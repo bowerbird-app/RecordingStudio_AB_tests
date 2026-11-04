@@ -2,17 +2,23 @@
 
 source "https://rubygems.org"
 
+require_relative "test/support/widen_recording_studio_requirement"
+
 # Specify your gem's dependencies in recording_studio_ab_tests.gemspec
 gemspec
 
 # recording_studio is not published to RubyGems; resolve the gemspec pin from GitHub.
-gem "recording_studio", github: "bowerbird-app/RecordingStudio", tag: "v4.7.0"
+gem "recording_studio", github: "bowerbird-app/RecordingStudio", tag: "v6.3.0"
+
+# flat_pack is not published to RubyGems. Recording Studio 6.3.0 requires >= 0.1.341.
+gem "flat_pack", github: "bowerbird-app/flatpack", tag: "v0.1.341"
 
 gem "devise"
 gem "puma"
 gem "sprockets-rails"
 
 group :development, :test do
+  gem "bundler-audit", require: false
   gem "debug"
   gem "minitest-mock"
   gem "simplecov", require: false

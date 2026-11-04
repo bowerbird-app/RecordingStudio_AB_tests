@@ -38,7 +38,18 @@ class ConfigurationTest < Minitest::Test
     assert_equal :async, configuration.exposure_mode
     assert_equal 15, configuration.max_cookie_entries
     assert_equal "/ab_tests", configuration.mount_path
+    assert_nil configuration.layout
     assert_instance_of RecordingStudio::Hooks, configuration.hooks
+  end
+
+  def test_layout_accepts_core_layout_contract
+    @configuration.layout = "recording_studio/default_layout"
+
+    assert_equal "recording_studio/default_layout", @configuration.layout
+    assert_equal "recording_studio/default_layout", @configuration.to_h.fetch(:layout)
+
+    error = assert_raises(ArgumentError) { @configuration.layout = ->(_controller) { "application" } }
+    assert_match(/controller:/, error.message)
   end
 
   def test_merge_accepts_string_keys

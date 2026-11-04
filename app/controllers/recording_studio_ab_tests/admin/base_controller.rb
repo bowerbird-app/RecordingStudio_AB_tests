@@ -8,11 +8,13 @@ module RecordingStudioAbTests
       before_action :require_admin_actor!
       before_action :authorize_admin_actor!
 
-      layout "recording_studio_ab_tests/admin"
-
-      helper_method :recording_studio_admin_context, :current_admin_actor
+      helper_method :recording_studio_admin_context, :current_admin_actor, :ab_tests_layout_title
 
       private
+
+      def ab_tests_layout_title
+        RecordingStudio.t("recording_studio.ab_tests.layout.title")
+      end
 
       def require_admin_actor!
         return if current_admin_actor.present?
