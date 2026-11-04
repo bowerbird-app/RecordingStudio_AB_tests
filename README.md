@@ -120,6 +120,11 @@ after-commit and idempotent. Assignment ≠ exposure.
 Soft-registers when `RecordingStudioAdmin` is loaded. Host `AdminRoot` must
 include `section :ab_tests`. See Admin docs / dummy `AdminRoot` for the pattern.
 
+Experiment screens use Recording Studio Default Layout (`recording_studio_layout`
+with `RecordingStudio::Layout.accept`). Set
+`RecordingStudioAbTests.configuration.layout` when the host shell should wrap
+those pages; `nil` keeps core Default Layout.
+
 ## Interface text
 
 User-facing copy in the gem (admin experiment views, controller flashes,

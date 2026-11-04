@@ -1,7 +1,5 @@
 source "https://rubygems.org"
 
-require_relative "../support/widen_recording_studio_requirement"
-
 # Use the recording_studio_ab_tests engine
 gem "recording_studio_ab_tests", path: "../.."
 

@@ -5,7 +5,13 @@ require "test_helper"
 class RecordingStudioTemplateTest < ActiveSupport::TestCase
   test "dummy app loads root switchable config and controller support" do
     assert_equal [ "all_workspaces" ], RecordingStudioRootSwitchable.configuration.scopes.keys
-    assert RecordingStudioRootSwitchable.configuration.layout.respond_to?(:call)
+    layout = RecordingStudioRootSwitchable.configuration.layout
+    host = ApplicationController.new
+    assert_equal "recording_studio/default_layout", host.application_layout
+    assert_equal "recording_studio/default_layout", layout.call(controller: host)
+    host.define_singleton_method(:devise_controller?) { true }
+    assert_equal "application", host.application_layout
+    assert_equal "application", layout.call(controller: host)
     assert_includes ApplicationController.ancestors, RecordingStudio::RootSwitchable::ControllerSupport
     refute_includes ApplicationController.ancestors.map(&:to_s), "RecordingStudio::UsesDefaultLayout"
   end

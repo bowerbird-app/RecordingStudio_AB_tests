@@ -12,27 +12,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Version `0.6.1` → `0.7.0`.
 - Gemspec Recording Studio floor is `>= 6.3.0` (dummy GitHub tag `v6.3.0`).
-- Dummy pins: FlatPack `v0.1.341`, Accessible `v0.24.0`, Metrics `v0.7.2`,
-  Admin `v2.8.2` (2.5.1 still calls `recording_studio_page_nav`), Logs `v0.7.2`,
+- Dummy pins whose gemspecs already accept core 6.3.0: FlatPack `v0.1.341`,
+  Accessible `v0.24.0`, Metrics `v0.7.2`, Admin `v2.8.2`, Logs `v0.7.2`,
   Users `v0.26.6`, Trashable `v0.12.0`, Attachable `v0.22.0`,
   Root Switchable `v0.11.3`, Cache `v0.6.1`.
 - Gem experiment screens use core Default Layout
   (`recording_studio_layout` with `RecordingStudio::Layout.accept`). The
-  extra admin layout wrapper is gone.
-- Removed leftover gem-template docs, Copilot agents, and pin-update notes.
-- Dummy lockfile: `net-ssh` 7.3.8 (`rack` remains 3.2.8) so bundler-audit is clean.
+  extra admin layout wrapper is gone. Hosts can set `configuration.layout`.
 
 ### Upgrade notes
 - Pin Recording Studio `v6.3.0` (`>= 6.3.0`). A `~> 4.7` cap will not resolve.
-- Pin FlatPack `v0.1.341`, Accessible `v0.24.0`, and Metrics `v0.7.2` if
-  those gems are in the host bundle.
+- Pin siblings that already resolve on 6.3.0, if they are in the host bundle:
+  FlatPack `v0.1.341`, Accessible `v0.24.0`, Metrics `v0.7.2`, Admin `v2.8.2`,
+  Logs `v0.7.2`, Users `v0.26.6`, Trashable `v0.12.0`, Attachable `v0.22.0`,
+  Root Switchable `v0.11.3`, Cache `v0.6.1`.
 - Dummy Admin is `v2.8.2` because `v2.5.1` still calls
   `recording_studio_page_nav`, which core 6 removed. Hosts already on a newer
   Admin can keep it. Pin Logs `v0.7.2` with Admin 2.6+.
 - Experiment admin pages now sit in core's Default Layout (back, close,
   title). If you overrode `layouts/recording_studio_ab_tests/admin`, drop
   that override or point those screens at the same layout as the rest of
-  the host.
+  the host. Optional: `RecordingStudioAbTests.configuration.layout`.
 - No A/B schema migration. Visitor cookies, assignment, and conversions
   are unchanged.
 

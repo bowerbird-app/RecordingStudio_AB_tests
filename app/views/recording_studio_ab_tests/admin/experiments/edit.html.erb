@@ -1,4 +1,4 @@
-<% content_for :title, RecordingStudio.t("recording_studio.ab_tests.experiments.edit.page_title", name: @experiment.name) %>
+<% content_for :title, ab_tests_document_title(RecordingStudio.t("recording_studio.ab_tests.experiments.edit.page_title", name: @experiment.name)) %>
 <% frozen = !@experiment.draft? %>
 
 <%= render FlatPack::PageHeader::Component.new(

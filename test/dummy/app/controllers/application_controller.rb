@@ -14,11 +14,11 @@ class ApplicationController < ActionController::Base
   before_action :authenticate_user!
   before_action :set_current_actor
 
-  private
-
   def application_layout
     devise_controller? ? "application" : "recording_studio/default_layout"
   end
+
+  private
 
   def set_current_actor
     Current.actor = current_user

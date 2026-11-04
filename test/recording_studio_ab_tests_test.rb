@@ -157,8 +157,16 @@ class RecordingStudioAbTestsTest < Minitest::Test
     controller_source = File.read(application_controller_path)
 
     refute_includes controller_source, "UsesDefaultLayout"
+    assert_includes controller_source, "include RecordingStudio::ControllerLayout"
+    assert_includes controller_source, "layout :application_layout"
+    assert_includes controller_source, "def application_layout"
     assert_includes controller_source, '"recording_studio/default_layout"'
     assert_includes controller_source, "devise_controller? ? \"application\""
+    initializer = File.read(
+      File.expand_path("dummy/config/initializers/recording_studio_root_switchable.rb", __dir__)
+    )
+    assert_includes initializer, "controller.application_layout"
+    refute_includes initializer, ".send("
     refute_includes controller_source, "flat_pack_sidebar"
     refute File.exist?(File.expand_path("dummy/app/views/layouts/flat_pack_sidebar.html.erb", __dir__))
     refute File.exist?(File.expand_path("dummy/app/views/layouts/flat_pack/_sidebar.html.erb", __dir__))
@@ -345,14 +353,30 @@ class RecordingStudioAbTestsTest < Minitest::Test
     assert_includes application_controller, "include RecordingStudio::ControllerLayout"
     assert_includes application_controller, "recording_studio_layout { RecordingStudioAbTests.configuration.layout }"
     refute_includes base_controller, "layout \"recording_studio_ab_tests/admin\""
+    assert_includes base_controller, ":ab_tests_layout_title"
     assert_includes configuration, "RecordingStudio::Layout.accept"
+    helper = File.read(
+      File.expand_path("../app/helpers/recording_studio_ab_tests/admin/experiments_helper.rb", __dir__)
+    )
+    new_view = File.read(
+      File.expand_path("../app/views/recording_studio_ab_tests/admin/experiments/new.html.erb", __dir__)
+    )
+    assert_includes helper, "def ab_tests_document_title"
+    assert_includes helper, "ab_tests_layout_title"
+    assert_includes new_view, "ab_tests_document_title"
     refute File.exist?(
       File.expand_path("../app/views/layouts/recording_studio_ab_tests/admin.html.erb", __dir__)
     )
-    refute File.exist?(File.expand_path("../docs/gem_template", __dir__))
-    refute File.exist?(File.expand_path("../UPDATE_SUMMARY.md", __dir__))
-    refute File.exist?(File.expand_path("../MIGRATION_NOTES.md", __dir__))
-    refute File.exist?(File.expand_path("../.github/copilot-instructions.md", __dir__))
-    refute File.exist?(File.expand_path("../.github/agents", __dir__))
+  end
+
+  def test_bundle_does_not_rewrite_sibling_recording_studio_requirements
+    refute File.exist?(File.expand_path("support/widen_recording_studio_requirement.rb", __dir__))
+    gemfile = File.read(File.expand_path("../Gemfile", __dir__))
+    dummy_gemfile = File.read(File.expand_path("dummy/Gemfile", __dir__))
+
+    refute_includes gemfile, "widen_recording_studio_requirement"
+    refute_includes dummy_gemfile, "widen_recording_studio_requirement"
+    refute_includes gemfile, "Gem::Specification.prepend"
+    refute_includes dummy_gemfile, "Gem::Specification.prepend"
   end
 end
