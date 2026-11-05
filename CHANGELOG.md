@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   extra admin layout wrapper is gone. Hosts can set `configuration.layout`.
 - Experiment show keeps the tab strip and inner tables from stretching the
   page on a 390px viewport (`min-w-0`, `overflow-x-auto`, `break-words`).
+- Lockfiles: Rails `8.1.4.1` (bundler-audit).
 
 ### Upgrade notes
 - Pin Recording Studio `v6.3.0` (`>= 6.3.0`). A `~> 4.7` cap will not resolve.
