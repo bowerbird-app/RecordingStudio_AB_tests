@@ -19,6 +19,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Gem experiment screens use core Default Layout
   (`recording_studio_layout` with `RecordingStudio::Layout.accept`). The
   extra admin layout wrapper is gone. Hosts can set `configuration.layout`.
+- Experiment show keeps the tab strip and inner tables from stretching the
+  page on a 390px viewport (`min-w-0`, `overflow-x-auto`, `break-words`).
 
 ### Upgrade notes
 - Pin Recording Studio `v6.3.0` (`>= 6.3.0`). A `~> 4.7` cap will not resolve.

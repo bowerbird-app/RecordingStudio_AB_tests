@@ -148,6 +148,8 @@ class AbAdminTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "[data-recording-studio-default-layout=true]"
     assert_select "html[data-theme=rounded]"
+    assert_select "[class*='overflow-x-auto'][class*='min-w-0']"
+    assert_select "[data-testid=ab-configuration-panel][class*='break-words']"
   end
 
   test "experiment CRUD new and show pages render literal english chrome" do

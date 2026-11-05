@@ -25,6 +25,7 @@
            value_per_exposed: row.value_per_exposed
          }
        } %>
+    <div class="min-w-0 max-w-full overflow-x-auto">
     <%= render FlatPack::Table::Component.new(data: rows, class: "text-sm") do |table| %>
       <% table.column(title: RecordingStudio.t("recording_studio.ab_tests.experiments.results.columns.variant")) { |row| row[:variant] } %>
       <% table.column(title: RecordingStudio.t("recording_studio.ab_tests.experiments.results.columns.assignments")) { |row| row[:assignments] } %>
@@ -37,5 +38,6 @@
       <% table.column(title: RecordingStudio.t("recording_studio.ab_tests.experiments.results.columns.total_value")) { |row| row[:total_value] } %>
       <% table.column(title: RecordingStudio.t("recording_studio.ab_tests.experiments.results.columns.value_per_exposed")) { |row| row[:value_per_exposed] } %>
     <% end %>
+    </div>
   <% end %>
 </div>

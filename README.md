@@ -123,7 +123,10 @@ include `section :ab_tests`. See Admin docs / dummy `AdminRoot` for the pattern.
 Experiment screens use Recording Studio Default Layout (`recording_studio_layout`
 with `RecordingStudio::Layout.accept`). Set
 `RecordingStudioAbTests.configuration.layout` when the host shell should wrap
-those pages; `nil` keeps core Default Layout.
+those pages; `nil` keeps core Default Layout. On a phone-width viewport the
+experiment show page wraps keys and scrolls the tab strip and inner tables
+inside the page instead of stretching sideways. The Admin experiments list
+table still scrolls horizontally on purpose.
 
 ## Interface text
 

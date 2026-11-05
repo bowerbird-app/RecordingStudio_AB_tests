@@ -361,9 +361,18 @@ class RecordingStudioAbTestsTest < Minitest::Test
     new_view = File.read(
       File.expand_path("../app/views/recording_studio_ab_tests/admin/experiments/new.html.erb", __dir__)
     )
+    show_view = File.read(
+      File.expand_path("../app/views/recording_studio_ab_tests/admin/experiments/show.html.erb", __dir__)
+    )
+    variants_view = File.read(
+      File.expand_path("../app/views/recording_studio_ab_tests/admin/experiments/_variants.html.erb", __dir__)
+    )
     assert_includes helper, "def ab_tests_document_title"
     assert_includes helper, "ab_tests_layout_title"
     assert_includes new_view, "ab_tests_document_title"
+    assert_includes show_view, "min-w-0 max-w-full overflow-x-auto"
+    assert_includes show_view, "break-words"
+    assert_includes variants_view, "min-w-0 max-w-full overflow-x-auto"
     refute File.exist?(
       File.expand_path("../app/views/layouts/recording_studio_ab_tests/admin.html.erb", __dir__)
     )

@@ -12,6 +12,7 @@
      } %>
 
   <% if goal_rows.any? %>
+    <div class="min-w-0 max-w-full overflow-x-auto">
     <%= render FlatPack::Table::Component.new(data: goal_rows, class: "text-sm") do |table| %>
       <% table.column(title: RecordingStudio.t("recording_studio.ab_tests.experiments.goals.columns.key")) { |row| row[:key] } %>
       <% table.column(title: RecordingStudio.t("recording_studio.ab_tests.experiments.goals.columns.name")) { |row| row[:name] } %>
@@ -25,6 +26,7 @@
         <% end %>
       <% end %>
     <% end %>
+    </div>
   <% else %>
     <%= render FlatPack::EmptyState::Component.new(
       title: RecordingStudio.t("recording_studio.ab_tests.experiments.goals.empty_title"),
