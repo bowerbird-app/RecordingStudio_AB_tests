@@ -19,7 +19,7 @@ module RecordingStudioAbTests
                   :visitor_cookie_ttl,
                   :allow_force_param,
                   :mount_path
-    attr_reader :hooks
+    attr_reader :hooks, :layout
 
     def initialize
       @enabled = true
@@ -40,7 +40,12 @@ module RecordingStudioAbTests
       @visitor_cookie_ttl = 1.year
       @allow_force_param = false
       @mount_path = "/ab_tests"
+      @layout = nil
       @hooks = RecordingStudio::Hooks.new
+    end
+
+    def layout=(value)
+      @layout = RecordingStudio::Layout.accept(value)
     end
 
     def to_h
@@ -57,6 +62,7 @@ module RecordingStudioAbTests
         visitor_cookie_ttl: visitor_cookie_ttl,
         allow_force_param: allow_force_param,
         mount_path: mount_path,
+        layout: layout,
         hooks_registered: hooks.registered_counts
       }
     end

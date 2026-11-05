@@ -25,6 +25,10 @@ module RecordingStudioAbTests
       def tab_index_for(tab)
         TAB_INDEXES.fetch(tab.to_s, 0)
       end
+
+      def ab_tests_document_title(specific = nil)
+        specific.presence || ab_tests_layout_title
+      end
     end
   end
 end

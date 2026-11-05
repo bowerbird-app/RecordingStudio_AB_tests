@@ -1,13 +1,15 @@
-<% content_for :title, @experiment.name %>
+<% content_for :title, ab_tests_document_title(@experiment.name) %>
 
-<%= render FlatPack::PageHeader::Component.new(
-  title: @experiment.name,
-  subtitle: RecordingStudio.t("recording_studio.ab_tests.experiments.show.subtitle",
-    key: @experiment.key,
-    status: @experiment.status,
-    target: @experiment.target_key
-  )
-) %>
+<div class="min-w-0 max-w-full break-words">
+  <%= render FlatPack::PageHeader::Component.new(
+    title: @experiment.name,
+    subtitle: RecordingStudio.t("recording_studio.ab_tests.experiments.show.subtitle",
+      key: @experiment.key,
+      status: @experiment.status,
+      target: @experiment.target_key
+    )
+  ) %>
+</div>
 
 <% if flash[:notice].present? %>
   <%= render FlatPack::Alert::Component.new(title: flash[:notice], style: :success) %>
@@ -16,7 +18,7 @@
   <%= render FlatPack::Alert::Component.new(title: RecordingStudio.t("recording_studio.ab_tests.experiments.show.action_failed"), description: flash[:alert], style: :danger) %>
 <% end %>
 
-<div class="mb-6 flex flex-wrap gap-2" data-testid="ab-lifecycle-actions">
+<div class="mb-6 flex min-w-0 max-w-full flex-wrap gap-2" data-testid="ab-lifecycle-actions">
   <%= render FlatPack::Badge::Component.new(text: @experiment.status, style: status_badge_style(@experiment.status)) %>
 
   <% if RecordingStudioAbTests::Admin.transition_allowed?(@experiment, :start) %>
@@ -62,14 +64,14 @@
   <% end %>
 <% end %>
 
-<%= render FlatPack::Tabs::Component.new(default_tab: tab_index_for(@tab)) do |tabs| %>
+<%= render FlatPack::Tabs::Component.new(default_tab: tab_index_for(@tab), class: "min-w-0 max-w-full overflow-x-auto") do |tabs| %>
   <% tabs.tab(id: "configuration", label: RecordingStudio.t("recording_studio.ab_tests.experiments.show.tabs.configuration")) %>
   <% tabs.tab(id: "variants", label: RecordingStudio.t("recording_studio.ab_tests.experiments.show.tabs.variants")) %>
   <% tabs.tab(id: "goals", label: RecordingStudio.t("recording_studio.ab_tests.experiments.show.tabs.goals")) %>
   <% tabs.tab(id: "results", label: RecordingStudio.t("recording_studio.ab_tests.experiments.show.tabs.results")) %>
 
   <% tabs.panel(id: "configuration") do %>
-    <div class="mt-4 space-y-2 text-sm" data-testid="ab-configuration-panel">
+    <div class="mt-4 min-w-0 max-w-full space-y-2 break-words text-sm" data-testid="ab-configuration-panel">
       <p><strong><%= RecordingStudio.t("recording_studio.ab_tests.experiments.show.fields.name") %></strong> <%= @experiment.name %></p>
       <p><strong><%= RecordingStudio.t("recording_studio.ab_tests.experiments.show.fields.key") %></strong> <%= @experiment.key %></p>
       <p><strong><%= RecordingStudio.t("recording_studio.ab_tests.experiments.show.fields.status") %></strong> <%= @experiment.status %></p>

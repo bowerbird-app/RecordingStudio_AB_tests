@@ -7,5 +7,4 @@ RecordingStudioAttachable.configure do |config|
   config.enabled_attachment_kinds = %i[image file]
   config.default_listing_scope = :direct
   config.default_kind_filter = :all
-  config.layout = :blank
 end

@@ -5,9 +5,15 @@ require "test_helper"
 class RecordingStudioTemplateTest < ActiveSupport::TestCase
   test "dummy app loads root switchable config and controller support" do
     assert_equal [ "all_workspaces" ], RecordingStudioRootSwitchable.configuration.scopes.keys
-    assert_equal :application_layout, RecordingStudioRootSwitchable.configuration.layout
+    layout = RecordingStudioRootSwitchable.configuration.layout
+    host = ApplicationController.new
+    assert_equal "recording_studio/default_layout", host.application_layout
+    assert_equal "recording_studio/default_layout", layout.call(controller: host)
+    host.define_singleton_method(:devise_controller?) { true }
+    assert_equal "application", host.application_layout
+    assert_equal "application", layout.call(controller: host)
     assert_includes ApplicationController.ancestors, RecordingStudio::RootSwitchable::ControllerSupport
-    assert_includes ApplicationController.ancestors, RecordingStudio::UsesDefaultLayout
+    refute_includes ApplicationController.ancestors.map(&:to_s), "RecordingStudio::UsesDefaultLayout"
   end
 
   test "dummy app validates recordable declarations" do
@@ -69,6 +75,6 @@ class RecordingStudioTemplateTest < ActiveSupport::TestCase
     assert RecordingStudio.capability_enabled?(:accessible, for: Workspace)
     refute RecordingStudio.capability_enabled?(:accessible, for: Folder)
     refute RecordingStudio.capability_enabled?(:accessible, for: Page)
-    assert_includes ApplicationController.ancestors, RecordingStudio::UsesDefaultLayout
+    refute_includes ApplicationController.ancestors.map(&:to_s), "RecordingStudio::UsesDefaultLayout"
   end
 end

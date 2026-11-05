@@ -1,7 +1,7 @@
 <%#
-  Control copy of RecordingStudioUser v0.16.0
+  Control copy of RecordingStudioUser v0.26.6
   app/views/recording_studio_user/auth/registrations/new.html.erb
-  Digest: f844930af9cae292428cd333547320c802a3fee5eba0ce78d18056223ca3a52b
+  Digest: f8b47bcf9cf76a3b3e177f208e1f8234d0e306d4b3a2e09564cbb7f044c2c253
   Refresh via recording_studio_ab_tests:verify_overrides when the gem template drifts.
 %>
 <%= render layout: "recording_studio_user/auth/shell", locals: { title: t("recording_studio_user.auth.sign_up") } do %>
@@ -34,12 +34,12 @@
     <% end %>
   </div>
 
-  <p class="text-center text-sm text-[var(--surface-muted-content-color)]">
+  <%= render FlatPack::Content::Component.new(class: "text-center") do %>
     <%= t("recording_studio_user.auth.already_have_one") %>
     <%= render FlatPack::Link::Component.new(href: auth_sign_in_path) do %>
       <%= t("recording_studio_user.auth.log_in") %>
     <% end %>
-  </p>
+  <% end %>
 
   <%= render "recording_studio_user/omniauth/continue_with_providers" %>
 <% end %>

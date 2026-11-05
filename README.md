@@ -4,17 +4,17 @@ Server-side A/B testing for Recording Studio hosts. Sticky assignment, exposures
 event-driven conversions, Admin screens, service targets, and variant-aware
 fragment caching.
 
-Built on RecordingStudio (dummy GitHub tag `v4.7.0`), FlatPack (dummy GitHub tag `v0.1.213`), Accessible (dummy GitHub tag `v0.18.0`), Users (dummy GitHub tag `v0.21.0`), Admin (dummy GitHub tag `v2.3.0`), Trashable (dummy GitHub tag `v0.11.0`, `require: false` for Admin / Accessible query helpers), Attachable (dummy GitHub tag `v0.15.0`), Root Switchable (dummy GitHub tag `v0.9.0`), Metrics (dummy GitHub tag `v0.2.0`, required by Root Switchable 0.7+ / Admin 2.3+ Bundler), and optionally RecordingStudioCache (dummy GitHub tag `v0.5.0`, public).
+Built on RecordingStudio (dummy GitHub tag `v6.3.0`), FlatPack (dummy GitHub tag `v0.1.341`), Accessible (dummy GitHub tag `v0.24.0`), Users (dummy GitHub tag `v0.26.6`), Admin (dummy GitHub tag `v2.8.2`), Logs (dummy GitHub tag `v0.7.2`), Trashable (dummy GitHub tag `v0.12.0`, `require: false` for Admin / Accessible query helpers), Attachable (dummy GitHub tag `v0.22.0`), Root Switchable (dummy GitHub tag `v0.11.3`), Metrics (dummy GitHub tag `v0.7.2`, required by Root Switchable), and optionally RecordingStudioCache (dummy GitHub tag `v0.6.1`, public).
 
-**Version:** `0.6.1`
+**Version:** `0.7.0`
 
 ## Install
 
 ```ruby
 # Host Gemfile
-gem "recording_studio_ab_tests", github: "bowerbird-app/RecordingStudio_AB_tests", tag: "v0.6.1"
+gem "recording_studio_ab_tests", github: "bowerbird-app/RecordingStudio_AB_tests", tag: "v0.7.0"
 # Optional — enables RecordingStudioCache-backed render_ab cache:
-gem "recording_studio_cache", github: "bowerbird-app/RecordingStudio_cache", tag: "v0.5.0"
+gem "recording_studio_cache", github: "bowerbird-app/RecordingStudio_cache", tag: "v0.6.1"
 ```
 
 ```bash
@@ -89,7 +89,7 @@ app/views/ab/signup/_body.html+ab_signup_b.erb
 Pin `source_template: { engine:, path:, digest: }` and run
 `bin/rails recording_studio_ab_tests:verify_overrides` to catch gem-template drift.
 
-Users **v0.21.0** prefers host `app/views` on auth screens, so the real
+Users **v0.26.6** prefers host `app/views` on auth screens, so the real
 `/users/sign_up` surface can carry `<%= render_ab :signup_page %>`. Conversions
 subscribe to `registration.completed.recording_studio_user` (password / OAuth /
 OTP).
@@ -120,6 +120,14 @@ after-commit and idempotent. Assignment ≠ exposure.
 Soft-registers when `RecordingStudioAdmin` is loaded. Host `AdminRoot` must
 include `section :ab_tests`. See Admin docs / dummy `AdminRoot` for the pattern.
 
+Experiment screens use Recording Studio Default Layout (`recording_studio_layout`
+with `RecordingStudio::Layout.accept`). Set
+`RecordingStudioAbTests.configuration.layout` when the host shell should wrap
+those pages; `nil` keeps core Default Layout. On a phone-width viewport the
+experiment show page wraps keys and scrolls the tab strip and inner tables
+inside the page instead of stretching sideways. The Admin experiments list
+table still scrolls horizontally on purpose.
+
 ## Interface text
 
 User-facing copy in the gem (admin experiment views, controller flashes,
@@ -136,7 +144,7 @@ then the caller's `default:`, then the merged shipped English table. A missing
 (non-html_safe) String, so views will escape it. An interpolating caller
 `default:` on a missing `_html` key is stricter (args escaped, result
 html_safe). Hosts override or add languages in their own `config/locales`.
-Requires `recording_studio ~> 4.7`. There is no dependency on
+Requires `recording_studio >= 6.3.0`. There is no dependency on
 `recording_studio_internationalization`.
 
 Admin table column headers stay English. Stored/user data (experiment names,

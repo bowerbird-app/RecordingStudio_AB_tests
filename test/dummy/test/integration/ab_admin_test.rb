@@ -137,6 +137,21 @@ class AbAdminTest < ActionDispatch::IntegrationTest
     assert_select "turbo-frame#screen-chart"
   end
 
+  test "experiment admin pages render in core default layout" do
+    get "/ab_tests/admin/experiments/new"
+    assert_response :success
+    assert_select "[data-recording-studio-default-layout=true]"
+    assert_select "html[data-theme=rounded]"
+    assert_select "title", text: /New experiment/
+
+    get "/ab_tests/admin/experiments/#{@experiment.id}"
+    assert_response :success
+    assert_select "[data-recording-studio-default-layout=true]"
+    assert_select "html[data-theme=rounded]"
+    assert_select "[class*='overflow-x-auto'][class*='min-w-0']"
+    assert_select "[data-testid=ab-configuration-panel][class*='break-words']"
+  end
+
   test "experiment CRUD new and show pages render literal english chrome" do
     get "/ab_tests/admin/experiments/new"
     assert_response :success
