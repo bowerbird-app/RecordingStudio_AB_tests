@@ -196,14 +196,17 @@ The `gem_template` helper provides access to all engine routes.
 
 ## RecordingStudio Host-App Check
 
-This template's dummy app uses RecordingStudio `v4.7.0` (`recording_studio ~> 4.7` in the gemspec). Keep
+This gem requires Recording Studio `>= 7.0, < 8.0`. Keep
 `config.require_recordable_declarations = true`, declare every configured recordable with
-`recording_studio_recordable(...)`, and create roots with `RecordingStudio.root_recording_for(recordable)`.
+`recording_studio_recordable(...)`, and create roots with
+`RecordingStudio.create_root_recording!(recordable, actor:)`.
+`RecordingStudio.root_recording_for(recordable)` only finds an existing root.
 Child recordings must be created with an explicit `parent_recording`.
+Set `config.authorize_write` so core accepts the write.
 
-When Accessible is bundled, pin the dummy or host Gemfile to `v0.18.0`, run
+When Accessible is bundled, pin a core 7 tag (dummy uses `v0.44.0`), run
 `bin/rails generate recording_studio_accessible:migrations`, migrate, and rebuild Tailwind after
-bumping FlatPack (`v0.1.213`).
+bumping FlatPack (dummy uses `v0.1.376`).
 
 ---
 

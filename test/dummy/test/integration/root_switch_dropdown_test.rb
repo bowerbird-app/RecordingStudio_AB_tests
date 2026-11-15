@@ -20,6 +20,19 @@ class RootSwitchDropdownTest < ActionDispatch::IntegrationTest
     refute_includes response.body, "fixed inset-0"
   end
 
+  test "password sign-in redirects home" do
+    user = User.find_or_create_by!(email: "password-sign-in@example.com") do |record|
+      record.password = "Password123!"
+      record.password_confirmation = "Password123!"
+    end
+
+    post "/users/sign_in/password", params: {
+      user: { email: user.email, password: "Password123!" }
+    }
+
+    assert_redirected_to root_path
+  end
+
   test "home page renders the root switch dropdown trigger" do
     user = User.find_or_create_by!(email: "root-switch-test@example.com") do |record|
       record.password = "Password123!"
@@ -29,7 +42,8 @@ class RootSwitchDropdownTest < ActionDispatch::IntegrationTest
     sign_in user
 
     workspace = Workspace.create!(name: "Dropdown Workspace")
-    RecordingStudio.root_recording_for(workspace)
+    root_recording = RecordingStudio.create_root_recording!(workspace, actor: user)
+    grant_owner!(user, root_recording)
 
     get root_path
 
@@ -47,7 +61,8 @@ class RootSwitchDropdownTest < ActionDispatch::IntegrationTest
     sign_in user
 
     workspace = Workspace.create!(name: "Switch Page Workspace")
-    RecordingStudio.root_recording_for(workspace)
+    root_recording = RecordingStudio.create_root_recording!(workspace, actor: user)
+    grant_owner!(user, root_recording)
 
     get "/recording_studio_root_switchable/v1/root_switch?scope=all_workspaces"
 
@@ -66,8 +81,10 @@ class RootSwitchDropdownTest < ActionDispatch::IntegrationTest
 
     source_workspace = Workspace.create!(name: "Source Workspace")
     target_workspace = Workspace.create!(name: "Target Workspace")
-    target_root_recording = RecordingStudio.root_recording_for(target_workspace)
-    RecordingStudio.root_recording_for(source_workspace)
+    target_root_recording = RecordingStudio.create_root_recording!(target_workspace, actor: user)
+    source_root_recording = RecordingStudio.create_root_recording!(source_workspace, actor: user)
+    grant_owner!(user, source_root_recording)
+    grant_owner!(user, target_root_recording)
 
     patch "/recording_studio_root_switchable/v1/root_switch", params: {
       scope: "all_workspaces",
@@ -90,8 +107,10 @@ class RootSwitchDropdownTest < ActionDispatch::IntegrationTest
 
     source_workspace = Workspace.create!(name: "Fallback Source Workspace")
     target_workspace = Workspace.create!(name: "Fallback Target Workspace")
-    target_root_recording = RecordingStudio.root_recording_for(target_workspace)
-    RecordingStudio.root_recording_for(source_workspace)
+    target_root_recording = RecordingStudio.create_root_recording!(target_workspace, actor: user)
+    source_root_recording = RecordingStudio.create_root_recording!(source_workspace, actor: user)
+    grant_owner!(user, source_root_recording)
+    grant_owner!(user, target_root_recording)
 
     patch "/recording_studio_root_switchable/v1/root_switch", params: {
       scope: "all_workspaces",
@@ -102,5 +121,19 @@ class RootSwitchDropdownTest < ActionDispatch::IntegrationTest
     }
 
     assert_redirected_to "/"
+  end
+
+  private
+
+  def grant_owner!(user, recording)
+    previous_actor = Current.actor
+    Current.actor = user
+    result = RecordingStudioAccessible.bootstrap_owner_access!(recording: recording, actor: user)
+    return if result.success?
+    return if result.error.to_s.include?("Access already exists")
+
+    raise result.error
+  ensure
+    Current.actor = previous_actor
   end
 end

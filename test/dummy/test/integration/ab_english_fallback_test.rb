@@ -19,12 +19,12 @@ class AbEnglishFallbackTest < ActionDispatch::IntegrationTest
     I18n.available_locales = (@previous_locales + %i[en de fr]).uniq
     @load_path_before = I18n.load_path.dup
     @user = User.find_or_create_by!(email: "admin@admin.com") do |u|
-      u.password = "Password"
-      u.password_confirmation = "Password"
+      u.password = "Password123!"
+      u.password_confirmation = "Password123!"
     end
     @admin_root = AdminRoot.find_or_create_by!(name: "Admin")
     Current.actor = @user
-    @admin_recording = RecordingStudio.root_recording_for(@admin_root)
+    @admin_recording = RecordingStudio.create_root_recording!(@admin_root, actor: @user)
     result = RecordingStudioAccessible.bootstrap_owner_access!(
       recording: @admin_recording,
       actor: @user

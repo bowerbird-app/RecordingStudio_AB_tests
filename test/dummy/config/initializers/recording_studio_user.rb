@@ -56,3 +56,10 @@ RecordingStudioUser.configure do |config|
   config.omniauth_create_account = true
   config.otp_enabled = false
 end
+
+# Users 0.30 defines these under `private` and then calls them with public_send.
+Rails.application.config.to_prepare do
+  RecordingStudioUser::Auth::BaseController.class_eval do
+    public :after_sign_in_path_for, :after_sign_up_path_for
+  end
+end

@@ -19,7 +19,7 @@
         <%= render FlatPack::PasswordInput::Component.new(
           name: "user[password]",
           label: "Password",
-          value: "Password",
+          value: "Password123!",
           required: true
         ) %>
 
@@ -43,7 +43,7 @@
 
   <% card.footer do %>
     <%= render FlatPack::Badge::Component.new(
-      text: "Default: admin@admin.com / Password",
+      text: "Default: admin@admin.com / Password123!",
       style: :info,
       size: :sm
     ) %>

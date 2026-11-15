@@ -9,8 +9,8 @@ class AbAdaptersTest < ActionDispatch::IntegrationTest
 
   setup do
     User.find_or_create_by!(email: "admin@admin.com") do |u|
-      u.password = "Password"
-      u.password_confirmation = "Password"
+      u.password = "Password123!"
+      u.password_confirmation = "Password123!"
     end
     clear_ab_tables!
     RecordingStudioAbTests::ActiveSet.clear_local!

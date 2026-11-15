@@ -25,7 +25,7 @@ Run the commands above from the dummy app directory, not the repository root.
 Then open the app and sign in with:
 
 - Email: `admin@admin.com`
-- Password: `Password`
+- Password: `Password123!`
 
 ## Useful Routes
 
