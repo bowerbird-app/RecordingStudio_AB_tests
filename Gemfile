@@ -6,13 +6,13 @@ source "https://rubygems.org"
 gemspec
 
 # recording_studio is not published to RubyGems; resolve the gemspec pin from GitHub.
-gem "recording_studio", github: "bowerbird-app/RecordingStudio", tag: "v6.3.0"
+gem "recording_studio", github: "bowerbird-app/RecordingStudio", tag: "v7.0.0"
 
-# flat_pack is not published to RubyGems. Recording Studio 6.3.0 requires >= 0.1.341.
-gem "flat_pack", github: "bowerbird-app/flatpack", tag: "v0.1.341"
+# flat_pack is not published to RubyGems.
+gem "flat_pack", github: "bowerbird-app/flatpack", tag: "v0.1.376"
 
 gem "devise"
-gem "puma"
+gem "puma", "8.1.0"
 gem "sprockets-rails"
 
 group :development, :test do

@@ -60,7 +60,7 @@ class AbSignupDemoTest < ActionDispatch::IntegrationTest
     visitor_id = assignment.subject_identifier
 
     email = "new-signup-#{SecureRandom.hex(4)}@example.com"
-    user = User.create!(email: email, password: "Password", password_confirmation: "Password")
+    user = User.create!(email: email, password: "Password123!", password_confirmation: "Password123!")
 
     request = ActionDispatch::TestRequest.create
     request.cookie_jar.signed[:_rsab_vid] = visitor_id

@@ -49,7 +49,7 @@ class Admin::BaseController < ApplicationController
   def recording_studio_admin_access_recording
     @recording_studio_admin_access_recording ||= begin
       admin_root = AdminRoot.find_or_create_by!(name: "Admin")
-      RecordingStudio.root_recording_for(admin_root)
+      RecordingStudio.create_root_recording!(admin_root, actor: recording_studio_admin_current_actor)
     end
   end
 

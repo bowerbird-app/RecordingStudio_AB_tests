@@ -180,8 +180,8 @@ Devise.setup do |config|
   # config.rememberable_options = {}
 
   # ==> Configuration for :validatable
-  # Range for password length.
-  config.password_length = 6..128
+  # Users enforces minimum_password_length (12). Keep Devise in step.
+  config.password_length = 12..128
 
   # Email regex used to validate email formats. It simply asserts that
   # one (and only one) @ exists in the given string. This is mainly

@@ -9,8 +9,8 @@ class AbExposureTest < ActionDispatch::IntegrationTest
 
   setup do
     User.find_or_create_by!(email: "admin@admin.com") do |u|
-      u.password = "Password"
-      u.password_confirmation = "Password"
+      u.password = "Password123!"
+      u.password_confirmation = "Password123!"
     end
     RecordingStudioAbTests::Conversion.delete_all
     RecordingStudioAbTests::Exposure.delete_all

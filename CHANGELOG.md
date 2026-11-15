@@ -7,6 +7,60 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.0] - 2026-11-15
+
+### Changed
+- Version `0.7.0` → `0.8.0`.
+- Gemspec Recording Studio range is `>= 7.0, < 8.0` (dummy GitHub tag `v7.0.0`).
+- Dummy pins: FlatPack `v0.1.376`, Accessible `v0.44.0`, Metrics `v0.9.0`,
+  Admin `v2.16.0`, Logs `v0.8.0`, Users `v0.30.0`, Trashable `v0.17.0`,
+  Attachable `v0.28.0`, Root Switchable `v0.16.0`, Cache `v0.6.3`.
+- Attachable 0.28 pulls API `v0.24.0`, which pulls Moveable `v5.0.0` and
+  Icons `v0.2.1`. Those gems are not on RubyGems, so the dummy Gemfile lists
+  the GitHub sources.
+- Dummy creates roots with `RecordingStudio.create_root_recording!(recordable, actor:)`
+  and sets `config.authorize_write` to allow any present actor.
+- Dummy Admin looks up the access recording with `Recording.kept` via
+  `RecordingStudioAccessible.admin_root`. `site_admin_recording_resolver` is
+  gone. Site-wide admin screens need `admin_root_resolver`. The dummy treats
+  that admin root as the current root so `/admin` does not 403 while a
+  workspace is selected.
+- Dummy root switcher lists roots the actor can `:view`. Root Switchable
+  0.16 refuses the switch page otherwise.
+- Dummy sign-in password is `Password123!`. Users 0.30 requires 12 characters.
+- Users 0.30 keeps `after_sign_in_path_for` private and calls it with
+  `public_send`. The dummy makes that method public so password sign-in works.
+- Dummy copies the core `events.root_recording_id` migration.
+- Dummy pins Puma `8.1.0`, msgpack `>= 1.8.7`, and omniauth `>= 2.2.0`
+  so Bundler Audit passes.
+
+### Upgrade notes
+- Pin Recording Studio `v7.0.0` (`>= 7.0, < 8.0`). A `>= 6.3.0` floor will
+  not resolve against the core 7 addons.
+- `RecordingStudio.root_recording_for` only finds a root. Create one with
+  `RecordingStudio.create_root_recording!(recordable, actor:)`.
+- Set `config.authorize_write`. Core 7 raises `AuthorizationError` when it
+  is missing.
+- Run the core `events.root_recording_id` migration before booting code that
+  writes events. The dummy migration is
+  `20261114090000_add_root_recording_id_to_recording_studio_events`.
+- Trashable 0.17 removed `kept_sql`. Use `Recording.kept`.
+- Admin 2.16 removed `site_admin_recording_resolver`. Use
+  `access_recording_resolver`. Site-wide screens also need
+  `RecordingStudioAccessible.admin_root_resolver` pointing at that kept root.
+- Root Switchable 0.16 requires Accessible `:view` on the current root
+  before the switch page renders. Filter `available_roots` the same way.
+- Pin siblings that resolve on core 7, if they are in the host bundle:
+  FlatPack `v0.1.376`, Accessible `v0.44.0`, Metrics `v0.9.0`,
+  Admin `v2.16.0`, Logs `v0.8.0`, Users `v0.30.0`, Trashable `v0.17.0`,
+  Attachable `v0.28.0`, Cache `v0.6.3`, API `v0.24.0`, Moveable `v5.0.0`,
+  Icons `v0.2.1`.
+- Root Switchable `v0.11.3` requires Accessible `~> 0.18` and does not
+  resolve next to Accessible 0.44. The dummy uses Root Switchable `v0.16.0`,
+  which accepts core 7. Keep the addon; do not drop it to force a resolve.
+- No A/B schema migration. Visitor cookies, assignment, and conversions
+  are unchanged.
+
 ## [0.7.0] - 2026-11-04
 
 ### Changed
@@ -317,7 +371,8 @@ New addons copied from this template are born on Recording Studio 4.x.
 - Comprehensive README and documentation
 - Basic test suite with Minitest
 
-[Unreleased]: https://github.com/bowerbird-app/recording_studio_ab_tests/compare/v0.7.0...HEAD
+[Unreleased]: https://github.com/bowerbird-app/recording_studio_ab_tests/compare/v0.8.0...HEAD
+[0.8.0]: https://github.com/bowerbird-app/recording_studio_ab_tests/compare/v0.7.0...v0.8.0
 [0.7.0]: https://github.com/bowerbird-app/recording_studio_ab_tests/compare/v0.6.1...v0.7.0
 [0.6.1]: https://github.com/bowerbird-app/recording_studio_ab_tests/compare/v0.6.0...v0.6.1
 [0.6.0]: https://github.com/bowerbird-app/recording_studio_ab_tests/compare/v0.5.1...v0.6.0

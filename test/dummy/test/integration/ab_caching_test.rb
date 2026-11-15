@@ -12,10 +12,17 @@ class AbCachingTest < ActionDispatch::IntegrationTest
     @previous_cache = Rails.cache
     Rails.cache = ActiveSupport::Cache::MemoryStore.new
     @workspace = Workspace.find_or_create_by!(name: "Studio Workspace")
-    @recording = RecordingStudio.root_recording_for(@workspace)
+    @user = User.find_or_create_by!(email: "cache-test@example.com") do |user|
+      user.password = "Password123!"
+      user.password_confirmation = "Password123!"
+    end
+    @previous_actor = Current.actor
+    Current.actor = @user
+    @recording = RecordingStudio.create_root_recording!(@workspace, actor: @user)
   end
 
   teardown do
+    Current.actor = @previous_actor
     Rails.cache = @previous_cache if @previous_cache
   end
 

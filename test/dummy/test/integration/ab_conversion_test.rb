@@ -9,8 +9,8 @@ class AbConversionTest < ActionDispatch::IntegrationTest
 
   setup do
     @user = User.find_or_create_by!(email: "admin@admin.com") do |u|
-      u.password = "Password"
-      u.password_confirmation = "Password"
+      u.password = "Password123!"
+      u.password_confirmation = "Password123!"
     end
     RecordingStudioAbTests::Conversion.delete_all
     RecordingStudioAbTests::Exposure.delete_all
@@ -72,8 +72,8 @@ class AbConversionTest < ActionDispatch::IntegrationTest
     %i[password oauth otp].each_with_index do |method, index|
       user = User.create!(
         email: "reg-#{method}-#{index}@example.com",
-        password: "Password",
-        password_confirmation: "Password"
+        password: "Password123!",
+        password_confirmation: "Password123!"
       )
       RecordingStudioAbTests::Current.reset
       request = ActionDispatch::TestRequest.create
