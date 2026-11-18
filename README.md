@@ -4,17 +4,17 @@ Server-side A/B testing for Recording Studio hosts. Sticky assignment, exposures
 event-driven conversions, Admin screens, service targets, and variant-aware
 fragment caching.
 
-Built on RecordingStudio (dummy GitHub tag `v7.0.0`), FlatPack (dummy GitHub tag `v0.1.376`), Accessible (dummy GitHub tag `v0.44.0`), Users (dummy GitHub tag `v0.30.0`), Admin (dummy GitHub tag `v2.16.0`), Logs (dummy GitHub tag `v0.8.0`), Trashable (dummy GitHub tag `v0.17.0`, `require: false` for Admin / Accessible query helpers), Attachable (dummy GitHub tag `v0.28.0`), API (dummy GitHub tag `v0.24.0`, required by Attachable), Moveable (dummy GitHub tag `v5.0.0`, required by API), Icons (dummy GitHub tag `v0.2.1`, required by Moveable), Root Switchable (dummy GitHub tag `v0.16.0`), Metrics (dummy GitHub tag `v0.9.0`, required by Root Switchable), and optionally RecordingStudioCache (dummy GitHub tag `v0.6.3`, public).
+Built on RecordingStudio (dummy GitHub tag `v7.7.1`), FlatPack (dummy GitHub tag `v0.1.378`), Accessible (dummy GitHub tag `v0.54.0`), Users (dummy GitHub tag `v0.36.0`), Admin (dummy GitHub tag `v2.19.0`), Logs (dummy GitHub tag `v0.8.1`), Trashable (dummy GitHub tag `v1.2.0`, `require: false` for Admin / Accessible query helpers), Attachable (dummy GitHub tag `v0.32.1`), API (dummy GitHub tag `v1.15.0`, required by Attachable), Moveable (dummy GitHub tag `v6.0.1`, required by API), Icons (dummy GitHub tag `v0.4.1`, required by Moveable), Root Switchable (dummy GitHub tag `v0.16.0`), Metrics (dummy GitHub tag `v0.9.1`, required by Root Switchable), and optionally RecordingStudioCache (dummy GitHub tag `v0.7.0`, public).
 
-**Version:** `0.8.0`
+**Version:** `0.8.1`
 
 ## Install
 
 ```ruby
 # Host Gemfile
-gem "recording_studio_ab_tests", github: "bowerbird-app/RecordingStudio_AB_tests", tag: "v0.8.0"
+gem "recording_studio_ab_tests", github: "bowerbird-app/RecordingStudio_AB_tests", tag: "v0.8.1"
 # Optional — enables RecordingStudioCache-backed render_ab cache:
-gem "recording_studio_cache", github: "bowerbird-app/RecordingStudio_cache", tag: "v0.6.3"
+gem "recording_studio_cache", github: "bowerbird-app/RecordingStudio_cache", tag: "v0.7.0"
 ```
 
 ```bash
@@ -89,7 +89,7 @@ app/views/ab/signup/_body.html+ab_signup_b.erb
 Pin `source_template: { engine:, path:, digest: }` and run
 `bin/rails recording_studio_ab_tests:verify_overrides` to catch gem-template drift.
 
-Users **v0.30.0** prefers host `app/views` on auth screens, so the real
+Users **v0.36.0** prefers host `app/views` on auth screens, so the real
 `/users/sign_up` surface can carry `<%= render_ab :signup_page %>`. Conversions
 subscribe to `registration.completed.recording_studio_user` (password / OAuth /
 OTP).
