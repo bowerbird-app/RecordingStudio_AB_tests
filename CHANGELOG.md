@@ -29,15 +29,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Recording Studio `>= 7.7.0`. API 1.15 also requires Accessible `>= 0.50`.
 - Hosts that load API 1.12+ need `config/recording_studio_api.yml`. A minimal
   file is `shared: {}`.
-- Leave the Recording Studio 7.4 `add_..._root_type_creation_index`, 7.5
+- Hosts moving to Recording Studio 7.7 must run the 7.4
+  `add_recording_studio_recordings_root_type_creation_index`, 7.5
   `enforce_recording_studio_recording_root_invariant`, and 7.7
-  `replace_recording_studio_recordings_root_index` migrations out unless you
-  choose to adopt them.
-- Users 0.36 removed `ProfiledUser#confirm_password_account`. Password
-  accounts are no longer confirmed on create, and
-  `password_registration_confirmation=` raises. Confirm the user (email code,
-  or set `confirmed_at`) before password sign-in. Unconfirmed users get 422
-  from the password form and are bounced to `/users/sign_in` afterwards.
+  `replace_recording_studio_recordings_root_index` migrations. Recording
+  Studio 7.5 and 7.7, and API 1.4 and 1.7, require them. Only this repo's
+  dummy app leaves them out.
+- Users 0.31.0 removed password auto-confirmation. Password sign-up confirms
+  only by email code. `RecordingStudioUser::Directory.create_user!` takes
+  `confirm:`, which defaults to false. Unconfirmed users get 422 from the
+  password form and are bounced to `/users/sign_in` afterwards.
 - Pin siblings that resolve on this stack: FlatPack `v0.1.378`,
   Accessible `v0.54.0`, Metrics `v0.9.1`, Admin `v2.19.0`, Logs `v0.8.1`,
   Users `v0.36.0`, Trashable `v1.2.0`, Attachable `v0.32.1`, Cache `v0.7.0`,
