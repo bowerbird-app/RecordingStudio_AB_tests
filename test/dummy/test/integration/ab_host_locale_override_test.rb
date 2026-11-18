@@ -1,9 +1,11 @@
 # frozen_string_literal: true
 
 require "test_helper"
+require_relative "../ab_tests_helper"
 
 class AbHostLocaleOverrideTest < ActionDispatch::IntegrationTest
   include Devise::Test::IntegrationHelpers
+  include AbTestsHelper
 
   HOST_ALERT_TITLE = "HOST Could not save"
   HOST_PRIMARY_EVENT_FROZEN = "HOST primary goal event is frozen after start"
@@ -19,6 +21,7 @@ class AbHostLocaleOverrideTest < ActionDispatch::IntegrationTest
       u.password = "Password123!"
       u.password_confirmation = "Password123!"
     end
+    confirm_user!(@user)
     @admin_root = AdminRoot.find_or_create_by!(name: "Admin")
     Current.actor = @user
     @admin_recording = RecordingStudio.create_root_recording!(@admin_root, actor: @user)

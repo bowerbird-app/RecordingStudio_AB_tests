@@ -1,11 +1,13 @@
 # frozen_string_literal: true
 
 require "test_helper"
+require_relative "../ab_tests_helper"
 
 # Behavioral renders through RecordingStudio.t after this gem registers its
 # config/locales/en.yml via register_shipped_english.
 class AbEnglishFallbackTest < ActionDispatch::IntegrationTest
   include Devise::Test::IntegrationHelpers
+  include AbTestsHelper
 
   BOOT_HOST_LOCALE = Rails.root.join("config/locales/recording_studio_ab_tests_host.en.yml")
   GEM_EN_YML = RecordingStudioAbTests::Engine.root.join("config/locales/en.yml")
@@ -22,6 +24,7 @@ class AbEnglishFallbackTest < ActionDispatch::IntegrationTest
       u.password = "Password123!"
       u.password_confirmation = "Password123!"
     end
+    confirm_user!(@user)
     @admin_root = AdminRoot.find_or_create_by!(name: "Admin")
     Current.actor = @user
     @admin_recording = RecordingStudio.create_root_recording!(@admin_root, actor: @user)

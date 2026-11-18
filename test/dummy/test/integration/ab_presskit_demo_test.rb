@@ -12,6 +12,7 @@ class AbPresskitDemoTest < ActionDispatch::IntegrationTest
       u.password = "Password123!"
       u.password_confirmation = "Password123!"
     end
+    confirm_user!(@user)
     RecordingStudioAbTests::Conversion.delete_all
     RecordingStudioAbTests::Exposure.delete_all
     RecordingStudioAbTests::Assignment.delete_all

@@ -5,6 +5,17 @@ module AbTestsHelper
 
   # FK order: conversions → exposures → assignments → goals → variants → experiments.
   # Seeded traffic from db:prepare survives into CI unless cleared this way.
+  # Users 0.31 stopped auto-confirming password accounts. Devise confirmable
+  # rejects sign-in until confirmed_at is set.
+  def confirm_user!(user)
+    return user unless user.respond_to?(:skip_confirmation!)
+    return user if user.confirmed?
+
+    user.skip_confirmation!
+    user.save!
+    user
+  end
+
   def clear_ab_tables!
     RecordingStudioAbTests::Conversion.delete_all
     RecordingStudioAbTests::Exposure.delete_all

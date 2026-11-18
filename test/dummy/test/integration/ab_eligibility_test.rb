@@ -8,10 +8,11 @@ class AbEligibilityTest < ActionDispatch::IntegrationTest
   include Devise::Test::IntegrationHelpers
 
   setup do
-    User.find_or_create_by!(email: "admin@admin.com") do |u|
+    user = User.find_or_create_by!(email: "admin@admin.com") do |u|
       u.password = "Password123!"
       u.password_confirmation = "Password123!"
     end
+    confirm_user!(user)
     clear_ab_tables!
     RecordingStudioAbTests::ActiveSet.clear_local!
     Rails.cache.clear
@@ -20,7 +21,7 @@ class AbEligibilityTest < ActionDispatch::IntegrationTest
     # assertions are not polluted by a prior assignment request.
     cookies.delete(:_rsab_vid)
     cookies.delete(:_rsab_a)
-    sign_in User.find_by!(email: "admin@admin.com")
+    sign_in user
   end
 
   test "bot user agent serves control with no assignment" do
