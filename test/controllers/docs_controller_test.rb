@@ -6,9 +6,11 @@ require_relative "../dummy/config/environment"
 
 require "devise/test/integration_helpers"
 require "rails/test_help"
+require_relative "../dummy/test/ab_tests_helper"
 
 class DocsControllerTest < ActionDispatch::IntegrationTest
   include Devise::Test::IntegrationHelpers
+  include AbTestsHelper
 
   TEST_PASSWORD = "DocsTestPassword!2026"
 
@@ -17,6 +19,7 @@ class DocsControllerTest < ActionDispatch::IntegrationTest
       user.password = TEST_PASSWORD
       user.password_confirmation = TEST_PASSWORD
     end
+    confirm_user!(@user)
 
     sign_in @user
     @previous_actor = Current.actor

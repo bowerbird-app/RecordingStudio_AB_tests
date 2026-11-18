@@ -1,15 +1,18 @@
 # frozen_string_literal: true
 
 require "test_helper"
+require_relative "../ab_tests_helper"
 
 class AbAdminTest < ActionDispatch::IntegrationTest
   include Devise::Test::IntegrationHelpers
+  include AbTestsHelper
 
   setup do
     @user = User.find_or_create_by!(email: "admin@admin.com") do |u|
       u.password = "Password123!"
       u.password_confirmation = "Password123!"
     end
+    confirm_user!(@user)
     @admin_root = AdminRoot.find_or_create_by!(name: "Admin")
     Current.actor = @user
     @admin_recording = RecordingStudio.create_root_recording!(@admin_root, actor: @user)

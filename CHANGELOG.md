@@ -7,6 +7,53 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.1] - 2026-11-18
+
+### Changed
+- Version `0.8.0` → `0.8.1`.
+- Root and dummy GitHub tags: Recording Studio `v7.7.1`, FlatPack `v0.1.378`.
+- Dummy pins: Accessible `v0.54.0`, Metrics `v0.9.1`, Admin `v2.19.0`,
+  Logs `v0.8.1`, Users `v0.36.0`, Trashable `v1.2.0`, Attachable `v0.32.1`,
+  Cache `v0.7.0`, API `v1.15.0`, Moveable `v6.0.1`, Icons `v0.4.1`.
+  Root Switchable stays `v0.16.0`.
+- Gemspec Recording Studio range stays `>= 7.0, < 8.0`.
+- Dummy adds a minimal `config/recording_studio_api.yml` (`shared: {}`).
+  API 1.12+ raises at boot when that file is missing.
+- The Recording Studio 7.4, 7.5, and 7.7 root-index migrations are not copied
+  into the dummy app.
+- Dummy signup `source_template` digest tracks Users `v0.36.0`
+  `registrations/new.html.erb`.
+- Dummy seeds and sign-in tests confirm password users. Users 0.31.0
+  stopped confirming them on create.
+- Dummy copies the Users 0.34 lockout migration and the Users 0.35 sign-in
+  link migration. Password sign-in reads those tables.
+
+### Upgrade notes
+- Pin Recording Studio `v7.7.1`. Accessible 0.54 and API 1.15 require
+  Recording Studio `>= 7.7.0`. API 1.15 also requires Accessible `>= 0.50`.
+- Hosts that load API 1.12+ need `config/recording_studio_api.yml`. A minimal
+  file is `shared: {}`.
+- Hosts moving to Recording Studio 7.7 must run the 7.4
+  `add_recording_studio_recordings_root_type_creation_index`, 7.5
+  `enforce_recording_studio_recording_root_invariant`, and 7.7
+  `replace_recording_studio_recordings_root_index` migrations. Recording
+  Studio 7.5 and 7.7, and API 1.4 and 1.7, require them.
+- Users 0.31.0 removed password auto-confirmation. Password sign-up confirms
+  only by email code. `RecordingStudioUser::Directory.create_user!` takes
+  `confirm:`, which defaults to false. Pass `confirm: true`, or call
+  `skip_confirmation!` before save, for password users that should sign in
+  immediately. Unconfirmed users get 422 from the password form and are
+  bounced to `/users/sign_in` afterwards.
+- Hosts on Users 0.34 or newer run
+  `rails generate recording_studio_user:migrations` and migrate. That copies
+  `create_recording_studio_user_sign_in_lockouts` (0.34) and
+  `create_recording_studio_user_sign_in_links` (0.35). Password sign-in reads
+  both tables.
+- Pin siblings that resolve on this stack: FlatPack `v0.1.378`,
+  Accessible `v0.54.0`, Metrics `v0.9.1`, Admin `v2.19.0`, Logs `v0.8.1`,
+  Users `v0.36.0`, Trashable `v1.2.0`, Attachable `v0.32.1`, Cache `v0.7.0`,
+  API `v1.15.0`, Moveable `v6.0.1`, Icons `v0.4.1`, Root Switchable `v0.16.0`.
+
 ## [0.8.0] - 2026-11-15
 
 ### Changed
@@ -371,7 +418,8 @@ New addons copied from this template are born on Recording Studio 4.x.
 - Comprehensive README and documentation
 - Basic test suite with Minitest
 
-[Unreleased]: https://github.com/bowerbird-app/recording_studio_ab_tests/compare/v0.8.0...HEAD
+[Unreleased]: https://github.com/bowerbird-app/recording_studio_ab_tests/compare/v0.8.1...HEAD
+[0.8.1]: https://github.com/bowerbird-app/recording_studio_ab_tests/compare/v0.8.0...v0.8.1
 [0.8.0]: https://github.com/bowerbird-app/recording_studio_ab_tests/compare/v0.7.0...v0.8.0
 [0.7.0]: https://github.com/bowerbird-app/recording_studio_ab_tests/compare/v0.6.1...v0.7.0
 [0.6.1]: https://github.com/bowerbird-app/recording_studio_ab_tests/compare/v0.6.0...v0.6.1

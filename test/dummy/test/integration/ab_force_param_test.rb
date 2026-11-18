@@ -8,16 +8,17 @@ class AbForceParamTest < ActionDispatch::IntegrationTest
   include AbTestsHelper
 
   setup do
-    User.find_or_create_by!(email: "admin@admin.com") do |u|
+    user = User.find_or_create_by!(email: "admin@admin.com") do |u|
       u.password = "Password123!"
       u.password_confirmation = "Password123!"
     end
+    confirm_user!(user)
     clear_ab_tables!
     RecordingStudioAbTests::ActiveSet.clear_local!
     Rails.cache.clear
     create_running_experiment!(key: "force_pricing_#{SecureRandom.hex(4)}", target_key: "pricing_page")
     RecordingStudioAbTests.configuration.allow_force_param = true
-    sign_in User.find_by!(email: "admin@admin.com")
+    sign_in user
   end
 
   teardown do

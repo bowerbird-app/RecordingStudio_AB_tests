@@ -204,9 +204,9 @@ This gem requires Recording Studio `>= 7.0, < 8.0`. Keep
 Child recordings must be created with an explicit `parent_recording`.
 Set `config.authorize_write` so core accepts the write.
 
-When Accessible is bundled, pin a core 7 tag (dummy uses `v0.44.0`), run
+When Accessible is bundled, pin a core 7 tag (dummy uses `v0.54.0`), run
 `bin/rails generate recording_studio_accessible:migrations`, migrate, and rebuild Tailwind after
-bumping FlatPack (dummy uses `v0.1.376`).
+bumping FlatPack (dummy uses `v0.1.378`).
 
 ---
 

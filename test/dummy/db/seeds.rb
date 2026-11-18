@@ -20,6 +20,11 @@ end
 user = User.find_or_create_by!(email: "admin@admin.com") do |u|
   u.password = "Password123!"
   u.password_confirmation = "Password123!"
+  u.skip_confirmation! if u.respond_to?(:skip_confirmation!)
+end
+if user.respond_to?(:skip_confirmation!) && !user.confirmed?
+  user.skip_confirmation!
+  user.save!
 end
 
 # Create the workspace recordables

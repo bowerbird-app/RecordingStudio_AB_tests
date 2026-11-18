@@ -2,9 +2,11 @@
 
 require "test_helper"
 require "devise/test/integration_helpers"
+require_relative "../ab_tests_helper"
 
 class RootSwitchDropdownTest < ActionDispatch::IntegrationTest
   include Devise::Test::IntegrationHelpers
+  include AbTestsHelper
 
   test "sign in page uses the users auth layout and is not squished by the default layout" do
     get new_user_session_path
@@ -25,6 +27,7 @@ class RootSwitchDropdownTest < ActionDispatch::IntegrationTest
       record.password = "Password123!"
       record.password_confirmation = "Password123!"
     end
+    confirm_user!(user)
 
     post "/users/sign_in/password", params: {
       user: { email: user.email, password: "Password123!" }
@@ -38,6 +41,7 @@ class RootSwitchDropdownTest < ActionDispatch::IntegrationTest
       record.password = "Password123!"
       record.password_confirmation = "Password123!"
     end
+    confirm_user!(user)
 
     sign_in user
 
@@ -57,6 +61,7 @@ class RootSwitchDropdownTest < ActionDispatch::IntegrationTest
       record.password = "Password123!"
       record.password_confirmation = "Password123!"
     end
+    confirm_user!(user)
 
     sign_in user
 
@@ -76,6 +81,7 @@ class RootSwitchDropdownTest < ActionDispatch::IntegrationTest
       record.password = "Password123!"
       record.password_confirmation = "Password123!"
     end
+    confirm_user!(user)
 
     sign_in user
 
@@ -102,6 +108,7 @@ class RootSwitchDropdownTest < ActionDispatch::IntegrationTest
       record.password = "Password123!"
       record.password_confirmation = "Password123!"
     end
+    confirm_user!(user)
 
     sign_in user
 
